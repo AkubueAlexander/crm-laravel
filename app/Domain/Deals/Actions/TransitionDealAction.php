@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Domain\Deals\Actions;
+
+use App\Domain\Deals\Exceptions\StaleDealException;
+use App\Domain\Deals\States\Lead;
+use App\Domain\Deals\States\Lost;
+use App\Domain\Deals\States\Negotiation;
+use App\Domain\Deals\States\Proposal;
+use App\Domain\Deals\States\Qualified;
+use App\Domain\Deals\States\Won;
+use App\Events\DealStageChanged;
+use App\Models\Deal;
+use App\Models\DealStageAuditLog;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * 3.1/3.2: the single entry point for moving a deal between pipeline stages.
+ * Wraps Spatie's transitionTo() (which enforces the DealState config's
+ * allowed transitions) with: a row lock + lock_version check for optimistic
+ * concurrency, the audit log write (3.6), and firing DealStageChanged (3.4).
+ */
+class TransitionDealAction
+{
+    public const STATE_MAP = [
+        'lead' => Lead::class,
+        'qualified' => Qualified::class,
+        'proposal' => Proposal::class,
+        'negotiation' => Negotiation::class,
+        'won' => Won::class,
+        'lost' => Lost::class,
+    ];
+
+    public function execute(Deal $deal, string $toStageSlug, int $expectedLockVersion, User $actingUser): Deal
+    {
+        return DB::transaction(function () use ($deal, $toStageSlug, $expectedLockVersion, $actingUser) {
+            // Row lock, not just a fresh read — two concurrent transitions on
+            // the same deal must not both pass the lock_version check.
+            $deal = Deal::query()->whereKey($deal->id)->lockForUpdate()->firstOrFail();
+
+            if ($deal->lock_version !== $expectedLockVersion) {
+                throw new StaleDealException($deal);
+            }
+
+            $fromLabel = $deal->state->label();
+            $toClass = self::STATE_MAP[$toStageSlug];
+
+            // Throws Spatie\ModelStates\Exceptions\TransitionNotFound if the
+            // DealState config (3.0) doesn't allow this jump — that's the
+            // config being enforced, not this action's job to re-check.
+            $deal->state->transitionTo($toClass);
+
+            $deal->lock_version = $expectedLockVersion + 1;
+            $deal->save();
+
+            DealStageAuditLog::create([
+                'deal_id' => $deal->id,
+                'user_id' => $actingUser->id,
+                'from_state' => $fromLabel,
+                'to_state' => $deal->state->label(),
+                'transitioned_at' => now(),
+            ]);
+
+            event(new DealStageChanged($deal, $fromLabel, $deal->state->label()));
+
+            return $deal;
+        });
+    }
+}

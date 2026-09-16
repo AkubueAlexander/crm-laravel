@@ -1,0 +1,28 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens for the authenticated admin shell — a dense, data-forward
+ * operating tool (Kanban boards, tables, forms), not a marketing surface.
+ */
+:root {
+    --color-paper: #f7f7f5;
+    --color-surface: #ffffff;
+    --color-ink: #16181d;
+    --color-ink-muted: #6b7078;
+    --color-border: #e2e2e0;
+    --color-accent: #2f4b3f;
+    --color-danger: #b3402a;
+
+    font-family:
+        'Inter',
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        sans-serif;
+    color-scheme: light;
+}
+
+body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+}
