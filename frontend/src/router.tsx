@@ -20,9 +20,7 @@ const loginRoute = createRoute({
     ),
 });
 
-// 2.2: every authenticated route hangs off this layout route, which wraps
-// children in RequireAuth + AppShell once. Feature routes (Deals board,
-// Contacts list, ...) register as children of this route in later phases.
+
 const authenticatedLayoutRoute = createRoute({
     getParentRoute: () => rootRoute,
     id: 'authenticated',

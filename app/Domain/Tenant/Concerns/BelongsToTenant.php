@@ -17,8 +17,7 @@ trait BelongsToTenant
     {
         static::addGlobalScope('tenant', function (Builder $builder) {
             if (App::runningInConsole() && !App::runningUnitTests()) {
-                // Artisan commands (queue workers, scheduled jobs) must set
-                // TenantContext explicitly per-job; no implicit scoping in console.
+
                 return;
             }
 

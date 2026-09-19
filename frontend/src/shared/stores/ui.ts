@@ -1,11 +1,6 @@
 import { create } from 'zustand';
 
-/**
- * 8.1: small and deliberately boring. Only state that could NOT be derived
- * from an API response belongs here. Server data (deals, contacts, the
- * current user) is never mirrored into this store — see useCurrentUser /
- * useTenant instead, which read from TanStack Query's cache.
- */
+
 type UiState = {
     sidebarCollapsed: boolean;
     toggleSidebar: () => void;

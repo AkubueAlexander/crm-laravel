@@ -9,7 +9,7 @@ import { useCurrentUser } from '@/features/auth/api/useCurrentUser';
 type NavItem = {
     label: string;
     to: string;
-    /** Section reference + the permission gating it, per 8.5's "role-aware menu items" (2.3). */
+
     permission?: string;
 };
 
@@ -89,8 +89,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 }
 
 function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
-    // 2.3: display-only gate. The corresponding route/data is still protected
-    // server-side regardless of whether this link is rendered.
+
     const allowed = usePermission(item.permission ?? '');
     if (item.permission && !allowed) return null;
 

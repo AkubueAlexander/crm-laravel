@@ -24,8 +24,7 @@ export function LoginForm() {
             await login.mutateAsync(values);
             navigate({ to: '/' });
         } catch (err) {
-            // 14.3: map the backend's { message, errors, code } shape onto the
-            // relevant fields, falling back to a form-level error.
+
             if (isApiError(err) && err.response?.status === 422) {
                 setError('email', { message: err.response.data.errors?.email?.[0] ?? err.response.data.message });
             } else {

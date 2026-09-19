@@ -27,7 +27,6 @@ export function useLogout() {
 
             queryClient.clear();
 
-
             navigate({ to: '/login' });
         },
     });

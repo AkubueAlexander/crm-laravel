@@ -9,12 +9,6 @@ abstract class DealState extends State
 {
     abstract public function label(): string;
 
-    /**
-     * 3.0: the pipeline's valid stage transitions live here, once. The
-     * transition domain action (next chunk) is the single entry point that
-     * calls through this config — POST /api/v1/deals/{deal}/transition can
-     * never move a deal to an arbitrary stage the config doesn't allow.
-     */
 
     /**
      * @throws \Spatie\ModelStates\Exceptions\InvalidConfig
@@ -32,10 +26,6 @@ abstract class DealState extends State
             ->allowTransition(Proposal::class, Lost::class)
             ->allowTransition(Negotiation::class, Won::class)
             ->allowTransition(Negotiation::class, Lost::class);
-        // Won/Lost are terminal for now — no outgoing transitions.
-        // Reopening a Lost deal back into the pipeline is a real future
-        // need, but doing it correctly means consulting deal_stage_audit_log
-        // (3.6) to know which stage to return to, not a blind Lost -> Lead
-        // jump that discards that context. Deferred rather than guessed at.
+
     }
 }

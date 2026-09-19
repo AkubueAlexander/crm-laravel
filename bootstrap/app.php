@@ -12,8 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
-    // Deliberately no `web:` routes file — API-only per 0.0. Sanctum's own
-    // service provider registers /sanctum/csrf-cookie for us.
+
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->statefulApi();
@@ -23,8 +22,6 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // 14.3: every exception maps to a consistent { message, errors, code }
-        // JSON shape — no Blade/Livewire-flashed errors anywhere in this app.
         $exceptions->shouldRenderJsonWhen(fn () => true);
 
         $exceptions->render(function (ValidationException $e) {

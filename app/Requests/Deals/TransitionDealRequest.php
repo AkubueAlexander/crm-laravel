@@ -14,9 +14,7 @@ class TransitionDealRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // 2.3: every permission check is duplicated server-side — the
-        // frontend's usePermission('deals.transition') hook only controls
-        // what's shown, this is what's actually allowed.
+
         return $this->user()?->can('deals.transition') ?? false;
     }
 

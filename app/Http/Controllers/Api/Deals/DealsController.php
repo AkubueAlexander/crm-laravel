@@ -11,7 +11,7 @@ use App\Models\Deal;
 
 class DealsController extends Controller
 {
-    // 3.1: the one mutation endpoint — POST /api/v1/deals/{deal}/transition
+
     public function transition(TransitionDealRequest $request, Deal $deal, TransitionDealAction $action)
     {
         try {

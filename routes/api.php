@@ -5,14 +5,7 @@ use App\Http\Controllers\Api\Auth\CurrentUserController;
 use App\Http\Controllers\Api\Deals\DealsController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes — /api/v1/...
-|--------------------------------------------------------------------------
-| No web routes beyond Sanctum's CSRF cookie endpoint (registered by the
-| sanctum package itself at /sanctum/csrf-cookie — not defined here).
-| Versioned from day one per 0.0.
-*/
+
 
 Route::prefix('v1')->group(function () {
 
