@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\ResolveTenant;
+use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -20,6 +21,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'resolve.tenant' => ResolveTenant::class,
         ]);
+
+        $middleware->appendToPriorityList(
+            after: \Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests::class,
+            append: ResolveTenant::class,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->shouldRenderJsonWhen(fn () => true);

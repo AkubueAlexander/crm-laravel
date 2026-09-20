@@ -8,9 +8,25 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Deals\TransitionDealRequest;
 use App\Http\Resources\DealResource;
 use App\Models\Deal;
+use Illuminate\Http\Request;
+use Spatie\ModelStates\Exceptions\TransitionNotFound;
 
 class DealsController extends Controller
 {
+
+    public function index(Request $request)
+    {
+        abort_unless($request->user()->can('deals.view'), 403);
+
+        $boardId = $request->integer('board_id', 1);
+
+        $deals = Deal::query()
+            ->where('board_id', $boardId)
+            ->orderBy('created_at')
+            ->get();
+
+        return DealResource::collection($deals);
+    }
 
     public function transition(TransitionDealRequest $request, Deal $deal, TransitionDealAction $action)
     {
@@ -28,6 +44,12 @@ class DealsController extends Controller
                 'code' => 'stale_deal',
                 'current' => new DealResource($e->deal),
             ], 409);
+        } catch (TransitionNotFound $e) {
+            return response()->json([
+                'message' => 'That stage change isn\'t allowed from the deal\'s current stage.',
+                'errors' => [],
+                'code' => 'invalid_transition',
+            ], 422);
         }
 
         return new DealResource($updated);

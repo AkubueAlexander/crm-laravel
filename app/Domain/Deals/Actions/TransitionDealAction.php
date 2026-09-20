@@ -15,7 +15,6 @@ use App\Models\DealStageAuditLog;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-
 class TransitionDealAction
 {
     public const STATE_MAP = [
@@ -30,16 +29,15 @@ class TransitionDealAction
     public function execute(Deal $deal, string $toStageSlug, int $expectedLockVersion, User $actingUser): Deal
     {
         return DB::transaction(function () use ($deal, $toStageSlug, $expectedLockVersion, $actingUser) {
-
             $deal = Deal::query()->whereKey($deal->id)->lockForUpdate()->firstOrFail();
 
             if ($deal->lock_version !== $expectedLockVersion) {
                 throw new StaleDealException($deal);
             }
 
+            $fromSlug = array_search($deal->state::class, self::STATE_MAP) ?: null;
             $fromLabel = $deal->state->label();
             $toClass = self::STATE_MAP[$toStageSlug];
-
 
             $deal->state->transitionTo($toClass);
 
@@ -54,7 +52,8 @@ class TransitionDealAction
                 'transitioned_at' => now(),
             ]);
 
-            event(new DealStageChanged($deal, $fromLabel, $deal->state->label()));
+
+            event(new DealStageChanged($deal, $fromSlug, $toStageSlug));
 
             return $deal;
         });

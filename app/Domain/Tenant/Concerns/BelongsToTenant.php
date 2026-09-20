@@ -17,13 +17,25 @@ trait BelongsToTenant
     {
         static::addGlobalScope('tenant', function (Builder $builder) {
             if (App::runningInConsole() && !App::runningUnitTests()) {
+                return;
+            }
 
+            // Models that resolve identity BEFORE tenant context exists (e.g. User,
+            // looked up by EloquentUserProvider during login/session auth) opt out
+            // of the query-time filter entirely. The tenant_id column, the tenant()
+            // relation, and the save-time guard below still apply undiminished --
+            // only the WHERE/fail-closed filter on reads is skipped for these models.
+            if (property_exists($builder->getModel(), 'skipTenantQueryScope')
+                && $builder->getModel()::$skipTenantQueryScope === true) {
                 return;
             }
 
             if (TenantContext::hasTenant()) {
                 $builder->where($builder->getModel()->getTable() . '.tenant_id', TenantContext::id());
+                return;
             }
+
+            $builder->whereRaw('1 = 0'); // no tenant: return nothing instead of everything
         });
 
 
@@ -59,3 +71,4 @@ trait BelongsToTenant
         return $this->belongsTo(Tenant::class);
     }
 }
+

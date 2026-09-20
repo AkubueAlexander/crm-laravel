@@ -6,6 +6,8 @@ use App\Domain\Deals\States\DealState;
 use App\Domain\Tenant\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\ModelStates\HasStates;
 
@@ -29,12 +31,12 @@ class Deal extends Model
         'lock_version' => 'integer',
     ];
 
-    public function owner()
+    public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
 
-    public function auditLogs()
+    public function auditLogs() : HasMany
     {
         return $this->hasMany(DealStageAuditLog::class);
     }

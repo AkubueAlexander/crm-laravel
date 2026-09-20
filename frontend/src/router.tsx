@@ -2,9 +2,17 @@ import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/re
 import { RequireAuth } from '@/shared/components/RequireAuth';
 import { AppShell } from '@/shared/components/AppShell';
 import { LoginForm } from '@/features/auth/components/LoginForm';
+import { DealsBoard } from '@/features/deals/components/Board';
+import { ForecastDashboard } from '@/features/forecasting/components/Dashboard';
 
 const rootRoute = createRootRoute({
     component: () => <Outlet />,
+});
+
+const dealsRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/deals',
+    component: DealsBoard,
 });
 
 const loginRoute = createRoute({
@@ -43,8 +51,16 @@ const dashboardRoute = createRoute({
     ),
 });
 
-const routeTree = rootRoute.addChildren([loginRoute, authenticatedLayoutRoute.addChildren([dashboardRoute])]);
+const forecastRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/forecast',
+    component: ForecastDashboard,
+});
 
+const routeTree = rootRoute.addChildren([
+    loginRoute,
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, forecastRoute]),
+]);
 export const router = createRouter({ routeTree });
 
 declare module '@tanstack/react-router' {

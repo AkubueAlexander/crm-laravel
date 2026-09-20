@@ -2,10 +2,11 @@
 
 use App\Http\Controllers\Api\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Api\Auth\CurrentUserController;
+use App\Http\Controllers\Api\Contacts\ContactController;
 use App\Http\Controllers\Api\Deals\DealsController;
+use App\Http\Controllers\Api\Forecasting\ForecastController;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
-
-
 
 Route::prefix('v1')->group(function () {
 
@@ -17,14 +18,20 @@ Route::prefix('v1')->group(function () {
         Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
             ->name('logout');
 
-        // 2.1/2.3: the single source-of-truth payload for useCurrentUser().
+
         Route::get('/me', CurrentUserController::class)->name('me');
 
-        // Feature route groups (3.0 deals, 5.0 contacts, ...) register here in
-        // later phases, each behind the same auth:sanctum + resolve.tenant pair
-        // so every authenticated route gets tenant context for free.
+        Route::post('deals/{deal}/transition', [DealsController::class, 'transition']);
+
+        Route::get('deals', [DealsController::class, 'index']);
+
+        Broadcast::routes(['middleware' => []]);
+
+        Route::get('forecast', ForecastController::class);
+
+        Route::post('contacts/check-duplicates', [ContactController::class, 'checkDuplicates'])
+            ->middleware('throttle:60,1');
+        Route::apiResource('contacts', ContactController::class);
     });
 
-
-    Route::post('deals/{deal}/transition', [DealsController::class, 'transition']);
 });
