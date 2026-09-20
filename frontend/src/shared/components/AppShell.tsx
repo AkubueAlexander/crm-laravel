@@ -16,6 +16,7 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
     { label: 'Deals', to: '/deals', permission: 'deals.view' },
     { label: 'Contacts', to: '/contacts', permission: 'contacts.view' },
+    { label: 'Accounts', to: '/accounts', permission: 'accounts.view' },
     { label: 'Forecast', to: '/forecast', permission: 'forecast.view' },
     { label: 'Marketing', to: '/marketing', permission: 'marketing.view' },
     { label: 'Sales', to: '/sales', permission: 'sales.view' },

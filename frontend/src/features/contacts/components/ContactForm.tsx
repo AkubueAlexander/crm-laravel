@@ -24,6 +24,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
     const {
         register,
         handleSubmit,
+        getValues,
         formState: { errors, isSubmitting },
         setError,
     } = useForm<CreateContactInput>({
@@ -50,14 +51,14 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
         return trimmed ? trimmed : null;
     }
 
-    function runDuplicateCheck(values: {
-        first_name?: string;
-        last_name?: string;
-        email?: string;
-        phone?: string;
-    }) {
+    // Reads the FULL current form state on every blur, not just the field that
+    // fired -- the matching service scores combined signals (name + email +
+    // phone together), so sending only the just-blurred field silently starves
+    // it of context and produces weak or wrong matches.
+    function runDuplicateCheck() {
         if (blurTimer.current) clearTimeout(blurTimer.current);
         blurTimer.current = setTimeout(() => {
+            const values = getValues();
             duplicateCheck.mutate(
                 {
                     first_name: normalize(values.first_name),
@@ -110,7 +111,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
                     <input
                         id="first_name"
                         {...register('first_name', {
-                            onBlur: (e) => runDuplicateCheck({ first_name: e.target.value }),
+                            onBlur: runDuplicateCheck,
                         })}
                         className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
                     />
@@ -122,7 +123,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
                     <input
                         id="last_name"
                         {...register('last_name', {
-                            onBlur: (e) => runDuplicateCheck({ last_name: e.target.value }),
+                            onBlur: runDuplicateCheck,
                         })}
                         className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
                     />
@@ -137,7 +138,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
                         id="email"
                         type="email"
                         {...register('email', {
-                            onBlur: (e) => runDuplicateCheck({ email: e.target.value }),
+                            onBlur: runDuplicateCheck,
                         })}
                         className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
                     />
@@ -149,7 +150,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
                     <input
                         id="phone"
                         {...register('phone', {
-                            onBlur: (e) => runDuplicateCheck({ phone: e.target.value }),
+                            onBlur: runDuplicateCheck,
                         })}
                         className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
                     />

@@ -4,6 +4,8 @@ import { AppShell } from '@/shared/components/AppShell';
 import { LoginForm } from '@/features/auth/components/LoginForm';
 import { DealsBoard } from '@/features/deals/components/Board';
 import { ForecastDashboard } from '@/features/forecasting/components/Dashboard';
+import { ContactsPage } from '@/features/contacts/components/ContactsPage';
+import { AccountsPage } from '@/features/accounts/components/AccountsPage';
 
 const rootRoute = createRootRoute({
     component: () => <Outlet />,
@@ -46,9 +48,21 @@ const dashboardRoute = createRoute({
     path: '/',
     component: () => (
         <div className="text-sm text-[var(--color-ink-muted)]">
-            Phase 1 scaffold — feature routes (Deals, Contacts, Forecast, …) land in Phases 2–5.
+            Phase 1 scaffold â€” feature routes (Deals, Contacts, Forecast, â€¦) land in Phases 2â€“5.
         </div>
     ),
+});
+
+const contactsRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/contacts',
+    component: ContactsPage,
+});
+
+const accountsRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/accounts',
+    component: AccountsPage,
 });
 
 const forecastRoute = createRoute({
@@ -59,7 +73,7 @@ const forecastRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
     loginRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, forecastRoute]),
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, accountsRoute, forecastRoute]),
 ]);
 export const router = createRouter({ routeTree });
 

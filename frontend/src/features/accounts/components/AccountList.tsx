@@ -6,37 +6,49 @@ import {
     useReactTable,
     type SortingState,
 } from '@tanstack/react-table';
-import { useContacts } from '../api/useContacts';
-import type { Contact, ContactSortColumn } from '../schemas/contact';
+import { useAccounts } from '../api/useAccounts';
+import type { Account, AccountSortColumn } from '../schemas/account';
 
-const columnHelper = createColumnHelper<Contact>();
+const columnHelper = createColumnHelper<Account>();
 
+// Only name/industry/created_at are sortable server-side (ListAccountsRequest::SORTABLE),
+// so every other column has sorting disabled rather than sending a 422-bound sort param.
 const columns = [
-    columnHelper.accessor('last_name', { header: 'Last name' }),
-    columnHelper.accessor('first_name', { header: 'First name', cell: (info) => info.getValue() ?? '\u2014' }),
-    columnHelper.accessor('email', { header: 'Email', cell: (info) => info.getValue() ?? '\u2014' }),
-    columnHelper.accessor('phone', { header: 'Phone', cell: (info) => info.getValue() ?? '\u2014' }),
-    columnHelper.accessor('job_title', { header: 'Job title', cell: (info) => info.getValue() ?? '\u2014' }),
+    columnHelper.accessor('name', { header: 'Name' }),
+    columnHelper.accessor('industry', { header: 'Industry', cell: (info) => info.getValue() ?? '\u2014' }),
+    columnHelper.accessor('website', {
+        header: 'Website',
+        enableSorting: false,
+        cell: (info) => info.getValue() ?? '\u2014',
+    }),
+    columnHelper.accessor('phone', {
+        header: 'Phone',
+        enableSorting: false,
+        cell: (info) => info.getValue() ?? '\u2014',
+    }),
+    columnHelper.accessor((row) => row.owner?.name ?? null, {
+        id: 'owner',
+        header: 'Owner',
+        enableSorting: false,
+        cell: (info) => info.getValue() ?? '\u2014',
+    }),
+    columnHelper.accessor('contacts_count', { header: 'Contacts', enableSorting: false }),
 ];
 
-type ContactListProps = {
-    onSelectContact?: (contact: Contact) => void;
+type AccountListProps = {
+    onSelectAccount?: (account: Account) => void;
 };
 
-/**
- * 5.2/8.4: server-side pagination/sorting via manualPagination/manualSorting.
- * Row data always comes from TanStack Query; sort/page/search stay local table
- * state here. 8.7's URL persistence is the route's job to wire in later.
- */
-export function ContactList({ onSelectContact }: ContactListProps) {
+/** 8a.1/8.4: server-side pagination/sorting via manualPagination/manualSorting. */
+export function AccountList({ onSelectAccount }: AccountListProps) {
     const [page, setPage] = useState(1);
-    const [sorting, setSorting] = useState<SortingState>([{ id: 'last_name', desc: false }]);
+    const [sorting, setSorting] = useState<SortingState>([{ id: 'name', desc: false }]);
     const [search, setSearch] = useState('');
 
-    const sort = (sorting[0]?.id ?? 'last_name') as ContactSortColumn;
+    const sort = (sorting[0]?.id ?? 'name') as AccountSortColumn;
     const direction = sorting[0]?.desc ? 'desc' : 'asc';
 
-    const { data, isPending, isFetching, isError } = useContacts({ page, sort, direction, q: search });
+    const { data, isPending, isFetching, isError } = useAccounts({ page, sort, direction, q: search });
 
     const table = useReactTable({
         data: data?.data ?? [],
@@ -44,7 +56,7 @@ export function ContactList({ onSelectContact }: ContactListProps) {
         state: { sorting },
         onSortingChange: (updater) => {
             setSorting((old) => (typeof updater === 'function' ? updater(old) : updater));
-            setPage(1); // sort change resets to page 1
+            setPage(1);
         },
         manualPagination: true,
         manualSorting: true,
@@ -58,7 +70,7 @@ export function ContactList({ onSelectContact }: ContactListProps) {
             <div className="mb-3 flex items-center justify-between">
                 <input
                     type="search"
-                    placeholder="Search contacts..."
+                    placeholder="Search accounts..."
                     value={search}
                     onChange={(e) => {
                         setSearch(e.target.value);
@@ -66,13 +78,13 @@ export function ContactList({ onSelectContact }: ContactListProps) {
                     }}
                     className="w-64 rounded-md border px-3 py-2 text-sm"
                 />
-                {isFetching && !isPending && <span className="text-xs text-gray-400">Refreshing…</span>}
+                {isFetching && !isPending && <span className="text-xs text-gray-400">Refreshing{'\u2026'}</span>}
             </div>
 
-            {isError && <p className="text-sm text-red-600">Couldn't load contacts.</p>}
+            {isError && <p className="text-sm text-red-600">Couldn't load accounts.</p>}
 
             {isPending ? (
-                <p className="text-sm text-gray-500">Loading…</p>
+                <p className="text-sm text-gray-500">Loading{'\u2026'}</p>
             ) : (
                 <table className="w-full border-collapse text-sm">
                     <thead>
@@ -101,8 +113,8 @@ export function ContactList({ onSelectContact }: ContactListProps) {
                         {table.getRowModel().rows.map((row) => (
                             <tr
                                 key={row.id}
-                                onClick={() => onSelectContact?.(row.original)}
-                                className="cursor-pointer hover:bg-gray-50"
+                                onClick={onSelectAccount ? () => onSelectAccount(row.original) : undefined}
+                                className={onSelectAccount ? 'cursor-pointer hover:bg-gray-50' : ''}
                             >
                                 {row.getVisibleCells().map((cell) => (
                                     <td key={cell.id} className="border-b px-3 py-2">
@@ -114,7 +126,7 @@ export function ContactList({ onSelectContact }: ContactListProps) {
                         {table.getRowModel().rows.length === 0 && (
                             <tr>
                                 <td colSpan={columns.length} className="px-3 py-6 text-center text-gray-500">
-                                    No contacts found.
+                                    No accounts found.
                                 </td>
                             </tr>
                         )}
@@ -125,7 +137,7 @@ export function ContactList({ onSelectContact }: ContactListProps) {
             {meta && (
                 <div className="mt-3 flex items-center justify-between text-sm text-gray-600">
                     <span>
-                        {meta.from ?? 0}–{meta.to ?? 0} of {meta.total}
+                        {meta.from ?? 0}{'\u2013'}{meta.to ?? 0} of {meta.total}
                     </span>
                     <div className="flex gap-2">
                         <button
