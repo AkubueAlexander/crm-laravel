@@ -33,6 +33,7 @@ export const createAccountSchema = z.object({
         .optional()
         .or(z.literal('')),
     phone: z.string().max(50).nullable().optional(),
+    owner_id: z.number().int().nullable().optional(),
 });
 
 export type CreateAccountInput = z.infer<typeof createAccountSchema>;

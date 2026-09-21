@@ -28,6 +28,8 @@ export const createContactSchema = z.object({
     email: z.string().email('Enter a valid email').max(255).nullable().optional().or(z.literal('')),
     phone: z.string().max(50).regex(phoneRegex, 'Enter a valid phone number').nullable().optional().or(z.literal('')),
     job_title: z.string().max(150).nullable().optional(),
+    // Mirrors the tenant-scoped exists rule; the backend is the real check (14.2).
+    account_id: z.number().int().nullable().optional(),
 });
 
 export type CreateContactInput = z.infer<typeof createContactSchema>;

@@ -5,50 +5,53 @@ import type { Contact, CreateContactInput, UpdateContactInput } from '../schemas
 import { contactSchema } from '../schemas/contact';
 
 /**
- * Contacts are last-write-wins, not a state-machine (per running convention note) —
- * unlike 3.2's useMoveDealStage, there's no optimistic patch or 409-conflict rollback
- * here. A plain invalidate-on-success is the correct, simpler pattern for this resource.
+ * Contacts are last-write-wins, not a state machine - unlike 3.2's useMoveDealStage,
+ * there is no optimistic patch or 409-conflict rollback here. Plain invalidate-on-success.
+ *
+ * Accounts are invalidated too: contacts_count on the account list changes whenever a
+ * contact is created, deleted, or moved between accounts.
  */
-export function useCreateContact() {
+function useInvalidateAfterContactChange() {
     const queryClient = useQueryClient();
     const { tenant } = useTenant();
+
+    return () => {
+        queryClient.invalidateQueries({ queryKey: ['contacts', tenant?.id] });
+        queryClient.invalidateQueries({ queryKey: ['accounts', tenant?.id] });
+    };
+}
+
+export function useCreateContact() {
+    const invalidate = useInvalidateAfterContactChange();
 
     return useMutation({
         mutationFn: async (input: CreateContactInput): Promise<Contact> => {
             const { data } = await apiClient.post('/contacts', input);
             return contactSchema.parse(data);
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['contacts', tenant?.id] });
-        },
+        onSuccess: invalidate,
     });
 }
 
 export function useUpdateContact(contactId: Contact['id']) {
-    const queryClient = useQueryClient();
-    const { tenant } = useTenant();
+    const invalidate = useInvalidateAfterContactChange();
 
     return useMutation({
         mutationFn: async (input: UpdateContactInput): Promise<Contact> => {
             const { data } = await apiClient.patch(`/contacts/${contactId}`, input);
             return contactSchema.parse(data);
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['contacts', tenant?.id] });
-        },
+        onSuccess: invalidate,
     });
 }
 
 export function useDeleteContact() {
-    const queryClient = useQueryClient();
-    const { tenant } = useTenant();
+    const invalidate = useInvalidateAfterContactChange();
 
     return useMutation({
         mutationFn: async (contactId: Contact['id']): Promise<void> => {
             await apiClient.delete(`/contacts/${contactId}`);
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['contacts', tenant?.id] });
-        },
+        onSuccess: invalidate,
     });
 }

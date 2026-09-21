@@ -10,7 +10,7 @@ class UpdateContactRequest extends StoreContactRequest
         return $this->user()?->can('contacts.update') ?? false;
     }
 
-    /** @return array<string, list<string>> */
+    /** @return array<string, array<int, mixed>> */
     public function rules(): array
     {
         return collect(parent::rules())

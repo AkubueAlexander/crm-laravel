@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isApiError } from '@/shared/lib/apiClient';
 import { createAccountSchema, type Account, type CreateAccountInput } from '../schemas/account';
 import { useCreateAccount, useUpdateAccount } from '../api/useAccountMutations';
+import { useOwnerOptions } from '../api/useOwnerOptions';
 
 type AccountFormProps = {
     account?: Account; // present -> edit mode, absent -> create mode
@@ -15,8 +17,6 @@ function normalize(value: string | null | undefined): string | null {
 }
 
 // 8.3: every mutating form uses RHF + Zod, no exceptions.
-// owner_id is deliberately not sent: PATCH only touches supplied fields, so editing
-// never disturbs an existing owner. The owner select lands with its options endpoint.
 export function AccountForm({ account, onSuccess }: AccountFormProps) {
     const isEdit = !!account;
 
@@ -32,19 +32,33 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
             industry: account?.industry ?? '',
             website: account?.website ?? '',
             phone: account?.phone ?? '',
+            // undefined (not null) when unowned: the field is then omitted from PATCH unless touched.
+            owner_id: account?.owner_id ?? undefined,
         },
     });
 
     const createAccount = useCreateAccount();
     const updateAccount = useUpdateAccount(account?.id ?? 0);
+    const owners = useOwnerOptions();
+
+    // Keep the current owner selectable even if they are missing from the options list.
+    const ownerChoices = useMemo(() => {
+        const list = owners.data ?? [];
+        const current = account?.owner;
+        if (current && !list.some((o) => o.id === current.id)) return [current, ...list];
+        return list;
+    }, [owners.data, account?.owner]);
 
     async function onSubmit(values: CreateAccountInput) {
-        const payload = {
+        const payload: CreateAccountInput = {
             name: values.name.trim(),
             industry: normalize(values.industry),
             website: normalize(values.website),
             phone: normalize(values.phone),
         };
+        // Only send owner_id when there is a value to act on: a number assigns,
+        // null clears ("Unassigned"), undefined leaves the existing owner untouched.
+        if (values.owner_id !== undefined) payload.owner_id = values.owner_id;
 
         try {
             const saved = isEdit
@@ -94,6 +108,34 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
                     className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
                 />
                 {errors.website && <p className="mt-1 text-sm text-red-600">{errors.website.message}</p>}
+            </div>
+
+            <div>
+                <label htmlFor="owner_id" className="block text-sm font-medium">Owner</label>
+                {/* The select mounts only once options exist, so RHF applies the default value
+                    against real <option>s (a select registered before its options load would
+                    show "Unassigned" while the form still holds the old owner id). */}
+                {owners.isPending ? (
+                    <p className="mt-1 text-sm text-gray-500">Loading owners...</p>
+                ) : owners.isError ? (
+                    <p className="mt-1 text-sm text-gray-500">Owners unavailable. The current owner is kept.</p>
+                ) : (
+                    <select
+                        id="owner_id"
+                        {...register('owner_id', {
+                            setValueAs: (v: string) => (v === '' ? null : Number(v)),
+                        })}
+                        className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                    >
+                        <option value="">Unassigned</option>
+                        {ownerChoices.map((o) => (
+                            <option key={o.id} value={o.id}>
+                                {o.name}
+                            </option>
+                        ))}
+                    </select>
+                )}
+                {errors.owner_id && <p className="mt-1 text-sm text-red-600">{errors.owner_id.message}</p>}
             </div>
 
             <button
