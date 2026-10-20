@@ -11,10 +11,7 @@ export type AccountsListParams = {
     q?: string;
 };
 
-/**
- * 8a.1/8.4: server-side pagination/sorting/search. The query key carries every
- * param that changes the result set, namespaced by tenant id per 1.2.
- */
+
 export function useAccounts(params: AccountsListParams = {}) {
     const { tenant } = useTenant();
     const { page = 1, perPage = 25, sort = 'name', direction = 'asc', q = '' } = params;

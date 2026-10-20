@@ -10,8 +10,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class ContactResource extends JsonResource
 {
     /**
-     * Explicit whitelist. No tenant_id and no generated matching columns.
-     * Keep in lockstep with features/contacts/schemas in the frontend.
+
      *
      * @return array<string, mixed>
      */

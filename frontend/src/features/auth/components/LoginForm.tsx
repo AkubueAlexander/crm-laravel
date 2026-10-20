@@ -27,6 +27,8 @@ export function LoginForm() {
 
             if (isApiError(err) && err.response?.status === 422) {
                 setError('email', { message: err.response.data.errors?.email?.[0] ?? err.response.data.message });
+            }else if (isApiError(err) && err.response?.status === 429) {
+                setError('root', { message: 'Too many attempts. Please wait and try again.' });
             } else {
                 setError('root', { message: 'Something went wrong. Please try again.' });
             }
@@ -78,5 +80,6 @@ export function LoginForm() {
                 {isSubmitting ? 'Signing in…' : 'Sign in'}
             </button>
         </form>
+
     );
 }

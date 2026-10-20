@@ -7,7 +7,7 @@ type ModalProps = {
     children: ReactNode;
 };
 
-// Minimal, reusable shell â€” 8c.1/9.2/10.1 will all want this eventually too.
+
 export function Modal({ open, onClose, title, children }: ModalProps) {
     useEffect(() => {
         if (!open) return;

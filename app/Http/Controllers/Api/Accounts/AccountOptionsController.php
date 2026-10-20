@@ -7,12 +7,7 @@ use App\Models\Account;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
 
-/**
- * Read-only {id, name} source for account pickers (contact form now; deals/leads later).
- *
- * Account uses BelongsToTenant, so its fail-closed global scope is the tenant boundary
- * here, and SoftDeletes keeps deleted accounts out of the picker.
- */
+
 final class AccountOptionsController extends Controller
 {
     private const LIMIT = 500;

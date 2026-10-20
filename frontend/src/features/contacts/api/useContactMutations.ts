@@ -4,13 +4,7 @@ import { useTenant } from '@/shared/hooks/useTenant';
 import type { Contact, CreateContactInput, UpdateContactInput } from '../schemas/contact';
 import { contactSchema } from '../schemas/contact';
 
-/**
- * Contacts are last-write-wins, not a state machine - unlike 3.2's useMoveDealStage,
- * there is no optimistic patch or 409-conflict rollback here. Plain invalidate-on-success.
- *
- * Accounts are invalidated too: contacts_count on the account list changes whenever a
- * contact is created, deleted, or moved between accounts.
- */
+
 function useInvalidateAfterContactChange() {
     const queryClient = useQueryClient();
     const { tenant } = useTenant();

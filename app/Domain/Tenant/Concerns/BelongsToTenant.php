@@ -20,11 +20,6 @@ trait BelongsToTenant
                 return;
             }
 
-            // Models that resolve identity BEFORE tenant context exists (e.g. User,
-            // looked up by EloquentUserProvider during login/session auth) opt out
-            // of the query-time filter entirely. The tenant_id column, the tenant()
-            // relation, and the save-time guard below still apply undiminished --
-            // only the WHERE/fail-closed filter on reads is skipped for these models.
             if (property_exists($builder->getModel(), 'skipTenantQueryScope')
                 && $builder->getModel()::$skipTenantQueryScope === true) {
                 return;

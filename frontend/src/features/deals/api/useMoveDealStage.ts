@@ -9,12 +9,8 @@ type MoveDealStageInput = {
     lockVersion: number;
 };
 
-/**
- * 3.2: optimistic update — immediately patch the dragged card into its new
- * column, then reconcile against the real response. On a 409 (someone else
- * moved it first — the concurrency case), roll back the optimistic patch;
- * the caller surfaces the "updated by someone else" message via onError.
- */
+
+
 export function useMoveDealStage(boardId: number = 1) {
     const queryClient = useQueryClient();
     const { tenant } = useTenant();
@@ -44,8 +40,7 @@ export function useMoveDealStage(boardId: number = 1) {
             }
         },
         onSettled: () => {
-            // Reconcile against the server regardless of outcome — the
-            // optimistic patch above is a UI-responsiveness measure only.
+
             queryClient.invalidateQueries({ queryKey });
         },
     });

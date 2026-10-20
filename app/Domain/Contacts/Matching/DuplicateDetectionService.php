@@ -7,17 +7,10 @@ use App\Models\ContactMatchSettings;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-/**
- * Two-stage duplicate detection (5.0):
- *   Stage 1: PostgreSQL narrows the tenant's contacts to a small candidate set using the
- *            pg_trgm GIN index (name) plus exact email / phone-key lookups.
- *   Stage 2: MatchScorer ranks the candidates in PHP; only those >= threshold are returned.
- *
- * Tenant isolation comes from Contact's BelongsToTenant global scope. No tenant id is accepted.
- */
+
 final class DuplicateDetectionService
 {
-    /** Deliberately permissive: stage 2 does the real filtering. */
+
     private const TRIGRAM_CANDIDATE_THRESHOLD = 0.3;
     private const CANDIDATE_LIMIT = 50;
     private const RESULT_LIMIT = 10;
@@ -71,8 +64,7 @@ final class DuplicateDetectionService
         ?string $phoneKey,
         ?int $excludeContactId,
     ): Collection {
-        // set_config(..., is_local = true) scopes the trigram threshold to this transaction only,
-        // so it can't leak into other queries on a reused connection.
+
         return DB::transaction(function () use ($name, $email, $phoneKey, $excludeContactId) {
             DB::select(
                 "select set_config('pg_trgm.similarity_threshold', ?, true)",

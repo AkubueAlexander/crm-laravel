@@ -11,14 +11,7 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
-/**
- * Idempotent dev-environment seeder: one tenant, the real permission set this
- * app actually enforces today, an admin role scoped under Spatie teams mode
- * (tenant_id is the team_foreign_key), and one login-ready admin user.
- *
- * Safe to re-run after any RefreshDatabase wipe:
- * php artisan db:seed --class=Database\Seeders\DevTenantSeeder
- */
+
 class DevTenantSeeder extends Seeder
 {
     public const PERMISSIONS = [
@@ -32,6 +25,10 @@ class DevTenantSeeder extends Seeder
         'accounts.create',
         'accounts.update',
         'accounts.delete',
+        'leads.view',
+        'leads.create',
+        'leads.update',
+        'leads.delete',
     ];
 
     public function run(): void
@@ -44,9 +41,7 @@ class DevTenantSeeder extends Seeder
         TenantContext::set($tenant);
         app(PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
 
-        // Permissions are global (no tenant_id column on this table by design --
-        // Spatie's teams pattern scopes ROLES and their assignments per team,
-        // while the permission catalog itself is shared across all teams).
+
         $permissions = collect(self::PERMISSIONS)->map(
             fn (string $name) => Permission::firstOrCreate([
                 'name' => $name,

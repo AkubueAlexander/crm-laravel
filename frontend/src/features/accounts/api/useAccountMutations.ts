@@ -3,11 +3,7 @@ import { apiClient } from '@/shared/lib/apiClient';
 import { useTenant } from '@/shared/hooks/useTenant';
 import { accountSchema, type Account, type CreateAccountInput, type UpdateAccountInput } from '../schemas/account';
 
-/**
- * Accounts are last-write-wins, not a state machine: plain invalidate-on-success,
- * no optimistic patch or 409 rollback (that pattern is reserved for Deals-style
- * state machines).
- */
+
 export function useCreateAccount() {
     const queryClient = useQueryClient();
     const { tenant } = useTenant();

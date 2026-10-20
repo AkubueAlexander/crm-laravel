@@ -11,8 +11,6 @@ type ModalState =
     | { mode: 'settings' }
     | null;
 
-// 5.C wiring: list + create/edit modal. No dedicated /contacts/:id detail route
-// yet Ã¢â‚¬â€ matches the flat route structure already in router.tsx for Deals/Forecast.
 export function ContactsPage() {
     const [modal, setModal] = useState<ModalState>(null);
 

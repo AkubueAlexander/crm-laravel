@@ -2,12 +2,7 @@
 
 namespace App\Domain\Contacts\Matching;
 
-/**
- * Stage 2 of duplicate detection. Pure PHP: no DB, no framework, Pest-unit-testable.
- *
- * Score (0-100) = name similarity * 80 + same-email 20 + same-phone 15, capped at 100.
- * A shared email is near-conclusive, so it also floors the score at 90.
- */
+
 final class MatchScorer
 {
     private const NAME_WEIGHT = 0.80;

@@ -1,9 +1,7 @@
 import { z } from 'zod';
-import { paginationMetaSchema } from '@/features/contacts/schemas/contact';
+import { paginationMetaSchema } from '@/shared/schemas/pagination';
 
-// Mirrors AccountResource::toArray() (app/Http/Resources/AccountResource.php).
-// Keep in lockstep with the backend Resource (7.0/14.2): a shape mismatch throws
-// loudly via .parse() instead of silently rendering undefined.
+
 export const accountSchema = z.object({
     id: z.number(),
     name: z.string(),
@@ -19,9 +17,7 @@ export const accountSchema = z.object({
 
 export type Account = z.infer<typeof accountSchema>;
 
-// Mirrors StoreAccountRequest::rules(). Zod is UX only; the Form Request is the
-// security boundary (14.2). Max lengths are assumptions: any backend disagreement
-// comes back as a 422 and is mapped onto the field by AccountForm.
+
 export const createAccountSchema = z.object({
     name: z.string().trim().min(1, 'Name is required').max(255),
     industry: z.string().max(100).nullable().optional(),
@@ -42,7 +38,7 @@ export type CreateAccountInput = z.infer<typeof createAccountSchema>;
 export const updateAccountSchema = createAccountSchema.partial();
 export type UpdateAccountInput = z.infer<typeof updateAccountSchema>;
 
-// Mirrors ListAccountsRequest::SORTABLE.
+
 export const ACCOUNT_SORTABLE_COLUMNS = ['name', 'industry', 'created_at'] as const;
 export type AccountSortColumn = (typeof ACCOUNT_SORTABLE_COLUMNS)[number];
 

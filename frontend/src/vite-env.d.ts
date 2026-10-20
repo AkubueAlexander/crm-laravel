@@ -9,6 +9,8 @@ interface ImportMetaEnv {
     readonly VITE_REVERB_SCHEME: string;
 }
 
-interface ImportMeta {
-    readonly env: ImportMetaEnv;
-}
+
+// Redundant
+// interface ImportMeta {
+//     readonly env: ImportMetaEnv;
+// }

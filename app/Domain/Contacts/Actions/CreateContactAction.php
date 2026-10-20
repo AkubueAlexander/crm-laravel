@@ -13,7 +13,7 @@ final class CreateContactAction
     {
         Gate::forUser($actor)->authorize('contacts.create');
 
-        // tenant_id is stamped by BelongsToTenant from TenantContext, never from $data.
+
         return Contact::create($data);
     }
 }

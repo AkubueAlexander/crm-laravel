@@ -15,23 +15,22 @@ import { useDuplicateCheck } from '../api/useDuplicateCheck';
 import { DuplicateWarning } from './DuplicateWarning';
 
 type ContactFormProps = {
-    contact?: Contact; // present -> edit mode, absent -> create mode
+    contact?: Contact;
     onSuccess?: (contact: Contact) => void;
 };
 
-// <select> values are strings; "" means "No account" -> null.
+
 function toAccountId(value: unknown): number | null {
     if (value === '' || value === null || value === undefined) return null;
     const n = Number(value);
     return Number.isFinite(n) ? n : null;
 }
 
-// 8.3: every mutating form uses RHF + Zod, no exceptions.
+
 export function ContactForm({ contact, onSuccess }: ContactFormProps) {
     const isEdit = !!contact;
 
-    // The options endpoint is gated by accounts.view. Without it the picker is hidden
-    // and account_id is never sent, so an edit can never silently clear the link.
+
     const canPickAccount = usePermission('accounts.view');
     const accountOptions = useAccountOptions(canPickAccount);
 
@@ -61,8 +60,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
     const [threshold, setThreshold] = useState<number>(75);
     const blurTimer = useRef<ReturnType<typeof setTimeout>>();
 
-    // The contact's current account may be absent from the options (soft-deleted, or
-    // beyond the 500-row cap). Keep it visible instead of letting the select go blank.
+
     const currentAccountId = contact?.account_id ?? null;
     const staleAccountId =
         accountOptions.isSuccess &&
@@ -76,9 +74,6 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
         return trimmed ? trimmed : null;
     }
 
-    // Reads the FULL current form state on every blur, not just the field that
-    // fired -- the matching service scores combined signals (name + email +
-    // phone together), so sending only the just-blurred field starves it of context.
     function runDuplicateCheck() {
         if (blurTimer.current) clearTimeout(blurTimer.current);
         blurTimer.current = setTimeout(() => {
@@ -110,9 +105,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
             job_title: normalize(values.job_title),
         };
 
-        // account_id semantics: number assigns, null clears, omitted leaves untouched.
-        // Create: send only when an account was chosen. Edit: send only when the user
-        // actually changed the field (so a stale/unlisted account is never re-sent).
+
         if (canPickAccount) {
             const shouldSend = isEdit ? !!dirtyFields.account_id : values.account_id != null;
             if (shouldSend) payload.account_id = values.account_id ?? null;

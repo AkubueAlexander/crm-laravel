@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-// Mirrors ContactMatchSettingsController's JSON shape and
-// UpdateContactMatchSettingsRequest::rules() (BETWEEN 1 AND 100).
+
 export const matchSettingsSchema = z.object({
     match_threshold: z.number().int().min(1).max(100),
     default_threshold: z.number().int(),

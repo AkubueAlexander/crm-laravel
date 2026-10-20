@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     createColumnHelper,
     flexRender,
@@ -8,14 +8,15 @@ import {
 } from '@tanstack/react-table';
 import { useAccounts } from '../api/useAccounts';
 import type { Account, AccountSortColumn } from '../schemas/account';
+import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 
 const columnHelper = createColumnHelper<Account>();
 
-// Only name/industry/created_at are sortable server-side (ListAccountsRequest::SORTABLE),
-// so every other column has sorting disabled rather than sending a 422-bound sort param.
+
 const columns = [
     columnHelper.accessor('name', { header: 'Name' }),
     columnHelper.accessor('industry', { header: 'Industry', cell: (info) => info.getValue() ?? '\u2014' }),
+
     columnHelper.accessor('website', {
         header: 'Website',
         enableSorting: false,
@@ -39,16 +40,21 @@ type AccountListProps = {
     onSelectAccount?: (account: Account) => void;
 };
 
-/** 8a.1/8.4: server-side pagination/sorting via manualPagination/manualSorting. */
+
 export function AccountList({ onSelectAccount }: AccountListProps) {
     const [page, setPage] = useState(1);
     const [sorting, setSorting] = useState<SortingState>([{ id: 'name', desc: false }]);
     const [search, setSearch] = useState('');
+    const debouncedSearch = useDebouncedValue(search, 300);
+
+    useEffect(() => {
+        setPage(1);
+    }, [debouncedSearch]);
 
     const sort = (sorting[0]?.id ?? 'name') as AccountSortColumn;
     const direction = sorting[0]?.desc ? 'desc' : 'asc';
 
-    const { data, isPending, isFetching, isError } = useAccounts({ page, sort, direction, q: search });
+    const { data, isPending, isFetching, isError } = useAccounts({ page, sort, direction, q: debouncedSearch });
 
     const table = useReactTable({
         data: data?.data ?? [],
@@ -74,7 +80,6 @@ export function AccountList({ onSelectAccount }: AccountListProps) {
                     value={search}
                     onChange={(e) => {
                         setSearch(e.target.value);
-                        setPage(1);
                     }}
                     className="w-64 rounded-md border px-3 py-2 text-sm"
                 />

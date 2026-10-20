@@ -16,6 +16,7 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
     { label: 'Deals', to: '/deals', permission: 'deals.view' },
     { label: 'Contacts', to: '/contacts', permission: 'contacts.view' },
+    { label: 'Leads', to: '/leads', permission: 'leads.view' },
     { label: 'Accounts', to: '/accounts', permission: 'accounts.view' },
     { label: 'Forecast', to: '/forecast', permission: 'forecast.view' },
     { label: 'Marketing', to: '/marketing', permission: 'marketing.view' },
@@ -46,10 +47,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                             className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-semibold text-white"
                             style={{ background: 'var(--color-accent)' }}
                         >
-                            {tenant?.name?.[0]?.toUpperCase() ?? '·'}
+                            {tenant?.name?.[0]?.toUpperCase() ?? '.'}
                         </div>
                     )}
-                    {!sidebarCollapsed && <span className="truncate text-sm font-medium">{tenant?.name ?? 'Loading…'}</span>}
+                    {!sidebarCollapsed && <span className="truncate text-sm font-medium">{tenant?.name ?? 'Loading...'}</span>}
                 </div>
 
                 <nav className="flex flex-1 flex-col gap-0.5 px-2 py-3">
@@ -63,7 +64,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         onClick={toggleSidebar}
                         className="w-full rounded-md px-2 py-1.5 text-left text-xs text-[var(--color-ink-muted)] hover:bg-[var(--color-paper)]"
                     >
-                        {sidebarCollapsed ? '»' : '« Collapse'}
+                        {sidebarCollapsed ? '>>' : '<< Collapse'}
                     </button>
                 </div>
             </aside>
@@ -78,7 +79,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                             disabled={logout.isPending}
                             className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] disabled:opacity-50"
                         >
-                            {logout.isPending ? 'Signing out…' : 'Sign out'}
+                            {logout.isPending ? 'Signing out...' : 'Sign out'}
                         </button>
                     </div>
                 </header>

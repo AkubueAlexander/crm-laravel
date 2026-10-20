@@ -9,8 +9,7 @@ import type { Account } from '../schemas/account';
 
 type ModalState = { mode: 'create' } | { mode: 'edit'; account: Account } | null;
 
-// 8a.1 wiring: list + create/edit modal. Buttons and row-click are gated by the
-// same permissions the API enforces; the API remains the real boundary (2.3).
+
 export function AccountsPage() {
     const canCreate = usePermission('accounts.create');
     const canUpdate = usePermission('accounts.update');

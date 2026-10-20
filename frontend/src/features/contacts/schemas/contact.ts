@@ -1,8 +1,7 @@
 import { z } from 'zod';
+import { paginationMetaSchema } from '@/shared/schemas/pagination';
 
-// Mirrors ContactResource::toArray() exactly (app/Http/Resources/ContactResource.php).
-// Keep this whitelist in lockstep with the backend Resource (7.0/14.2) — a shape
-// mismatch throws loudly via .parse() rather than silently rendering undefined.
+
 export const contactSchema = z.object({
     id: z.number(),
     first_name: z.string().nullable(),
@@ -18,8 +17,7 @@ export const contactSchema = z.object({
 
 export type Contact = z.infer<typeof contactSchema>;
 
-// Mirrors StoreContactRequest::rules(). Zod here is UX only; the Form Request
-// remains the real security boundary (14.2) — this never replaces it.
+
 const phoneRegex = /^[\d\s+().\-x#]+$/i;
 
 export const createContactSchema = z.object({
@@ -34,27 +32,13 @@ export const createContactSchema = z.object({
 
 export type CreateContactInput = z.infer<typeof createContactSchema>;
 
-// Mirrors UpdateContactRequest::rules() — every field becomes `sometimes` on top
-// of the store rule, so last_name is optional here unlike on create.
+
 export const updateContactSchema = createContactSchema.partial();
 export type UpdateContactInput = z.infer<typeof updateContactSchema>;
 
-// Mirrors ListContactsRequest::SORTABLE.
+
 export const CONTACT_SORTABLE_COLUMNS = ['last_name', 'first_name', 'email', 'created_at'] as const;
 export type ContactSortColumn = (typeof CONTACT_SORTABLE_COLUMNS)[number];
-
-// Laravel's default paginated-resource shape. .passthrough() tolerates extra
-// fields (e.g. links, path) without failing the parse on fields we don't use.
-export const paginationMetaSchema = z
-    .object({
-        current_page: z.number(),
-        last_page: z.number(),
-        per_page: z.number(),
-        total: z.number(),
-        from: z.number().nullable(),
-        to: z.number().nullable(),
-    })
-    .passthrough();
 
 export const contactsPageSchema = z
     .object({
@@ -65,8 +49,7 @@ export const contactsPageSchema = z
 
 export type ContactsPage = z.infer<typeof contactsPageSchema>;
 
-// Mirrors CheckContactDuplicatesRequest::rules(). Deliberately permissive shape
-// (half-typed input must not 422 — the request comment says as much).
+
 export const duplicateCheckInputSchema = z.object({
     first_name: z.string().max(100).nullable().optional(),
     last_name: z.string().max(100).nullable().optional(),
@@ -77,9 +60,6 @@ export const duplicateCheckInputSchema = z.object({
 
 export type DuplicateCheckInput = z.infer<typeof duplicateCheckInputSchema>;
 
-// ASSUMPTION, not yet verified against a live response: `reasons` is treated as
-// string[]. Confirm this against the real POST /contacts/check-duplicates
-// payload before relying on it in the UI — flagging rather than guessing silently.
 export const duplicateMatchSchema = z.object({
     contact: contactSchema,
     score: z.number(),

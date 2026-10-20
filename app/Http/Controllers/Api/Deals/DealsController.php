@@ -54,4 +54,5 @@ class DealsController extends Controller
 
         return new DealResource($updated);
     }
+
 }

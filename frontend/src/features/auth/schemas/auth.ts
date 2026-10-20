@@ -17,6 +17,8 @@ export const tenantSchema = z.object({
     branding: z.record(z.unknown()).nullable(),
 });
 
+export type Tenant = z.infer<typeof tenantSchema>;
+
 export const currentUserSchema = z.object({
     id: z.union([z.string(), z.number()]),
     name: z.string(),
@@ -28,4 +30,4 @@ export const currentUserSchema = z.object({
 });
 
 export type CurrentUser = z.infer<typeof currentUserSchema>;
-export type Tenant = z.infer<typeof tenantSchema>;
+

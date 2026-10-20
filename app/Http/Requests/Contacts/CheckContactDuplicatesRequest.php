@@ -5,10 +5,7 @@ namespace App\Http\Requests\Contacts;
 use App\Domain\Contacts\Matching\ContactCandidate;
 use Illuminate\Foundation\Http\FormRequest;
 
-/**
- * Called on blur/debounce while the user is still typing, so the rules only guard
- * shape and size. Half-typed emails must not 422. The service handles low-signal input.
- */
+
 class CheckContactDuplicatesRequest extends FormRequest
 {
     public function authorize(): bool

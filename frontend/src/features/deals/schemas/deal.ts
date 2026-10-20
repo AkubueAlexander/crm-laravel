@@ -12,8 +12,7 @@ export const DEAL_STAGES: { value: DealStage; label: string }[] = [
     { value: 'lost', label: 'Lost' },
 ];
 
-// Mirrors DealResource (7.0) — a shape drift here fails loudly via .parse()
-// rather than silently rendering undefined in the board.
+
 export const dealSchema = z.object({
     id: z.union([z.string(), z.number()]),
     board_id: z.union([z.string(), z.number()]),

@@ -8,6 +8,7 @@ import {
 } from '@tanstack/react-table';
 import { useContacts } from '../api/useContacts';
 import type { Contact, ContactSortColumn } from '../schemas/contact';
+import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 
 const columnHelper = createColumnHelper<Contact>();
 
@@ -15,28 +16,25 @@ const columns = [
     columnHelper.accessor('last_name', { header: 'Last name' }),
     columnHelper.accessor('first_name', { header: 'First name', cell: (info) => info.getValue() ?? '\u2014' }),
     columnHelper.accessor('email', { header: 'Email', cell: (info) => info.getValue() ?? '\u2014' }),
-    columnHelper.accessor('phone', { header: 'Phone', cell: (info) => info.getValue() ?? '\u2014' }),
-    columnHelper.accessor('job_title', { header: 'Job title', cell: (info) => info.getValue() ?? '\u2014' }),
+    columnHelper.accessor('phone', { header: 'Phone',enableSorting: false, cell: (info) => info.getValue() ?? '\u2014' }),
+    columnHelper.accessor('job_title', { header: 'Job title',enableSorting: false, cell: (info) => info.getValue() ?? '\u2014' }),
 ];
 
 type ContactListProps = {
     onSelectContact?: (contact: Contact) => void;
 };
 
-/**
- * 5.2/8.4: server-side pagination/sorting via manualPagination/manualSorting.
- * Row data always comes from TanStack Query; sort/page/search stay local table
- * state here. 8.7's URL persistence is the route's job to wire in later.
- */
+
 export function ContactList({ onSelectContact }: ContactListProps) {
     const [page, setPage] = useState(1);
     const [sorting, setSorting] = useState<SortingState>([{ id: 'last_name', desc: false }]);
     const [search, setSearch] = useState('');
+    const debouncedSearch = useDebouncedValue(search, 300);
 
     const sort = (sorting[0]?.id ?? 'last_name') as ContactSortColumn;
     const direction = sorting[0]?.desc ? 'desc' : 'asc';
 
-    const { data, isPending, isFetching, isError } = useContacts({ page, sort, direction, q: search });
+    const { data, isPending, isFetching, isError } = useContacts({ page, sort, direction, q: debouncedSearch });
 
     const table = useReactTable({
         data: data?.data ?? [],

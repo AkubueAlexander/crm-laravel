@@ -42,8 +42,7 @@ export function DealsBoard() {
     const { tenant } = useTenant();
     const queryClient = useQueryClient();
 
-    // 6.0/6.1: patches the query cache directly on an incoming broadcast —
-    // no refetch, just the affected card's stage/lock_version updated in place.
+
     useEchoChannel(
         tenant ? `tenant.${tenant.id}.board.${boardId}` : '',
         'DealStageChanged',

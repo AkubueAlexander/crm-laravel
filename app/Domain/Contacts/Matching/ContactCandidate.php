@@ -2,10 +2,7 @@
 
 namespace App\Domain\Contacts\Matching;
 
-/**
- * Framework-agnostic value object: "a contact as typed into the form" or
- * "a stored contact", reduced to the fields that matter for matching.
- */
+
 final readonly class ContactCandidate
 {
     public function __construct(

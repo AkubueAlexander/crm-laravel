@@ -16,11 +16,7 @@ export function useContactMatchSettings() {
     });
 }
 
-/**
- * On save, invalidates the settings query AND the duplicate-check-dependent
- * views -- a changed threshold should be reflected immediately, matching the
- * original spec's "invalidate relevant queries on save."
- */
+
 export function useUpdateContactMatchSettings() {
     const queryClient = useQueryClient();
     const { tenant } = useTenant();

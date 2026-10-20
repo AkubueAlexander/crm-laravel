@@ -14,6 +14,8 @@ class ResolveTenant
     {
         TenantContext::clear();
 
+        app(PermissionRegistrar::class)->setPermissionsTeamId(null);
+
         $user = $request->user();
 
         if ($user && $user->tenant) {

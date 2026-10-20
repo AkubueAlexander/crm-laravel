@@ -7,10 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Log;
 
-/**
- * 14.2: the real security boundary — the frontend's Zod schema mirrors this
- * for fast feedback, but this is what's actually enforced.
- */
+
 class TransitionDealRequest extends FormRequest
 {
     public function authorize(): bool

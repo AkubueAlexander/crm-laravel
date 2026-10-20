@@ -16,7 +16,7 @@ function normalize(value: string | null | undefined): string | null {
     return trimmed ? trimmed : null;
 }
 
-// 8.3: every mutating form uses RHF + Zod, no exceptions.
+
 export function AccountForm({ account, onSuccess }: AccountFormProps) {
     const isEdit = !!account;
 
@@ -55,10 +55,8 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
             industry: normalize(values.industry),
             website: normalize(values.website),
             phone: normalize(values.phone),
+            owner_id: values.owner_id,
         };
-        // Only send owner_id when there is a value to act on: a number assigns,
-        // null clears ("Unassigned"), undefined leaves the existing owner untouched.
-        if (values.owner_id !== undefined) payload.owner_id = values.owner_id;
 
         try {
             const saved = isEdit
@@ -112,9 +110,7 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
 
             <div>
                 <label htmlFor="owner_id" className="block text-sm font-medium">Owner</label>
-                {/* The select mounts only once options exist, so RHF applies the default value
-                    against real <option>s (a select registered before its options load would
-                    show "Unassigned" while the form still holds the old owner id). */}
+
                 {owners.isPending ? (
                     <p className="mt-1 text-sm text-gray-500">Loading owners...</p>
                 ) : owners.isError ? (

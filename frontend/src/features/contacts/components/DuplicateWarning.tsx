@@ -5,7 +5,7 @@ type DuplicateWarningProps = {
     threshold: number;
 };
 
-// 5.1: inline in the RHF form, non-blocking — never prevents submission.
+
 export function DuplicateWarning({ matches, threshold }: DuplicateWarningProps) {
     if (matches.length === 0) return null;
 

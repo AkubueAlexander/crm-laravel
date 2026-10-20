@@ -10,6 +10,6 @@ export function useEchoChannel(channel: string, event: string, onEvent: (payload
         return () => {
             echo.leave(channel);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [channel, event]);
 }

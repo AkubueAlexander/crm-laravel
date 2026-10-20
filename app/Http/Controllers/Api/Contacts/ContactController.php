@@ -30,7 +30,6 @@ final class ContactController extends Controller
 
         $contacts = Contact::query()
             ->when($q !== '', function ($query) use ($q) {
-                // Escape LIKE wildcards; the trigram GIN index serves LIKE on name_normalized.
                 $like = '%'.addcslashes(mb_strtolower($q), '\\%_').'%';
                 $query->where(fn ($w) => $w
                     ->where('name_normalized', 'like', $like)

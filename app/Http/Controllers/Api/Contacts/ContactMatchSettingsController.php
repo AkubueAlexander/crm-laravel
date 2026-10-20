@@ -8,12 +8,7 @@ use App\Models\ContactMatchSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
 
-/**
- * Singleton-per-tenant settings row (contact_match_settings.tenant_id is UNIQUE).
- * show()/update() rather than full CRUD -- there is exactly one row per tenant,
- * created lazily on first update, read through the tenant global scope so no
- * tenant id is ever passed around and cross-tenant reads/writes are impossible.
- */
+
 class ContactMatchSettingsController extends Controller
 {
     public function show(): JsonResponse

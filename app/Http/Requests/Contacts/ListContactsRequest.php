@@ -7,7 +7,7 @@ use Illuminate\Validation\Rule;
 
 class ListContactsRequest extends FormRequest
 {
-    /** Whitelist: the sort param is never interpolated into SQL unchecked. */
+
     public const SORTABLE = ['last_name', 'first_name', 'email', 'created_at'];
 
     public function authorize(): bool
