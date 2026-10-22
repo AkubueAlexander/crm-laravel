@@ -22,6 +22,8 @@ class Deal extends Model
         'amount',
         'expected_close_date',
         'state',
+        'account_id',
+        'contact_id',
     ];
 
     protected $casts = [
@@ -34,6 +36,16 @@ class Deal extends Model
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(Account::class);
+    }
+
+    public function contact(): BelongsTo
+    {
+        return $this->belongsTo(Contact::class);
     }
 
     public function auditLogs() : HasMany

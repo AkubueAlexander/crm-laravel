@@ -64,6 +64,8 @@ final class ConvertLeadAction
             // this chunk has no such column. `state` is left to DealState's
             // configured default (Lead) rather than guessing its stored key.
             $deal = Deal::create([
+                'account_id' => $account?->id,
+                'contact_id' => $contact->id,
                 'name' => Str::limit($this->dealName($locked, $lastName, $data), 255, ''),
                 'owner_id' => $locked->owner_id ?? $actor->id,
                 'amount' => $data['amount'] ?? null,

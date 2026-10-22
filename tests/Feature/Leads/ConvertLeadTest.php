@@ -90,6 +90,8 @@ test('converting a lead creates a contact, an account and a deal and marks the l
     $this->assertDatabaseHas('deals', [
         'id' => $dealId,
         'name' => 'Analytical Engines Ltd - Ada Lovelace',
+        'account_id' => $accountId,
+        'contact_id' => $contactId,
         'owner_id' => $owner->id,
         'tenant_id' => $this->tenantA->id,
     ]);
@@ -182,6 +184,8 @@ test('a lead without a company converts without creating an account', function (
     $this->assertDatabaseHas('deals', [
         'id' => $response->json('converted_deal_id'),
         'name' => 'Ada Lovelace',
+        'account_id' => null,
+        'contact_id' => $response->json('converted_contact_id'),
     ]);
     expect(DB::table('accounts')->count())->toBe(0);
 });
