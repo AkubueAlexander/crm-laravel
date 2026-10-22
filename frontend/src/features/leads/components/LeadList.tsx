@@ -5,12 +5,16 @@ import { useDeleteLead } from '../api/useLeadMutations';
 import { LEAD_FILTERABLE_STATUSES, LEAD_SORTABLE_COLUMNS, type Lead, type LeadSortColumn } from '../schemas/lead';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 
-type LeadListProps = { onEdit: (lead: Lead) => void; onConvert?: (lead: Lead) => void };
+type LeadListProps = {
+    onEdit: (lead: Lead) => void;
+    onConvert?: (lead: Lead) => void;
+    onActivity?: (lead: Lead) => void;
+};
 
 const columnHelper = createColumnHelper<Lead>();
 
 
-export function LeadList({ onEdit, onConvert }: LeadListProps) {
+export function LeadList({ onEdit, onConvert, onActivity }: LeadListProps) {
     const [page, setPage] = useState(1);
     const [sorting, setSorting] = useState<SortingState>([{ id: 'created_at', desc: true }]);
     const [statusFilter, setStatusFilter] = useState('');
@@ -45,6 +49,9 @@ export function LeadList({ onEdit, onConvert }: LeadListProps) {
                     return (
                         <div className="flex gap-2 text-sm">
                             <button onClick={() => onEdit(lead)} className="text-indigo-600 hover:underline">{converted ? 'View' : 'Edit'}</button>
+                            {onActivity && (
+                                <button onClick={() => onActivity(lead)} className="text-gray-700 hover:underline">Activity</button>
+                            )}
                             {!converted && onConvert && (
                                 <button onClick={() => onConvert?.(lead)} className="text-green-700 hover:underline">Convert</button>
                             )}
@@ -61,7 +68,7 @@ export function LeadList({ onEdit, onConvert }: LeadListProps) {
                 },
             }),
         ],
-        [onEdit, onConvert, deleteLead],
+        [onEdit, onConvert, onActivity, deleteLead],
     );
 
     const table = useReactTable({

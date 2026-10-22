@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Modal } from '@/shared/components/Modal';
 import { usePermission } from '@/shared/hooks/usePermission';
+import { ActivityTimelineModal, type ActivityTimelineTarget } from '@/features/activities/components/ActivityTimelineModal';
 import { LeadList } from './components/LeadList';
 import { LeadForm } from './components/LeadForm';
 import { ConvertLeadModal } from './components/ConvertLeadModal';
@@ -11,9 +12,11 @@ import type { Lead } from './schemas/lead';
 export function LeadsPage() {
     const [editingLead, setEditingLead] = useState<Lead | null>(null);
     const [convertingLead, setConvertingLead] = useState<Lead | null>(null);
+    const [activityTarget, setActivityTarget] = useState<ActivityTimelineTarget | null>(null);
     const [isCreating, setIsCreating] = useState(false);
     // Display-only (2.3): hides the button. ConvertLeadAction re-checks leads.convert server-side.
     const canConvert = usePermission('leads.convert');
+    const canViewActivities = usePermission('activities.view');
     const modalOpen = isCreating || !!editingLead;
 
     function closeModal() {
@@ -30,7 +33,15 @@ export function LeadsPage() {
                 </button>
             </div>
 
-            <LeadList onEdit={setEditingLead} onConvert={canConvert ? setConvertingLead : undefined} />
+            <LeadList
+                onEdit={setEditingLead}
+                onConvert={canConvert ? setConvertingLead : undefined}
+                onActivity={
+                    canViewActivities
+                        ? (lead) => setActivityTarget({ type: 'lead', id: lead.id, label: lead.name })
+                        : undefined
+                }
+            />
 
             <Modal open={modalOpen} onClose={closeModal} title={editingLead ? 'Edit lead' : 'New lead'}>
                 <LeadForm lead={editingLead ?? undefined} onSuccess={closeModal} />
@@ -44,6 +55,8 @@ export function LeadsPage() {
                     setEditingLead(lead);
                 }}
             />
+
+            <ActivityTimelineModal target={activityTarget} onClose={() => setActivityTarget(null)} />
         </div>
     );
 }
