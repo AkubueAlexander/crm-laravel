@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Accounts\AccountController;
 use App\Http\Controllers\Api\Accounts\AccountOptionsController;
+use App\Http\Controllers\Api\Activities\ActivityController;
 use App\Http\Controllers\Api\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Api\Auth\CurrentUserController;
 use App\Http\Controllers\Api\Contacts\ContactController;
@@ -58,6 +59,11 @@ Route::prefix('v1')->group(function () {
         Route::post('leads/{lead}/convert', [LeadController::class, 'convert']);
 
         Route::apiResource('leads', LeadController::class);
+
+        // 8a.3: polymorphic activities. List is filtered by ?activityable_type=&activityable_id=.
+        Route::post('activities/{activity}/complete', [ActivityController::class, 'complete']);
+
+        Route::apiResource('activities', ActivityController::class)->except('show');
     });
 
 });
