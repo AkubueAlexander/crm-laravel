@@ -7,14 +7,11 @@ interface ConvertLeadResult {
   deal: { id: number; name: string; state: string };
 }
 
-/**
- * 8a.2 â€” POST /api/v1/leads/{lead}/convert
- * Invalidates leads, contacts, and deals lists on success, since a
- * successful conversion changes all three (mirrors 8a.2's spec exactly).
- */
+
 export function useConvertLead(leadId: number) {
   const queryClient = useQueryClient();
-  const { tenantId } = useTenant();
+    const { tenant } = useTenant();
+    const tenantId = tenant?.id;
 
   return useMutation({
     mutationFn: () =>

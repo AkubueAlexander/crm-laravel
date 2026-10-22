@@ -12,8 +12,7 @@ use Illuminate\Http\Request;
 
 class ForecastController extends Controller
 {
-    // 4.1: tenant is implicit from session (ResolveTenant + Deal's own
-    // global scope) — never accepted as a client-supplied parameter.
+
     public function __invoke(Request $request, ForecastingEngine $engine, PipelineProbabilities $probabilities)
     {
         abort_unless($request->user()->can('forecast.view'), 403);

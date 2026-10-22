@@ -16,11 +16,7 @@ function normalize(value: string | null | undefined): string | null {
     return trimmed ? trimmed : null;
 }
 
-// 8.3: every mutating form uses RHF + Zod, no exceptions.
-// Mirrors AccountForm's owner-select and error-mapping pattern so the two stay
-// easy to maintain side by side. NOTE: useOwnerOptions is imported cross-feature
-// from accounts/api for now - worth relocating to shared/hooks once a third
-// consumer (Deals) needs it too; flagging rather than moving it in this chunk.
+
 export function LeadForm({ lead, onSuccess }: LeadFormProps) {
     const isEdit = !!lead;
     const isConverted = lead?.status === 'converted';
@@ -39,8 +35,7 @@ export function LeadForm({ lead, onSuccess }: LeadFormProps) {
             phone: lead?.phone ?? '',
             company: lead?.company ?? '',
             source: lead?.source ?? '',
-            // 'converted' is never selectable here - that only ever happens
-            // via ConvertLeadAction, not this form.
+
             status: (lead && !isConverted ? lead.status : 'new') as CreateLeadInput['status'],
             owner_id: lead?.owner_id ?? undefined,
         },
@@ -75,7 +70,7 @@ export function LeadForm({ lead, onSuccess }: LeadFormProps) {
                 : await createLead.mutateAsync(payload);
             onSuccess?.(saved);
         } catch (err) {
-            // 14.3: compose with the backend's { message, errors, code } shape.
+
             if (isApiError(err) && err.response?.data.errors) {
                 for (const [field, messages] of Object.entries(err.response.data.errors)) {
                     setError(field as keyof CreateLeadInput, { message: messages[0] });

@@ -1,27 +1,31 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useReactTable, getCoreRowModel, createColumnHelper, flexRender, type SortingState } from '@tanstack/react-table';
 import { useLeads } from '../api/useLeads';
 import { useDeleteLead } from '../api/useLeadMutations';
 import { LEAD_FILTERABLE_STATUSES, LEAD_SORTABLE_COLUMNS, type Lead, type LeadSortColumn } from '../schemas/lead';
+import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 
 type LeadListProps = { onEdit: (lead: Lead) => void };
 
 const columnHelper = createColumnHelper<Lead>();
 
-// 5.2/8.4 pattern: manualPagination/manualSorting - the API does the
-// LIMIT/ORDER BY, the table renders whatever page TanStack Query handed it.
-// Filters/sort are local state for now; URL-persistence (8.7) is a follow-up
-// once the router setup file is shown (same gap ContactList presumably has).
+
 export function LeadList({ onEdit }: LeadListProps) {
     const [page, setPage] = useState(1);
     const [sorting, setSorting] = useState<SortingState>([{ id: 'created_at', desc: true }]);
     const [statusFilter, setStatusFilter] = useState('');
+    const [search, setSearch] = useState('');
+    const debouncedSearch = useDebouncedValue(search.trim(), 300);
+
+    useEffect(() => {
+        setPage(1);
+    }, [debouncedSearch]);
 
     const sort = sorting[0]?.id as LeadSortColumn | undefined;
     const direction = sorting[0] ? (sorting[0].desc ? 'desc' : 'asc') : undefined;
 
     const { data, isPending, isFetching, isError } = useLeads({
-        page, sort, direction, filters: { status: statusFilter || undefined },
+        page, sort, direction, filters: { status: statusFilter || undefined, q: debouncedSearch || undefined },
     });
     const deleteLead = useDeleteLead();
 
@@ -82,6 +86,15 @@ export function LeadList({ onEdit }: LeadListProps) {
                     <option value="">All</option>
                     {LEAD_FILTERABLE_STATUSES.map((s) => <option key={s} value={s}>{s[0].toUpperCase() + s.slice(1)}</option>)}
                 </select>
+                <input
+                    type="search"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search leads..."
+                    maxLength={100}
+                    className="rounded-md border px-3 py-1 text-sm"
+                />
+
                 {isFetching && <span className="text-xs text-[var(--color-ink-muted)]">Refreshing...</span>}
             </div>
 

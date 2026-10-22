@@ -3,11 +3,6 @@ import { apiClient } from '@/shared/lib/apiClient';
 import { useTenant } from '@/shared/hooks/useTenant';
 import { leadSchema, type Lead, type CreateLeadInput, type UpdateLeadInput } from '../schemas/lead';
 
-/**
- * Leads (excluding conversion) are last-write-wins, same as Accounts: plain
- * invalidate-on-success. Conversion is its own state-transition mutation and
- * is deliberately NOT here - it's pending on the Deal model (8a.2, blocked).
- */
 export function useCreateLead() {
     const queryClient = useQueryClient();
     const { tenant } = useTenant();

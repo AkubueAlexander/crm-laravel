@@ -5,6 +5,7 @@ import { leadsPageSchema, type LeadSortColumn, type LeadsPage } from '../schemas
 
 export type LeadFilters = {
     status?: string;
+    q?: string;
 };
 
 export type UseLeadsParams = {
@@ -14,8 +15,6 @@ export type UseLeadsParams = {
     filters?: LeadFilters;
 };
 
-// 5.2/8.4 pattern: server-side pagination + sorting via manualPagination/
-// manualSorting, tenant-namespaced key so a stale page can't leak across tenants.
 export function useLeads({ page, sort, direction, filters }: UseLeadsParams) {
     const { tenant } = useTenant();
 
@@ -23,7 +22,7 @@ export function useLeads({ page, sort, direction, filters }: UseLeadsParams) {
         queryKey: ['leads', tenant?.id, page, sort, direction, filters],
         queryFn: async (): Promise<LeadsPage> => {
             const { data } = await apiClient.get('/leads', {
-                params: { page, sort, direction, status: filters?.status },
+                params: { page, sort, direction, status: filters?.status, q: filters?.q},
             });
             return leadsPageSchema.parse(data);
         },

@@ -24,14 +24,11 @@ export const leadSchema = z.object({
 
 export type Lead = z.infer<typeof leadSchema>;
 
-// Mirrors StoreLeadRequest::ASSIGNABLE_STATUSES. 'converted' is deliberately
-// excluded - it's only ever set by the future ConvertLeadAction writing to
-// the model directly, never through this form.
+
 export const LEAD_ASSIGNABLE_STATUSES = ['new', 'contacted', 'qualified', 'disqualified'] as const;
 export type LeadAssignableStatus = (typeof LEAD_ASSIGNABLE_STATUSES)[number];
 
-// Mirrors ListLeadsRequest::FILTERABLE_STATUSES - includes 'converted' since a
-// filter needs to find converted leads even though the form can't set it.
+
 export const LEAD_FILTERABLE_STATUSES = [...LEAD_ASSIGNABLE_STATUSES, 'converted'] as const;
 
 export const createLeadSchema = z.object({
@@ -50,7 +47,7 @@ export type CreateLeadInput = z.infer<typeof createLeadSchema>;
 export const updateLeadSchema = createLeadSchema.partial();
 export type UpdateLeadInput = z.infer<typeof updateLeadSchema>;
 
-// Mirrors ListLeadsRequest::SORTABLE.
+
 export const LEAD_SORTABLE_COLUMNS = ['first_name', 'last_name', 'company', 'status', 'created_at'] as const;
 export type LeadSortColumn = (typeof LEAD_SORTABLE_COLUMNS)[number];
 

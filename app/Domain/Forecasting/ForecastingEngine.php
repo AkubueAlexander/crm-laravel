@@ -5,16 +5,7 @@ namespace App\Domain\Forecasting;
 use App\Domain\Forecasting\DTOs\ForecastResult;
 use App\Domain\Forecasting\DTOs\StageForecast;
 
-/**
- * 4.0: plain PHP, no framework dependency, fully Pest-testable without a DB —
- * takes deal data + probabilities as arrays, returns a DTO. Any DB/Eloquent
- * concern (fetching deals, resolving per-tenant probability overrides) lives
- * outside this class, in the controller + PipelineProbabilities.
- *
- * "Commit" = deals in a stage whose probability meets/exceeds this threshold,
- * summed at full amount (high-confidence pipeline). "Best case" = every
- * open deal's amount weighted by its stage's probability.
- */
+
 class ForecastingEngine
 {
     private const COMMIT_THRESHOLD = 0.7;

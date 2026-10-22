@@ -26,7 +26,7 @@ final class LeadController extends Controller
         $leads = Lead::query()
             ->with('owner:id,name')
             ->when($q !== '', function ($query) use ($q) {
-                // Escape LIKE wildcards; Postgres uses backslash as the default escape.
+
                 $like = '%'.addcslashes($q, '\\%_').'%';
                 $query->where(function ($inner) use ($like) {
                     $inner->where('first_name', 'ilike', $like)
@@ -37,7 +37,7 @@ final class LeadController extends Controller
             })
             ->when($v['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
             ->orderBy($v['sort'] ?? 'created_at', $v['direction'] ?? 'desc')
-            ->orderBy('id') // stable tiebreaker so pages never overlap
+            ->orderBy('id')
             ->paginate($v['per_page'] ?? 25)
             ->withQueryString();
 
@@ -68,7 +68,7 @@ final class LeadController extends Controller
         return response()->noContent();
     }
 
-    /** Same response shape from every endpoint (owner always present). */
+
     private function present(Lead $lead): LeadResource
     {
         return new LeadResource($lead->load('owner:id,name'));

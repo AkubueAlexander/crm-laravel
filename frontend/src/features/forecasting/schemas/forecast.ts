@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-// Mirrors ForecastResource / ForecastResult::toArray() — shape drift fails
-// loudly here rather than silently rendering undefined in the chart.
+
 export const stageForecastSchema = z.object({
     stage: z.string(),
     deal_count: z.number(),

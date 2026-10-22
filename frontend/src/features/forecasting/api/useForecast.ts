@@ -3,8 +3,7 @@ import { apiClient } from '@/shared/lib/apiClient';
 import { useTenant } from '@/shared/hooks/useTenant';
 import { forecastResultSchema, type ForecastResult } from '../schemas/forecast';
 
-// 4.2: tenant-namespaced query key, same convention as every other
-// server-state hook in the app (1.2).
+
 export function useForecast() {
     const { tenant } = useTenant();
 

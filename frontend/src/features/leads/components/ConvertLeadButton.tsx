@@ -7,10 +7,7 @@ interface ConvertLeadButtonProps {
   alreadyConverted?: boolean;
 }
 
-/**
- * 8a.2 â€” row-level action for LeadList. Inline confirm rather than a modal,
- * matching how Contacts/Invoices row actions (8c.2-style) stay lightweight.
- */
+
 export function ConvertLeadButton({
   leadId,
   leadName,
