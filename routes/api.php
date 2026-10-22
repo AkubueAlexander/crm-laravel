@@ -54,6 +54,9 @@ Route::prefix('v1')->group(function () {
         Route::get('users/options', UserOptionsController::class);
 
 
+        // 8a.2: lead conversion (Contact + Account + Deal), single entry point.
+        Route::post('leads/{lead}/convert', [LeadController::class, 'convert']);
+
         Route::apiResource('leads', LeadController::class);
     });
 

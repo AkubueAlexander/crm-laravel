@@ -26,3 +26,5 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /frontend/node_modules
+
+apply-*.ps1

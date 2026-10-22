@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers\Api\Leads;
 
+use App\Domain\Leads\Actions\ConvertLeadAction;
 use App\Domain\Leads\Actions\CreateLeadAction;
 use App\Domain\Leads\Actions\DeleteLeadAction;
 use App\Domain\Leads\Actions\UpdateLeadAction;
+use App\Domain\Leads\Exceptions\LeadNotConvertibleException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Leads\ConvertLeadRequest;
 use App\Http\Requests\Leads\ListLeadsRequest;
 use App\Http\Requests\Leads\StoreLeadRequest;
 use App\Http\Requests\Leads\UpdateLeadRequest;
 use App\Http\Resources\LeadResource;
 use App\Models\Lead;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -66,6 +70,28 @@ final class LeadController extends Controller
         $action->execute($request->user(), $lead);
 
         return response()->noContent();
+    }
+
+    /**
+     * 8a.2: POST /api/v1/leads/{lead}/convert - the single conversion entry point.
+     * Same error shape as the Deals transition endpoint (14.3): 409 when the lead
+     * was already converted (carries the current server-side lead), 422 when it
+     * cannot be converted yet (e.g. no last name).
+     */
+    public function convert(ConvertLeadRequest $request, Lead $lead, ConvertLeadAction $action): LeadResource|JsonResponse
+    {
+        try {
+            $converted = $action->execute($request->user(), $lead, $request->validated());
+        } catch (LeadNotConvertibleException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'errors' => [],
+                'code' => $e->reason,
+                'current' => new LeadResource($e->lead->load('owner:id,name')),
+            ], $e->reason === LeadNotConvertibleException::ALREADY_CONVERTED ? 409 : 422);
+        }
+
+        return $this->present($converted);
     }
 
 

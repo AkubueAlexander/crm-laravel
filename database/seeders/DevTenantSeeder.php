@@ -29,6 +29,7 @@ class DevTenantSeeder extends Seeder
         'leads.create',
         'leads.update',
         'leads.delete',
+        'leads.convert',
     ];
 
     public function run(): void

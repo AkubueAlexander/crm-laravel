@@ -52,4 +52,9 @@ class Lead extends Model
     {
         return $this->belongsTo(Account::class, 'converted_account_id');
     }
+
+    public function convertedDeal(): BelongsTo
+    {
+        return $this->belongsTo(Deal::class, 'converted_deal_id');
+    }
 }
