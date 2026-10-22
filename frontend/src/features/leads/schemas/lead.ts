@@ -59,3 +59,28 @@ export const leadsPageSchema = z
     .passthrough();
 
 export type LeadsPage = z.infer<typeof leadsPageSchema>;
+
+// 8a.2: optional deal fields on conversion. Mirrors ConvertLeadRequest::rules();
+// Zod is UX only, the Form Request is the boundary (14.2). Every field is a text
+// input. amount stays a string end to end so a decimal like 12500.50 never
+// passes through a JS float.
+export const convertLeadFormSchema = z.object({
+    deal_name: z.string().max(255, 'Deal name is too long (max 255)').optional(),
+    amount: z
+        .string()
+        .trim()
+        .regex(/^\d{1,12}(\.\d{1,2})?$/, 'Enter a positive amount, e.g. 12500.50')
+        .optional()
+        .or(z.literal('')),
+    expected_close_date: z.string().optional(),
+});
+
+export type ConvertLeadFormValues = z.infer<typeof convertLeadFormSchema>;
+
+// What actually goes over the wire: empty fields are omitted so the backend
+// applies its defaults (deal name, owner, no amount).
+export type ConvertLeadPayload = {
+    deal_name?: string;
+    amount?: string;
+    expected_close_date?: string;
+};
