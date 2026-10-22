@@ -2,7 +2,12 @@ import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import type { Deal } from '../schemas/deal';
 
-export function DealCard({ deal }: { deal: Deal }) {
+type DealCardProps = {
+    deal: Deal;
+    onActivity?: (deal: Deal) => void;
+};
+
+export function DealCard({ deal, onActivity }: DealCardProps) {
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
         id: deal.id,
         data: { deal },
@@ -25,6 +30,17 @@ export function DealCard({ deal }: { deal: Deal }) {
                 <div className="mt-1 text-xs text-[var(--color-ink-muted)]">
                     {new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(Number(deal.amount))}
                 </div>
+            )}
+            {onActivity && (
+                <button
+                    type="button"
+                    // Stop the pointer-down from reaching the drag listeners on the card.
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={() => onActivity(deal)}
+                    className="mt-2 text-xs text-indigo-600 hover:underline"
+                >
+                    Activity
+                </button>
             )}
         </div>
     );

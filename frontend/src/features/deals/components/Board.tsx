@@ -8,8 +8,20 @@ import { DealCard } from './DealCard';
 import { isApiError } from '@/shared/lib/apiClient';
 import { useTenant } from '@/shared/hooks/useTenant';
 import { useEchoChannel } from '@/shared/hooks/useEchoChannel';
+import { usePermission } from '@/shared/hooks/usePermission';
+import { ActivityTimelineModal, type ActivityTimelineTarget } from '@/features/activities/components/ActivityTimelineModal';
 
-function Column({ stage, label, deals }: { stage: DealStage; label: string; deals: Deal[] }) {
+function Column({
+    stage,
+    label,
+    deals,
+    onActivity,
+}: {
+    stage: DealStage;
+    label: string;
+    deals: Deal[];
+    onActivity?: (deal: Deal) => void;
+}) {
     const { setNodeRef, isOver } = useDroppable({ id: stage });
 
     return (
@@ -25,7 +37,7 @@ function Column({ stage, label, deals }: { stage: DealStage; label: string; deal
             </div>
             <div className="flex flex-col gap-2">
                 {deals.map((deal) => (
-                    <DealCard key={deal.id} deal={deal} />
+                    <DealCard key={deal.id} deal={deal} onActivity={onActivity} />
                 ))}
             </div>
         </div>
@@ -36,6 +48,9 @@ export function DealsBoard() {
     const { data: deals, isPending, isError } = useDeals();
     const moveDealStage = useMoveDealStage();
     const [conflictMessage, setConflictMessage] = useState<string | null>(null);
+    const [activityTarget, setActivityTarget] = useState<ActivityTimelineTarget | null>(null);
+    // Display-only (2.3): the API re-checks activities.view and deals.view.
+    const canViewActivities = usePermission('activities.view');
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
     const boardId = 1;
@@ -106,10 +121,22 @@ export function DealsBoard() {
             <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
                 <div className="flex gap-4 overflow-x-auto pb-2">
                     {DEAL_STAGES.map(({ value, label }) => (
-                        <Column key={value} stage={value} label={label} deals={dealsByStage.get(value) ?? []} />
+                        <Column
+                            key={value}
+                            stage={value}
+                            label={label}
+                            deals={dealsByStage.get(value) ?? []}
+                            onActivity={
+                                canViewActivities
+                                    ? (deal) => setActivityTarget({ type: 'deal', id: Number(deal.id), label: deal.name })
+                                    : undefined
+                            }
+                        />
                     ))}
                 </div>
             </DndContext>
+
+            <ActivityTimelineModal target={activityTarget} onClose={() => setActivityTarget(null)} />
         </div>
     );
 }
