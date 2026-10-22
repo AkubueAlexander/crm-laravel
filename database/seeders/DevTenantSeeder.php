@@ -30,6 +30,11 @@ class DevTenantSeeder extends Seeder
         'leads.update',
         'leads.delete',
         'leads.convert',
+        'activities.view',
+        'activities.create',
+        'activities.update',
+        'activities.complete',
+        'activities.delete',
     ];
 
     public function run(): void
