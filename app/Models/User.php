@@ -40,6 +40,15 @@ class User extends Authenticatable
     }
 
 
+    /**
+     * Broadcast notifications go to the tenant-scoped private channel (1.5), not
+     * the tenant-blind App.Models.User.{id} default.
+     */
+    public function receivesBroadcastNotificationsOn(\Illuminate\Notifications\Notification $notification): string
+    {
+        return 'tenant.' . $this->tenant_id . '.user.' . $this->getKey();
+    }
+
     public function getTeamIdAttribute(): int|string|null
     {
         return $this->tenant_id;
