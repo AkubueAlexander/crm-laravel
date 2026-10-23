@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Activities\ActivityController;
 use App\Http\Controllers\Api\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Api\Auth\CurrentUserController;
 use App\Http\Controllers\Api\Contacts\ContactController;
+use App\Http\Controllers\Api\Contacts\ContactImportController;
 use App\Http\Controllers\Api\Contacts\ContactMatchSettingsController;
 use App\Http\Controllers\Api\Deals\DealsController;
 use App\Http\Controllers\Api\Forecasting\ForecastController;
@@ -44,6 +45,11 @@ Route::prefix('v1')->group(function () {
 
         Route::put('contacts/match-settings', [ContactMatchSettingsController::class, 'update']);
 
+
+        // 8b.3: CSV import. Registered BEFORE the contacts apiResource so "imports" is never read as a {contact} id.
+        Route::post('contacts/imports', [ContactImportController::class, 'store'])->middleware('throttle:10,1');
+
+        Route::get('contacts/imports/{import}', [ContactImportController::class, 'show']);
 
         Route::apiResource('contacts', ContactController::class);
 

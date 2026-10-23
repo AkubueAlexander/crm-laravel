@@ -4,6 +4,7 @@ namespace App\Domain\Contacts\Matching;
 
 use App\Models\Contact;
 use App\Models\ContactMatchSettings;
+use App\Domain\Tenant\TenantContext;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -73,6 +74,7 @@ final class DuplicateDetectionService
 
             return Contact::query()
                 ->when($excludeContactId, fn ($q) => $q->whereKeyNot($excludeContactId))
+                ->when(TenantContext::id(), fn ($q, $tenantId) => $q->where('tenant_id', $tenantId))
                 ->where(function ($q) use ($name, $email, $phoneKey) {
                     if ($name !== '') {
                         $q->orWhereRaw('name_normalized % ?', [$name]);
