@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Activities\ActivityController;
 use App\Http\Controllers\Api\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Api\Auth\CurrentUserController;
 use App\Http\Controllers\Api\Contacts\ContactController;
+use App\Http\Controllers\Api\Contacts\ContactExportController;
 use App\Http\Controllers\Api\Contacts\ContactImportController;
 use App\Http\Controllers\Api\Contacts\ContactMatchSettingsController;
 use App\Http\Controllers\Api\Deals\DealsController;
@@ -50,6 +51,16 @@ Route::prefix('v1')->group(function () {
         Route::post('contacts/imports', [ContactImportController::class, 'store'])->middleware('throttle:10,1');
 
         Route::get('contacts/imports/{import}', [ContactImportController::class, 'show']);
+
+        // 8b.4: CSV/Excel export. Registered BEFORE the contacts apiResource so "exports" is never read as a {contact} id.
+        Route::post('contacts/exports', [ContactExportController::class, 'store'])->middleware('throttle:10,1');
+
+        Route::get('contacts/exports/{export}', [ContactExportController::class, 'show']);
+
+        // Signed (relative, so it survives the Vite dev proxy) AND authenticated AND owner-only.
+        Route::get('contacts/exports/{export}/download', [ContactExportController::class, 'download'])
+            ->middleware('signed:relative')
+            ->name('contacts.exports.download');
 
         Route::apiResource('contacts', ContactController::class);
 

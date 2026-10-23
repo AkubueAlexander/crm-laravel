@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // 8a.4: flag overdue activities server-side; the client never polls for this.
 Schedule::command('activities:flag-overdue')->everyFiveMinutes()->withoutOverlapping();
+
+// 8b.4: delete expired contact export files.
+Schedule::command('contacts:prune-exports')->hourly()->withoutOverlapping();

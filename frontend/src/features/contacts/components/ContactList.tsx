@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     createColumnHelper,
     flexRender,
@@ -8,6 +8,7 @@ import {
 } from '@tanstack/react-table';
 import { useContacts } from '../api/useContacts';
 import type { Contact, ContactSortColumn } from '../schemas/contact';
+import type { ContactListQuery } from '../schemas/contactExport';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 
 const columnHelper = createColumnHelper<Contact>();
@@ -22,10 +23,12 @@ const columns = [
 
 type ContactListProps = {
     onSelectContact?: (contact: Contact) => void;
+    // Publishes the search/sort the list is actually showing, so the export can start from it (8b.4).
+    onQueryChange?: (query: ContactListQuery) => void;
 };
 
 
-export function ContactList({ onSelectContact }: ContactListProps) {
+export function ContactList({ onSelectContact, onQueryChange }: ContactListProps) {
     const [page, setPage] = useState(1);
     const [sorting, setSorting] = useState<SortingState>([{ id: 'last_name', desc: false }]);
     const [search, setSearch] = useState('');
@@ -33,6 +36,11 @@ export function ContactList({ onSelectContact }: ContactListProps) {
 
     const sort = (sorting[0]?.id ?? 'last_name') as ContactSortColumn;
     const direction = sorting[0]?.desc ? 'desc' : 'asc';
+
+    // Uses the debounced search: the export must match the rows on screen, not the half-typed box.
+    useEffect(() => {
+        onQueryChange?.({ q: debouncedSearch.trim(), sort, direction });
+    }, [debouncedSearch, sort, direction, onQueryChange]);
 
     const { data, isPending, isFetching, isError } = useContacts({ page, sort, direction, q: debouncedSearch });
 

@@ -5,6 +5,7 @@ namespace App\Models;
 
 use App\Domain\Tenant\Concerns\BelongsToTenant;
 use Database\Factories\ContactFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -30,6 +31,25 @@ class Contact extends Model
     protected static function newFactory(): ContactFactory
     {
         return ContactFactory::new();
+    }
+
+    /**
+     * Shared by the contact list and the export (8b.4) so a search can never
+     * behave differently in the two places.
+     */
+    public function scopeMatchingSearch(Builder $query, string $q): Builder
+    {
+        $q = trim($q);
+
+        if ($q === '') {
+            return $query;
+        }
+
+        $like = '%'.addcslashes(mb_strtolower($q), '\\%_').'%';
+
+        return $query->where(fn ($w) => $w
+            ->where('name_normalized', 'like', $like)
+            ->orWhere('email_normalized', 'like', $like));
     }
 
     protected function fullName(): Attribute

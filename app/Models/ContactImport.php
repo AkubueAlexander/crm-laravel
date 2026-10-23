@@ -35,6 +35,20 @@ class ContactImport extends Model
         'finished_at',
     ];
 
+    /**
+     * Mirror the column defaults. Postgres defaults are not reflected on the in-memory model
+     * after insert, so without these a freshly created import serialized null counters and the
+     * client rejected the 202 response even though the job had been queued.
+     */
+    protected $attributes = [
+        'status' => self::STATUS_PENDING,
+        'total_rows' => 0,
+        'processed_rows' => 0,
+        'created_rows' => 0,
+        'duplicate_rows' => 0,
+        'invalid_rows' => 0,
+    ];
+
     protected function casts(): array
     {
         return [

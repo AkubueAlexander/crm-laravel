@@ -104,7 +104,11 @@ it('accepts an upload and queues the import', function () {
     cimpUpload($user, cimpCsv([['Bob', 'Jones', 'bob@example.com', '']]))
         ->assertStatus(202)
         ->assertJsonPath('status', 'pending')
-        ->assertJsonPath('total_rows', 1);
+        ->assertJsonPath('total_rows', 1)
+        ->assertJsonPath('processed_rows', 0)
+        ->assertJsonPath('created_rows', 0)
+        ->assertJsonPath('duplicate_rows', 0)
+        ->assertJsonPath('invalid_rows', 0);
 
     Queue::assertPushed(ImportContactsJob::class);
 });

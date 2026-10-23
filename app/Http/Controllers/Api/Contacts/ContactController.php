@@ -29,12 +29,7 @@ final class ContactController extends Controller
         $q = trim($v['q'] ?? '');
 
         $contacts = Contact::query()
-            ->when($q !== '', function ($query) use ($q) {
-                $like = '%'.addcslashes(mb_strtolower($q), '\\%_').'%';
-                $query->where(fn ($w) => $w
-                    ->where('name_normalized', 'like', $like)
-                    ->orWhere('email_normalized', 'like', $like));
-            })
+            ->matchingSearch($q)
             ->orderBy($v['sort'] ?? 'last_name', $v['direction'] ?? 'asc')
             ->orderBy('id') // stable tiebreaker so pages never overlap
             ->paginate($v['per_page'] ?? 25)

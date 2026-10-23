@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { ZodError } from 'zod';
 import { isApiError } from '@/shared/lib/apiClient';
 import { useContactImport, useStartContactImport } from '../api/useContactImport';
 import {
@@ -56,7 +57,12 @@ function UploadStep({ onStarted, onCancel }: { onStarted: (importId: number) => 
                 const fileErrors = err.response?.data.errors?.file;
                 setError('file', { message: fileErrors?.[0] ?? err.response?.data.message ?? 'Upload failed.' });
             } else {
-                setError('file', { message: 'Upload failed. Check your connection and try again.' });
+                setError('file', {
+                    message:
+                        err instanceof ZodError
+                            ? 'The import may have started, but the server response was not understood. Check the contacts list before retrying.'
+                            : 'Upload failed. Check your connection and try again.',
+                });
             }
         }
     }
