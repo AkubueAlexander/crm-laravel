@@ -119,6 +119,9 @@ export function Timeline({ targetType, targetId }: TimelineProps) {
                                             <span className="rounded bg-[var(--color-paper)] px-1.5 py-0.5 capitalize">{a.type}</span>
                                             {a.due_at && <span>Due {new Date(a.due_at).toLocaleString()}</span>}
                                             {a.completed_at && <span>Done {new Date(a.completed_at).toLocaleDateString()}</span>}
+                                            {a.is_overdue && !a.is_completed && (
+                                                <span className="rounded bg-red-100 px-1.5 py-0.5 font-medium text-red-700">Overdue</span>
+                                            )}
                                         </div>
                                         <p className={`text-sm font-medium ${a.is_completed ? 'text-[var(--color-ink-muted)] line-through' : ''}`}>
                                             {a.subject}

@@ -27,7 +27,15 @@ final class UpdateActivityAction
             throw ValidationException::withMessages(['owner_id' => ['The selected owner is invalid.']]);
         }
 
-        $activity->fill($payload)->save();
+        $activity->fill($payload);
+
+        // Due date removed or moved into the future: no longer overdue.
+        if (array_key_exists('due_at', $payload)
+            && ($activity->due_at === null || $activity->due_at->isFuture())) {
+            $activity->forceFill(['overdue_at' => null]);
+        }
+
+        $activity->save();
 
         return $activity;
     }

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Contacts\ContactMatchSettingsController;
 use App\Http\Controllers\Api\Deals\DealsController;
 use App\Http\Controllers\Api\Forecasting\ForecastController;
 use App\Http\Controllers\Api\Leads\LeadController;
+use App\Http\Controllers\Api\Search\SearchController;
 use App\Http\Controllers\Api\Users\UserOptionsController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +54,9 @@ Route::prefix('v1')->group(function () {
 
         // Owner-select source: {id, name} of the actor's own tenant only.
         Route::get('users/options', UserOptionsController::class);
+
+        // 8b.1: global search. Tenant scope + per-group *.view permission; debounced client-side.
+        Route::get('search', SearchController::class)->middleware('throttle:120,1');
 
 
         // 8a.2: lead conversion (Contact + Account + Deal), single entry point.

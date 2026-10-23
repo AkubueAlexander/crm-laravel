@@ -23,6 +23,9 @@ class ActivityResource extends JsonResource
             'due_at' => $this->due_at?->toIso8601String(),
             'completed_at' => $this->completed_at?->toIso8601String(),
             'is_completed' => $this->completed_at !== null,
+            // Flag is written by activities:flag-overdue (8a.4); never overdue once completed.
+            'overdue_at' => $this->overdue_at?->toIso8601String(),
+            'is_overdue' => $this->overdue_at !== null && $this->completed_at === null,
             'owner_id' => $this->owner_id,
             'owner' => $this->whenLoaded('owner', fn () => $this->owner?->only(['id', 'name'])),
             'created_at' => $this->created_at?->toIso8601String(),

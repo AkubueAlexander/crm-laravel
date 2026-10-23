@@ -5,6 +5,7 @@ import { usePermission } from '@/shared/hooks/usePermission';
 import { useUiStore } from '@/shared/stores/ui';
 import { useLogout } from '@/features/auth/api/useLogin';
 import { useCurrentUser } from '@/features/auth/api/useCurrentUser';
+import { GlobalSearch } from '@/features/search/components/GlobalSearch';
 
 type NavItem = {
     label: string;
@@ -71,7 +72,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
             <div className="flex flex-1 flex-col overflow-hidden">
                 <header className="flex h-14 items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6">
-                    <div />
+                    <GlobalSearch />
                     <div className="flex items-center gap-3">
                         <span className="text-sm text-[var(--color-ink-muted)]">{user?.name}</span>
                         <button

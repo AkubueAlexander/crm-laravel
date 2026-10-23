@@ -18,6 +18,9 @@ export const activitySchema = z.object({
     body: z.string().nullable(),
     due_at: z.string().nullable(),
     completed_at: z.string().nullable(),
+    // Set server-side by activities:flag-overdue (8a.4). Display only.
+    overdue_at: z.string().nullable().optional(),
+    is_overdue: z.boolean().optional(),
     is_completed: z.boolean(),
     owner_id: z.number().nullable(),
     owner: z.object({ id: z.number(), name: z.string() }).nullable().optional(),

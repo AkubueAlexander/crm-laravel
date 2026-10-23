@@ -51,6 +51,7 @@ class Activity extends Model
             'activityable_id' => 'integer',
             'due_at' => 'datetime',
             'completed_at' => 'datetime',
+            'overdue_at' => 'datetime',
         ];
     }
 
