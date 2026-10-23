@@ -6,6 +6,7 @@ import { useUiStore } from '@/shared/stores/ui';
 import { useLogout } from '@/features/auth/api/useLogin';
 import { useCurrentUser } from '@/features/auth/api/useCurrentUser';
 import { GlobalSearch } from '@/features/search/components/GlobalSearch';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 
 type NavItem = {
     label: string;
@@ -74,6 +75,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <header className="flex h-14 items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6">
                     <GlobalSearch />
                     <div className="flex items-center gap-3">
+                        <NotificationBell />
                         <span className="text-sm text-[var(--color-ink-muted)]">{user?.name}</span>
                         <button
                             onClick={() => logout.mutate()}
