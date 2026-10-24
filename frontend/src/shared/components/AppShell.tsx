@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { type CSSProperties, type ReactNode } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useTenant } from '@/shared/hooks/useTenant';
 import { usePermission } from '@/shared/hooks/usePermission';
@@ -7,6 +7,7 @@ import { useLogout } from '@/features/auth/api/useLogin';
 import { useCurrentUser } from '@/features/auth/api/useCurrentUser';
 import { GlobalSearch } from '@/features/search/components/GlobalSearch';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
+import { brandingAccent } from '@/features/settings/schemas/settings';
 
 type NavItem = {
     label: string;
@@ -25,6 +26,7 @@ const NAV_ITEMS: NavItem[] = [
     { label: 'Sales', to: '/sales', permission: 'sales.view' },
     { label: 'Inventory', to: '/inventory', permission: 'inventory.view' },
     { label: 'Accounting', to: '/accounting', permission: 'accounting.view' },
+    { label: 'Settings', to: '/settings', permission: 'settings.manage' },
     { label: 'Admin', to: '/admin', permission: 'admin.access' },
 ];
 
@@ -33,9 +35,14 @@ export function AppShell({ children }: { children: ReactNode }) {
     const { data: user } = useCurrentUser();
     const { sidebarCollapsed, toggleSidebar } = useUiStore();
     const logout = useLogout();
+    // 8c.1: the tenant's accent color (validated hex) drives the shell's --color-accent.
+    const accent = brandingAccent(tenant?.branding);
 
     return (
-        <div className="flex h-screen bg-[var(--color-paper)] text-[var(--color-ink)]">
+        <div
+            className="flex h-screen bg-[var(--color-paper)] text-[var(--color-ink)]"
+            style={accent ? ({ '--color-accent': accent } as CSSProperties) : undefined}
+        >
             <aside
                 className={`flex flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)] transition-all ${
                     sidebarCollapsed ? 'w-16' : 'w-56'
@@ -43,7 +50,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
                 <div className="flex h-14 items-center gap-2 border-b border-[var(--color-border)] px-4">
                     {tenant?.branding?.logo_url ? (
-                        <img src={String(tenant.branding.logo_url)} alt="" className="h-6 w-6 rounded" />
+                        <img src={String(tenant.branding.logo_url)} alt="" className="h-6 w-6 rounded object-contain" />
                     ) : (
                         <div
                             className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-semibold text-white"

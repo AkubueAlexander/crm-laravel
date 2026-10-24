@@ -7,6 +7,7 @@ import { ForecastDashboard } from '@/features/forecasting/components/Dashboard';
 import { ContactsPage } from '@/features/contacts/components/ContactsPage';
 import { AccountsPage } from '@/features/accounts/components/AccountsPage';
 import { LeadsPage } from '@/features/leads/LeadsPage';
+import { SettingsPage } from '@/features/settings/components/SettingsPage';
 
 const rootRoute = createRootRoute({
     component: () => <Outlet />,
@@ -78,9 +79,15 @@ const forecastRoute = createRoute({
     component: ForecastDashboard,
 });
 
+const settingsRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/settings',
+    component: SettingsPage,
+});
+
 const routeTree = rootRoute.addChildren([
     loginRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute]),
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute]),
 ]);
 export const router = createRouter({ routeTree });
 
