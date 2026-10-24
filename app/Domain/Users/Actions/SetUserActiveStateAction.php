@@ -2,6 +2,7 @@
 
 namespace App\Domain\Users\Actions;
 
+use App\Domain\Audit\AuditRecorder;
 use App\Domain\Users\Exceptions\UserRuleViolation;
 use App\Domain\Users\RoleCatalog;
 use App\Models\Tenant;
@@ -30,6 +31,7 @@ final class SetUserActiveStateAction
             if ($active) {
                 if ($target->deactivated_at !== null) {
                     $target->forceFill(['deactivated_at' => null])->save();
+                    AuditRecorder::record($tenantId, (int) $actor->id, 'user.reactivated', 'user', (int) $target->id, $target->name);
                 }
 
                 return $target;
@@ -57,6 +59,8 @@ final class SetUserActiveStateAction
             ])->save();
 
             $this->revokeSessions((int) $target->id);
+
+            AuditRecorder::record($tenantId, (int) $actor->id, 'user.deactivated', 'user', (int) $target->id, $target->name);
 
             return $target;
         });

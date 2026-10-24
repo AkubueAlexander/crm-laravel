@@ -57,7 +57,7 @@ final class UserInvitationController extends Controller
             ->whereNull('accepted_at')
             ->findOrFail($invitation);
 
-        $fresh = $action->execute($request->user(), $existing->email, $existing->role);
+        $fresh = $action->execute($request->user(), $existing->email, $existing->role, resend: true);
 
         return new InvitationResource($fresh->load('inviter:id,name'));
     }

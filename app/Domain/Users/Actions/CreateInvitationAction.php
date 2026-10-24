@@ -2,6 +2,7 @@
 
 namespace App\Domain\Users\Actions;
 
+use App\Domain\Audit\AuditRecorder;
 use App\Domain\Users\RoleCatalog;
 use App\Models\Tenant;
 use App\Models\User;
@@ -22,7 +23,7 @@ final class CreateInvitationAction
      * Creates an invitation, or re-issues the pending one for the same email (new token, new expiry,
      * possibly a new role). Used for "resend" too, so there is exactly one way to mint a token.
      */
-    public function execute(User $actor, string $email, string $role): UserInvitation
+    public function execute(User $actor, string $email, string $role, bool $resend = false): UserInvitation
     {
         // 2.4: server-side re-validation, independent of the request layer.
         Gate::forUser($actor)->authorize('users.manage');
@@ -38,7 +39,7 @@ final class CreateInvitationAction
 
         $token = Str::random(48);
 
-        [$invitation, $tenantName] = DB::transaction(function () use ($actor, $email, $role, $tenantId, $token): array {
+        [$invitation, $tenantName] = DB::transaction(function () use ($actor, $email, $role, $tenantId, $token, $resend): array {
             // Serializes invitations of this tenant, so a double click cannot create two pending rows.
             $tenant = Tenant::query()->lockForUpdate()->findOrFail($tenantId);
 
@@ -55,6 +56,8 @@ final class CreateInvitationAction
                 ->lockForUpdate()
                 ->first() ?? new UserInvitation();
 
+            $existed = $invitation->exists;
+
             $invitation->forceFill([
                 'tenant_id' => $tenantId,
                 'email' => $email,
@@ -63,6 +66,9 @@ final class CreateInvitationAction
                 'invited_by' => $actor->id,
                 'expires_at' => now()->addDays(self::VALID_DAYS),
             ])->save();
+
+            $event = ! $existed ? 'invitation.created' : ($resend ? 'invitation.resent' : 'invitation.reissued');
+            AuditRecorder::record($tenantId, (int) $actor->id, $event, 'invitation', (int) $invitation->id, $email, ['role' => $role]);
 
             return [$invitation, $tenant->name];
         });

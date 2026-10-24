@@ -2,6 +2,7 @@
 
 namespace App\Domain\Users\Actions;
 
+use App\Domain\Audit\AuditRecorder;
 use App\Domain\Users\Exceptions\UserRuleViolation;
 use App\Domain\Users\RoleCatalog;
 use App\Models\Tenant;
@@ -48,7 +49,13 @@ final class ChangeUserRoleAction
             }
 
             RoleCatalog::ensureRoles($tenantId);
+            $from = RoleCatalog::primary($target->roles()->pluck('roles.name')->all());
             $target->syncRoles([$role]);
+
+            // 8c.3: choosing the role the user already has is not an event.
+            if ($from !== $role) {
+                AuditRecorder::record($tenantId, (int) $actor->id, 'user.role_changed', 'user', (int) $target->id, $target->name, ['from' => $from, 'to' => $role]);
+            }
 
             return $target;
         });

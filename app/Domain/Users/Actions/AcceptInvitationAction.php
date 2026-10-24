@@ -2,6 +2,7 @@
 
 namespace App\Domain\Users\Actions;
 
+use App\Domain\Audit\AuditRecorder;
 use App\Domain\Tenant\TenantContext;
 use App\Domain\Users\Exceptions\UserRuleViolation;
 use App\Domain\Users\RoleCatalog;
@@ -65,6 +66,9 @@ final class AcceptInvitationAction
                 $user->syncRoles([$invitation->role]);
 
                 $invitation->forceFill(['accepted_at' => now()])->save();
+
+                // 8c.3: the new user is the actor; there is no one else. No token or email is stored.
+                AuditRecorder::record($tenantId, (int) $user->id, 'invitation.accepted', 'user', (int) $user->id, $user->name, ['role' => $invitation->role]);
 
                 return $user;
             });

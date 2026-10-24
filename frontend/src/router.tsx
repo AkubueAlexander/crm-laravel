@@ -11,6 +11,8 @@ import { SettingsPage } from '@/features/settings/components/SettingsPage';
 import { UsersPage } from '@/features/users/components/UsersPage';
 import { validateUsersSearch } from '@/features/users/schemas/user';
 import { AcceptInvitationPage } from '@/features/users/components/AcceptInvitationPage';
+import { AuditLogPage } from '@/features/audit/components/AuditLogPage';
+import { validateAuditSearch } from '@/features/audit/schemas/audit';
 
 const rootRoute = createRootRoute({
     component: () => <Outlet />,
@@ -95,6 +97,14 @@ const usersRoute = createRoute({
     component: UsersPage,
 });
 
+// 8c.3c: audit log viewer. Filters and page live in the URL (8.7).
+const auditRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/audit',
+    validateSearch: validateAuditSearch,
+    component: AuditLogPage,
+});
+
 // 8c.2d: public (no RequireAuth): the emailed invitation link lands here.
 const acceptInviteRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -105,7 +115,7 @@ const acceptInviteRoute = createRoute({
 const routeTree = rootRoute.addChildren([
     loginRoute,
     acceptInviteRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute]),
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute]),
 ]);
 export const router = createRouter({ routeTree });
 
