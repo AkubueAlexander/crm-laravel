@@ -35,6 +35,7 @@ class DevTenantSeeder extends Seeder
         'activities.update',
         'activities.complete',
         'activities.delete',
+        'settings.manage',
     ];
 
     public function run(): void

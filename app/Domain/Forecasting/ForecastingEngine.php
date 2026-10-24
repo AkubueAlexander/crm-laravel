@@ -8,7 +8,7 @@ use App\Domain\Forecasting\DTOs\StageForecast;
 
 class ForecastingEngine
 {
-    private const COMMIT_THRESHOLD = 0.7;
+    public const COMMIT_THRESHOLD = 0.7;
 
     /**
      * @param array<int, array{stage: string, amount: float}> $deals

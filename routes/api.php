@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\Deals\DealsController;
 use App\Http\Controllers\Api\Forecasting\ForecastController;
 use App\Http\Controllers\Api\Leads\LeadController;
 use App\Http\Controllers\Api\Search\SearchController;
+use App\Http\Controllers\Api\Settings\TenantSettingsController;
 use App\Http\Controllers\Api\Users\UserOptionsController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
@@ -71,6 +72,17 @@ Route::prefix('v1')->group(function () {
 
         // Owner-select source: {id, name} of the actor's own tenant only.
         Route::get('users/options', UserOptionsController::class);
+
+        // 8c.1: tenant settings. settings.manage is checked in the form requests and again in each Action.
+        Route::get('settings/pipeline', [TenantSettingsController::class, 'pipeline']);
+
+        Route::put('settings/pipeline', [TenantSettingsController::class, 'updatePipeline']);
+
+        // POST (not PUT): PHP does not parse multipart bodies on PUT, and this one carries a file.
+        Route::post('settings/branding', [TenantSettingsController::class, 'updateBranding'])->middleware('throttle:20,1');
+
+        // Any signed-in user of the tenant may load their own tenant's logo; the tenant comes from the session.
+        Route::get('tenant/logo', [TenantSettingsController::class, 'logo'])->name('tenant.logo');
 
         // 8b.1: global search. Tenant scope + per-group *.view permission; debounced client-side.
         Route::get('search', SearchController::class)->middleware('throttle:120,1');
