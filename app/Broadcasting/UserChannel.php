@@ -29,6 +29,7 @@ class UserChannel
         return User::query()
             ->whereKey($user->getKey())
             ->where('tenant_id', (int) $tenantId)
+            ->whereNull('deactivated_at')
             ->exists();
     }
 }

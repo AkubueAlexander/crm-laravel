@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Forecasting\ForecastController;
 use App\Http\Controllers\Api\Leads\LeadController;
 use App\Http\Controllers\Api\Search\SearchController;
 use App\Http\Controllers\Api\Settings\TenantSettingsController;
+use App\Http\Controllers\Api\Users\UserManagementController;
 use App\Http\Controllers\Api\Users\UserOptionsController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
@@ -72,6 +73,19 @@ Route::prefix('v1')->group(function () {
 
         // Owner-select source: {id, name} of the actor's own tenant only.
         Route::get('users/options', UserOptionsController::class);
+
+        // 8c.2: user management. users.manage is checked in the form requests and again in each Action.
+        // {user} is a plain id on purpose (no route-model binding): User has no tenant scope, so every
+        // lookup is an explicit tenant_id query inside the Action.
+        Route::get('users', [UserManagementController::class, 'index']);
+
+        Route::get('users/roles', [UserManagementController::class, 'roles']);
+
+        Route::patch('users/{user}/role', [UserManagementController::class, 'changeRole'])->whereNumber('user');
+
+        Route::post('users/{user}/deactivate', [UserManagementController::class, 'deactivate'])->whereNumber('user');
+
+        Route::post('users/{user}/reactivate', [UserManagementController::class, 'reactivate'])->whereNumber('user');
 
         // 8c.1: tenant settings. settings.manage is checked in the form requests and again in each Action.
         Route::get('settings/pipeline', [TenantSettingsController::class, 'pipeline']);

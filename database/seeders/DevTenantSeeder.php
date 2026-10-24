@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Domain\Tenant\TenantContext;
+use App\Domain\Users\RoleCatalog;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -36,6 +37,7 @@ class DevTenantSeeder extends Seeder
         'activities.complete',
         'activities.delete',
         'settings.manage',
+        'users.manage',
     ];
 
     public function run(): void
@@ -63,6 +65,9 @@ class DevTenantSeeder extends Seeder
         ]);
 
         $adminRole->syncPermissions($permissions);
+
+        // 8c.2: the standard role set (admin, manager, sales, viewer) for this tenant.
+        RoleCatalog::provision($tenant);
 
         $user = User::updateOrCreate(
             ['email' => 'admin@acme.test'],
