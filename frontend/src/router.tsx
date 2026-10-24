@@ -10,6 +10,7 @@ import { LeadsPage } from '@/features/leads/LeadsPage';
 import { SettingsPage } from '@/features/settings/components/SettingsPage';
 import { UsersPage } from '@/features/users/components/UsersPage';
 import { validateUsersSearch } from '@/features/users/schemas/user';
+import { AcceptInvitationPage } from '@/features/users/components/AcceptInvitationPage';
 
 const rootRoute = createRootRoute({
     component: () => <Outlet />,
@@ -94,8 +95,16 @@ const usersRoute = createRoute({
     component: UsersPage,
 });
 
+// 8c.2d: public (no RequireAuth): the emailed invitation link lands here.
+const acceptInviteRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/accept-invite/$token',
+    component: AcceptInvitationPage,
+});
+
 const routeTree = rootRoute.addChildren([
     loginRoute,
+    acceptInviteRoute,
     authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute]),
 ]);
 export const router = createRouter({ routeTree });

@@ -31,6 +31,19 @@ final class UserRuleViolation extends RuntimeException
         );
     }
 
+    /**
+     * An invitation link cannot be used: unknown, already used, expired, revoked, or its email now has an
+     * account. Deliberately ONE indistinguishable answer, so guessing tokens teaches an attacker nothing.
+     */
+    public static function invitationInvalid(): self
+    {
+        return new self(
+            'This invitation link is no longer valid. Ask an administrator to send a new one.',
+            'invitation_invalid',
+            410,
+        );
+    }
+
     public function render(Request $request): JsonResponse
     {
         return response()->json(['message' => $this->getMessage(), 'errors' => [], 'code' => $this->errorCode], $this->status);

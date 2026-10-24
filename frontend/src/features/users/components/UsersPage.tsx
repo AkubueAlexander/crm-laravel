@@ -20,6 +20,8 @@ import {
     type UsersSearch,
 } from '../schemas/user';
 import { ConfirmUserStateDialog, type UserStateMode } from './ConfirmUserStateDialog';
+import { InviteUserDialog } from './InviteUserDialog';
+import { PendingInvitations } from './PendingInvitations';
 
 const columnHelper = createColumnHelper<ManagedUser>();
 const EMPTY: ManagedUser[] = [];
@@ -64,6 +66,7 @@ export function UsersPage() {
     const setActive = useSetUserActive();
 
     const [pendingState, setPendingState] = useState<{ user: ManagedUser; mode: UserStateMode } | null>(null);
+    const [inviteOpen, setInviteOpen] = useState(false);
 
     const columns = useMemo(
         () => [
@@ -193,7 +196,16 @@ export function UsersPage() {
         <div>
             <div className="mb-4 flex items-center justify-between">
                 <h1 className="text-lg font-medium text-[var(--color-ink)]">Users</h1>
-                {isFetching && !isPending && <span className="text-xs text-gray-400">Refreshing...</span>}
+                <div className="flex items-center gap-3">
+                    {isFetching && !isPending && <span className="text-xs text-gray-400">Refreshing...</span>}
+                    <button
+                        type="button"
+                        onClick={() => setInviteOpen(true)}
+                        className="rounded-md bg-[var(--color-accent)] px-3 py-1.5 text-sm text-white hover:opacity-90"
+                    >
+                        Invite user
+                    </button>
+                </div>
             </div>
 
             <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -309,6 +321,10 @@ export function UsersPage() {
                     </div>
                 </div>
             )}
+
+            <PendingInvitations />
+
+            <InviteUserDialog open={inviteOpen} onClose={() => setInviteOpen(false)} />
 
             <ConfirmUserStateDialog
                 user={pendingState?.user ?? null}

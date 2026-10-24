@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Forecasting\ForecastController;
 use App\Http\Controllers\Api\Leads\LeadController;
 use App\Http\Controllers\Api\Search\SearchController;
 use App\Http\Controllers\Api\Settings\TenantSettingsController;
+use App\Http\Controllers\Api\Users\PublicInvitationController;
 use App\Http\Controllers\Api\Users\UserInvitationController;
 use App\Http\Controllers\Api\Users\UserManagementController;
 use App\Http\Controllers\Api\Users\UserOptionsController;
@@ -25,6 +26,16 @@ Route::prefix('v1')->group(function () {
     // 2.1: unauthenticated - login only needs the CSRF cookie already set.
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])
         ->name('login');
+
+    // 8c.2c: public invitation endpoints. The token is the credential, so they are throttled hard, and
+    // every failure (unknown, used, expired, revoked) is the same 410: nothing can be learned by guessing.
+    Route::get('/invitations/{token}', [PublicInvitationController::class, 'show'])
+        ->where('token', '[A-Za-z0-9]{48}')
+        ->middleware('throttle:30,1');
+
+    Route::post('/invitations/{token}/accept', [PublicInvitationController::class, 'accept'])
+        ->where('token', '[A-Za-z0-9]{48}')
+        ->middleware('throttle:10,1');
 
     Route::middleware(['auth:sanctum', 'resolve.tenant'])->group(function () {
         Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
