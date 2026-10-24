@@ -38,6 +38,7 @@ class DevTenantSeeder extends Seeder
         'activities.delete',
         'settings.manage',
         'users.manage',
+        'audit.view',
     ];
 
     public function run(): void

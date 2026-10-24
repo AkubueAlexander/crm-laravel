@@ -41,10 +41,11 @@ final class RoleCatalog
         'activities.delete',
         'settings.manage',
         'users.manage',
+        'audit.view',
     ];
 
     /** Held by administrators only. */
-    private const MANAGEMENT = ['settings.manage', 'users.manage'];
+    private const MANAGEMENT = ['settings.manage', 'users.manage', 'audit.view'];
 
     /** Order matters: it is the display order and the tie-break for a user holding several roles. */
     public const ROLES = [
@@ -107,7 +108,7 @@ final class RoleCatalog
                 'activities.view', 'activities.create', 'activities.update', 'activities.complete',
                 'deals.view',
             ],
-            'viewer' => array_values(array_filter(self::ALL_PERMISSIONS, fn (string $p) => str_ends_with($p, '.view'))),
+            'viewer' => array_values(array_filter(self::ALL_PERMISSIONS, fn (string $p) => str_ends_with($p, '.view') && ! in_array($p, self::MANAGEMENT, true))),
             default => [],
         };
     }

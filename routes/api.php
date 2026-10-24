@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Accounts\AccountController;
 use App\Http\Controllers\Api\Accounts\AccountOptionsController;
 use App\Http\Controllers\Api\Activities\ActivityController;
+use App\Http\Controllers\Api\Audit\AuditLogController;
 use App\Http\Controllers\Api\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Api\Auth\CurrentUserController;
 use App\Http\Controllers\Api\Contacts\ContactController;
@@ -109,6 +110,12 @@ Route::prefix('v1')->group(function () {
         Route::post('users/{user}/deactivate', [UserManagementController::class, 'deactivate'])->whereNumber('user');
 
         Route::post('users/{user}/reactivate', [UserManagementController::class, 'reactivate'])->whereNumber('user');
+
+        // 8c.3: audit feed (deal stage changes + administrative events). audit.view is checked in the form request.
+        // Registered with its own literal paths; nothing here takes an {id}.
+        Route::get('audit-log/actors', [AuditLogController::class, 'actors']);
+
+        Route::get('audit-log', [AuditLogController::class, 'index'])->middleware('throttle:60,1');
 
         // 8c.1: tenant settings. settings.manage is checked in the form requests and again in each Action.
         Route::get('settings/pipeline', [TenantSettingsController::class, 'pipeline']);
