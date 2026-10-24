@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Forecasting\ForecastController;
 use App\Http\Controllers\Api\Leads\LeadController;
 use App\Http\Controllers\Api\Search\SearchController;
 use App\Http\Controllers\Api\Settings\TenantSettingsController;
+use App\Http\Controllers\Api\Users\UserInvitationController;
 use App\Http\Controllers\Api\Users\UserManagementController;
 use App\Http\Controllers\Api\Users\UserOptionsController;
 use Illuminate\Support\Facades\Broadcast;
@@ -80,6 +81,17 @@ Route::prefix('v1')->group(function () {
         Route::get('users', [UserManagementController::class, 'index']);
 
         Route::get('users/roles', [UserManagementController::class, 'roles']);
+
+        // 8c.2c: invitations, administrator side. Same {id} convention as users: no route-model binding.
+        Route::get('users/invitations', [UserInvitationController::class, 'index']);
+
+        Route::post('users/invitations', [UserInvitationController::class, 'store'])->middleware('throttle:20,1');
+
+        Route::post('users/invitations/{invitation}/resend', [UserInvitationController::class, 'resend'])
+            ->whereNumber('invitation')
+            ->middleware('throttle:20,1');
+
+        Route::delete('users/invitations/{invitation}', [UserInvitationController::class, 'destroy'])->whereNumber('invitation');
 
         Route::patch('users/{user}/role', [UserManagementController::class, 'changeRole'])->whereNumber('user');
 

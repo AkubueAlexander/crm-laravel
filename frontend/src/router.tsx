@@ -8,6 +8,8 @@ import { ContactsPage } from '@/features/contacts/components/ContactsPage';
 import { AccountsPage } from '@/features/accounts/components/AccountsPage';
 import { LeadsPage } from '@/features/leads/LeadsPage';
 import { SettingsPage } from '@/features/settings/components/SettingsPage';
+import { UsersPage } from '@/features/users/components/UsersPage';
+import { validateUsersSearch } from '@/features/users/schemas/user';
 
 const rootRoute = createRootRoute({
     component: () => <Outlet />,
@@ -85,9 +87,16 @@ const settingsRoute = createRoute({
     component: SettingsPage,
 });
 
+const usersRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/users',
+    validateSearch: validateUsersSearch,
+    component: UsersPage,
+});
+
 const routeTree = rootRoute.addChildren([
     loginRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute]),
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute]),
 ]);
 export const router = createRouter({ routeTree });
 
