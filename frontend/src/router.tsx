@@ -14,6 +14,8 @@ import { AcceptInvitationPage } from '@/features/users/components/AcceptInvitati
 import { AuditLogPage } from '@/features/audit/components/AuditLogPage';
 import { CampaignsPage } from '@/features/marketing/components/CampaignsPage';
 import { validateCampaignsSearch } from '@/features/marketing/schemas/campaign';
+import { SegmentsPage } from '@/features/marketing/components/SegmentsPage';
+import { validateSegmentsSearch } from '@/features/marketing/schemas/segment';
 import { validateAuditSearch } from '@/features/audit/schemas/audit';
 
 const rootRoute = createRootRoute({
@@ -107,6 +109,14 @@ const marketingRoute = createRoute({
     component: CampaignsPage,
 });
 
+// 9.2c: segment list. Filters, sort and page live in the URL (8.7). The builder routes arrive in 9.2d.
+const segmentsRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/marketing/segments',
+    validateSearch: validateSegmentsSearch,
+    component: SegmentsPage,
+});
+
 // 8c.3c: audit log viewer. Filters and page live in the URL (8.7).
 const auditRoute = createRoute({
     getParentRoute: () => authenticatedLayoutRoute,
@@ -125,7 +135,7 @@ const acceptInviteRoute = createRoute({
 const routeTree = rootRoute.addChildren([
     loginRoute,
     acceptInviteRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute]),
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute]),
 ]);
 export const router = createRouter({ routeTree });
 

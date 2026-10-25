@@ -22,6 +22,7 @@ import {
 } from '../schemas/campaign';
 import { ConfirmDeleteCampaignDialog } from './ConfirmDeleteCampaignDialog';
 import { CampaignFormDialog } from './CampaignFormDialog';
+import { MarketingTabs } from './MarketingTabs';
 
 const columnHelper = createColumnHelper<Campaign>();
 const EMPTY: Campaign[] = [];
@@ -207,6 +208,8 @@ export function CampaignsPage() {
 
     return (
         <div>
+            <MarketingTabs />
+
             <div className="mb-4 flex items-center justify-between">
                 <h1 className="text-lg font-medium text-[var(--color-ink)]">Campaigns</h1>
                 <div className="flex items-center gap-3">
