@@ -21,6 +21,7 @@ import {
 } from '../schemas/segment';
 import { ConfirmDeleteSegmentDialog } from './ConfirmDeleteSegmentDialog';
 import { MarketingTabs } from './MarketingTabs';
+import { EditSegmentLink, NewSegmentButton } from './SegmentRowActions';
 
 const columnHelper = createColumnHelper<Segment>();
 const EMPTY: Segment[] = [];
@@ -132,19 +133,23 @@ export function SegmentsPage() {
                 id: 'actions',
                 header: '',
                 cell: ({ row }) => {
-                    if (!canManage) return null;
                     const s = row.original;
                     return (
-                        <button
-                            type="button"
-                            onClick={() => {
-                                del.reset();
-                                setPendingDelete(s);
-                            }}
-                            className="rounded-md border px-2 py-1 text-xs text-red-700"
-                        >
-                            Delete
-                        </button>
+                        <div className="flex items-center justify-end gap-3">
+                            <EditSegmentLink id={s.id} />
+                            {canManage && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        del.reset();
+                                        setPendingDelete(s);
+                                    }}
+                                    className="rounded-md border px-2 py-1 text-xs text-red-700"
+                                >
+                                    Delete
+                                </button>
+                            )}
+                        </div>
                     );
                 },
                 enableSorting: false,
@@ -191,7 +196,10 @@ export function SegmentsPage() {
 
             <div className="mb-4 flex items-center justify-between">
                 <h1 className="text-lg font-medium text-[var(--color-ink)]">Segments</h1>
-                {isFetching && !isPending && <span className="text-xs text-gray-400">Refreshing...</span>}
+                <div className="flex items-center gap-3">
+                    {isFetching && !isPending && <span className="text-xs text-gray-400">Refreshing...</span>}
+                    <NewSegmentButton />
+                </div>
             </div>
 
             <div className="mb-3 flex flex-wrap items-center gap-2">
