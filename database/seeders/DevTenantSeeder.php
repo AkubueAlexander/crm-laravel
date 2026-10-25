@@ -39,6 +39,8 @@ class DevTenantSeeder extends Seeder
         'settings.manage',
         'users.manage',
         'audit.view',
+        'marketing.view',
+        'marketing.manage',
     ];
 
     public function run(): void
