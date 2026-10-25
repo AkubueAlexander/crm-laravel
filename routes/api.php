@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Deals\DealsController;
 use App\Http\Controllers\Api\Forecasting\ForecastController;
 use App\Http\Controllers\Api\Leads\LeadController;
 use App\Http\Controllers\Api\Marketing\CampaignController;
+use App\Http\Controllers\Api\Marketing\SegmentController;
 use App\Http\Controllers\Api\Search\SearchController;
 use App\Http\Controllers\Api\Settings\TenantSettingsController;
 use App\Http\Controllers\Api\Users\PublicInvitationController;
@@ -139,6 +140,22 @@ Route::prefix('v1')->group(function () {
         Route::put('campaigns/{campaign}', [CampaignController::class, 'update'])->whereNumber('campaign');
 
         Route::delete('campaigns/{campaign}', [CampaignController::class, 'destroy'])->whereNumber('campaign');
+
+        // 9.2: segments. Literal paths are registered before {segment}; {segment} is a plain id (no route-model binding).
+        Route::get('segments/fields', [SegmentController::class, 'fields']);
+
+        // Evaluates a definition against the tenant's contacts, so it is throttled.
+        Route::post('segments/preview', [SegmentController::class, 'preview'])->middleware('throttle:60,1');
+
+        Route::get('segments', [SegmentController::class, 'index']);
+
+        Route::post('segments', [SegmentController::class, 'store']);
+
+        Route::get('segments/{segment}', [SegmentController::class, 'show'])->whereNumber('segment');
+
+        Route::put('segments/{segment}', [SegmentController::class, 'update'])->whereNumber('segment');
+
+        Route::delete('segments/{segment}', [SegmentController::class, 'destroy'])->whereNumber('segment');
 
         // 8b.1: global search. Tenant scope + per-group *.view permission; debounced client-side.
         Route::get('search', SearchController::class)->middleware('throttle:120,1');
