@@ -12,7 +12,11 @@ use Spatie\Permission\PermissionRegistrar;
 
 final class UpdateCampaignAction
 {
-    /** @param array{name: string, subject?: string|null} $data */
+    /**
+     * Keys segment_id / email_template_id are optional: absent = leave the stored value, null = clear it.
+     *
+     * @param array{name: string, subject?: string|null, segment_id?: int|null, email_template_id?: int|null} $data
+     */
     public function execute(User $actor, int $campaignId, array $data): Campaign
     {
         // 2.4: server-side re-validation, independent of the request layer.
@@ -30,10 +34,32 @@ final class UpdateCampaignAction
                     throw ValidationException::withMessages(['status' => ['Only draft campaigns can be edited.']]);
                 }
 
-                $campaign->forceFill([
+                $changes = [
                     'name' => $data['name'],
                     'subject' => $data['subject'] ?? null,
-                ])->save();
+                ];
+
+                $segmentId = $campaign->segment_id;
+                $templateId = $campaign->email_template_id;
+
+                if (array_key_exists('segment_id', $data)) {
+                    $segmentId = $data['segment_id'] === null ? null : (int) $data['segment_id'];
+                    $changes['segment_id'] = $segmentId;
+                }
+
+                if (array_key_exists('email_template_id', $data)) {
+                    $templateId = $data['email_template_id'] === null ? null : (int) $data['email_template_id'];
+                    $changes['email_template_id'] = $templateId;
+                }
+
+                // Only the refs being changed are re-checked; an unchanged ref is not the caller's input.
+                CampaignAudienceRefs::assertOwned(
+                    $tenantId,
+                    array_key_exists('segment_id', $data) ? $segmentId : null,
+                    array_key_exists('email_template_id', $data) ? $templateId : null,
+                );
+
+                $campaign->forceFill($changes)->save();
 
                 return $campaign;
             });

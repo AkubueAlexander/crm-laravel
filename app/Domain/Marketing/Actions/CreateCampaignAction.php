@@ -12,7 +12,7 @@ use Spatie\Permission\PermissionRegistrar;
 
 final class CreateCampaignAction
 {
-    /** @param array{name: string, subject?: string|null} $data */
+    /** @param array{name: string, subject?: string|null, segment_id?: int|null, email_template_id?: int|null} $data */
     public function execute(User $actor, array $data): Campaign
     {
         // 2.4: server-side re-validation, independent of the request layer.
@@ -21,14 +21,21 @@ final class CreateCampaignAction
         $tenantId = (int) $actor->tenant_id;
         app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
 
+        $segmentId = isset($data['segment_id']) ? (int) $data['segment_id'] : null;
+        $templateId = isset($data['email_template_id']) ? (int) $data['email_template_id'] : null;
+
+        CampaignAudienceRefs::assertOwned($tenantId, $segmentId, $templateId);
+
         try {
-            return DB::transaction(function () use ($actor, $data, $tenantId): Campaign {
+            return DB::transaction(function () use ($actor, $data, $tenantId, $segmentId, $templateId): Campaign {
                 // Tenant, status and creator come from the session, never from the request body (1.3).
                 $campaign = new Campaign();
                 $campaign->forceFill([
                     'tenant_id' => $tenantId,
                     'name' => $data['name'],
                     'subject' => $data['subject'] ?? null,
+                    'segment_id' => $segmentId,
+                    'email_template_id' => $templateId,
                     'status' => Campaign::STATUS_DRAFT,
                     'created_by' => $actor->id,
                 ])->save();
