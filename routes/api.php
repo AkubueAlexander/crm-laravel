@@ -159,6 +159,8 @@ Route::prefix('v1')->group(function () {
         // 9.3b: email templates (routes/email_templates.php)
         require __DIR__ . '/email_templates.php';
         require __DIR__ . '/campaign_lifecycle.php';
+        // 9.6a-2: automations (routes/automations.php)
+        require __DIR__ . '/automations.php';
 
         // 8b.1: global search. Tenant scope + per-group *.view permission; debounced client-side.
         Route::get('search', SearchController::class)->middleware('throttle:120,1');
