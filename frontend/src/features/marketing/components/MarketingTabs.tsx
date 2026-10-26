@@ -1,18 +1,36 @@
 import { Link } from '@tanstack/react-router';
 
-const BASE = 'rounded-md px-3 py-1.5 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]';
-const ACTIVE = { className: 'bg-[var(--color-surface)] font-medium text-[var(--color-ink)] shadow-sm' };
+const tabClass = 'border-b-2 border-transparent px-3 py-2 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]';
+const activeTabClass = 'border-b-2 border-[var(--color-ink)] px-3 py-2 text-sm font-medium text-[var(--color-ink)]';
 
-// Sub-navigation of the Marketing area. Each page renders it at the top; the AppShell nav item stays "Marketing".
+/** Campaigns | Segments | Templates, rendered at the top of each marketing list page. */
 export function MarketingTabs() {
-    return (
-        <nav aria-label="Marketing sections" className="mb-5 flex gap-1 border-b border-[var(--color-border)] pb-3">
-            <Link to="/marketing" search={{}} className={BASE} activeProps={ACTIVE} activeOptions={{ exact: true }}>
-                Campaigns
-            </Link>
-            <Link to="/marketing/segments" search={{}} className={BASE} activeProps={ACTIVE}>
-                Segments
-            </Link>
-        </nav>
-    );
+  return (
+    <nav aria-label="Marketing" className="mb-4 flex gap-1 border-b border-[var(--color-border)]">
+      <Link
+        to="/marketing"
+        activeOptions={{ exact: true }}
+        className={tabClass}
+        activeProps={{ className: activeTabClass }}
+      >
+        Campaigns
+      </Link>
+      <Link
+        to="/marketing/segments"
+        activeOptions={{ exact: true }}
+        className={tabClass}
+        activeProps={{ className: activeTabClass }}
+      >
+        Segments
+      </Link>
+      <Link
+        to="/marketing/templates"
+        activeOptions={{ exact: true }}
+        className={tabClass}
+        activeProps={{ className: activeTabClass }}
+      >
+        Templates
+      </Link>
+    </nav>
+  );
 }
