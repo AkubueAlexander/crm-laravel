@@ -14,6 +14,11 @@ final class CreateContactAction
         Gate::forUser($actor)->authorize('contacts.create');
 
 
-        return Contact::create($data);
+        $contact = Contact::create($data);
+
+        // 9.6c-1: let active "contact_created" automations enroll the new contact (queued after commit).
+        \App\Jobs\EnrollForTriggerJob::fire((int) $contact->tenant_id, 'contact_created', (int) $contact->id, null);
+
+        return $contact;
     }
 }

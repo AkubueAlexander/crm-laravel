@@ -17,6 +17,11 @@ final class CreateLeadAction
         $data['status'] ??= 'new';
 
 
-        return Lead::create($data);
+        $lead = Lead::create($data);
+
+        // 9.6c-1: let active "lead_created" automations enroll the new lead (queued after commit).
+        \App\Jobs\EnrollForTriggerJob::fire((int) $lead->tenant_id, 'lead_created', null, (int) $lead->id);
+
+        return $lead;
     }
 }

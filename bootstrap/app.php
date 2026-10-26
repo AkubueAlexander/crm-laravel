@@ -19,6 +19,14 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->prefix('api/v1')
                 ->group(base_path('routes/notifications.php'));
 
+            // 9.6c-1: manual enrollment into an active automation (SPA, authenticated).
+            Route::middleware(['api', 'auth:sanctum', 'resolve.tenant'])
+                ->prefix('api/v1')
+                ->group(function () {
+                    Route::post('automations/{automation}/enroll', [\App\Http\Controllers\Api\Marketing\AutomationEnrollmentController::class, 'store'])
+                        ->whereNumber('automation');
+                });
+
             // 9.4c: public unsubscribe pages (the signed token is the credential: no session, no CSRF, throttled).
             Route::middleware(['api', 'throttle:30,1'])
                 ->group(base_path('routes/unsubscribe.php'));
