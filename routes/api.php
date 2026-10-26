@@ -156,6 +156,8 @@ Route::prefix('v1')->group(function () {
         Route::put('segments/{segment}', [SegmentController::class, 'update'])->whereNumber('segment');
 
         Route::delete('segments/{segment}', [SegmentController::class, 'destroy'])->whereNumber('segment');
+        // 9.3b: email templates (routes/email_templates.php)
+        require __DIR__ . '/email_templates.php';
 
         // 8b.1: global search. Tenant scope + per-group *.view permission; debounced client-side.
         Route::get('search', SearchController::class)->middleware('throttle:120,1');
