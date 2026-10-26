@@ -19,8 +19,10 @@ import { validateSegmentsSearch } from '@/features/marketing/schemas/segment';
 import { validateAuditSearch } from '@/features/audit/schemas/audit';
 import { createSegmentBuilderRoutes } from '@/features/marketing/segmentBuilderRoutes';
 import { createTemplateRoutes } from '@/features/marketing/templateRoutes';
+import { createAutomationRoutes } from '@/features/marketing/automationRoutes';
 const segmentBuilderRoutes = createSegmentBuilderRoutes(() => authenticatedLayoutRoute);
 const templateRoutes = createTemplateRoutes(() => authenticatedLayoutRoute);
+const automationRoutes = createAutomationRoutes(() => authenticatedLayoutRoute);
 
 const rootRoute = createRootRoute({
     component: () => <Outlet />,
@@ -139,7 +141,7 @@ const acceptInviteRoute = createRoute({
 const routeTree = rootRoute.addChildren([
     loginRoute,
     acceptInviteRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes]),
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes]),
 ]);
 export const router = createRouter({ routeTree });
 

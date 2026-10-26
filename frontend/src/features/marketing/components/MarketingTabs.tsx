@@ -31,6 +31,14 @@ export function MarketingTabs() {
       >
         Templates
       </Link>
+      <Link
+        to="/marketing/automations"
+        activeOptions={{ exact: true }}
+        className={tabClass}
+        activeProps={{ className: activeTabClass }}
+      >
+        Automations
+      </Link>
     </nav>
   );
 }
