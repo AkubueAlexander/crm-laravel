@@ -13,3 +13,6 @@ Schedule::command('activities:flag-overdue')->everyFiveMinutes()->withoutOverlap
 
 // 8b.4: delete expired contact export files.
 Schedule::command('contacts:prune-exports')->hourly()->withoutOverlapping();
+
+// 9.4c: start scheduled campaigns whose send time has arrived.
+Schedule::command('campaigns:dispatch-due')->everyMinute()->withoutOverlapping();

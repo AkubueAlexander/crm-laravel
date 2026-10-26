@@ -23,6 +23,8 @@ import {
 import { ConfirmDeleteCampaignDialog } from './ConfirmDeleteCampaignDialog';
 import { CampaignFormDialog } from './CampaignFormDialog';
 import { MarketingTabs } from './MarketingTabs';
+import { CampaignProgressBar } from './CampaignProgressBar';
+import { CampaignProgressLive } from './CampaignProgressLive';
 
 const columnHelper = createColumnHelper<Campaign>();
 const EMPTY: Campaign[] = [];
@@ -34,6 +36,7 @@ const STATUS_STYLES: Record<CampaignStatus, string> = {
     sending: 'bg-amber-50 text-amber-700',
     sent: 'bg-green-50 text-green-700',
     cancelled: 'bg-red-50 text-red-700',
+    failed: 'bg-orange-50 text-orange-700',
 };
 
 function StatusBadge({ status }: { status: CampaignStatus }) {
@@ -112,7 +115,21 @@ export function CampaignsPage() {
             }),
             columnHelper.accessor('status', {
                 header: 'Status',
-                cell: (info) => <StatusBadge status={info.getValue()} />,
+                cell: ({ row }) => {
+                    const c = row.original;
+                    return (
+                        <div className="space-y-1.5">
+                            <StatusBadge status={c.status} />
+                            {c.status === 'sending' && (
+                                <CampaignProgressBar
+                                    recipients={c.recipients_count}
+                                    sent={c.sent_count}
+                                    failed={c.failed_count}
+                                />
+                            )}
+                        </div>
+                    );
+                },
             }),
             columnHelper.accessor('recipients_count', {
                 header: 'Recipients',
@@ -121,7 +138,18 @@ export function CampaignsPage() {
             columnHelper.display({
                 id: 'sent',
                 header: 'Sent',
-                cell: ({ row }) => (row.original.status === 'draft' ? DASH : row.original.sent_count.toLocaleString()),
+                cell: ({ row }) => {
+                    const c = row.original;
+                    if (c.status === 'draft') return DASH;
+                    return (
+                        <span>
+                            {c.sent_count.toLocaleString()}
+                            {c.failed_count > 0 && (
+                                <span className="ml-1 text-xs text-red-700">({c.failed_count.toLocaleString()} failed)</span>
+                            )}
+                        </span>
+                    );
+                },
                 enableSorting: false,
             }),
             columnHelper.display({
@@ -209,6 +237,7 @@ export function CampaignsPage() {
     return (
         <div>
             <MarketingTabs />
+            <CampaignProgressLive />
 
             <div className="mb-4 flex items-center justify-between">
                 <h1 className="text-lg font-medium text-[var(--color-ink)]">Campaigns</h1>

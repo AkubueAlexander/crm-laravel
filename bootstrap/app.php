@@ -18,6 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::middleware(['api', 'auth:sanctum', 'resolve.tenant'])
                 ->prefix('api/v1')
                 ->group(base_path('routes/notifications.php'));
+
+            // 9.4c: public unsubscribe pages (the signed token is the credential: no session, no CSRF, throttled).
+            Route::middleware(['api', 'throttle:30,1'])
+                ->group(base_path('routes/unsubscribe.php'));
         },
 
     )

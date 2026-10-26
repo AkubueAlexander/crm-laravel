@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { paginationMetaSchema } from '@/shared/schemas/pagination';
 
-export const CAMPAIGN_STATUSES = ['draft', 'scheduled', 'sending', 'sent', 'cancelled'] as const;
+export const CAMPAIGN_STATUSES = ['draft', 'scheduled', 'sending', 'sent', 'failed', 'cancelled'] as const;
 export type CampaignStatus = (typeof CAMPAIGN_STATUSES)[number];
 
 // Mirrors CampaignResource (9.1a).
@@ -15,6 +15,7 @@ export const campaignSchema = z.object({
     sent_at: z.string().nullable(),
     recipients_count: z.number(),
     sent_count: z.number(),
+    failed_count: z.number(),
     opened_count: z.number(),
     clicked_count: z.number(),
     bounced_count: z.number(),

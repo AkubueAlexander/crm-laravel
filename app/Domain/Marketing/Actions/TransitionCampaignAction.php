@@ -95,8 +95,12 @@ final class TransitionCampaignAction
 
         $campaign->forceFill($attributes)->save();
 
-        // 9.4c dispatches the start job from here (after commit) when $to is 'sending';
-        // 9.4d broadcasts the status change.
+        if ($to === Campaign::STATUS_SENDING) {
+            // After commit, so the job sees the committed 'sending' status. The start job freezes the audience and
+            // the chunk jobs send; the scheduler (campaigns:dispatch-due) reaches this same path for due campaigns.
+            \App\Jobs\StartCampaignSendJob::dispatch($tenantId, (int) $campaign->id)->afterCommit();
+        }
+        \App\Domain\Marketing\Sending\CampaignProgressBroadcaster::afterCommit((int) $campaign->tenant_id, (int) $campaign->id);
 
         return $campaign;
     }

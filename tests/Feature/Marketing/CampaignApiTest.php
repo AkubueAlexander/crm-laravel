@@ -41,7 +41,7 @@ function mktgExists(int $id): bool
 
 const MKTG_KEYS = [
     'id', 'name', 'subject', 'status', 'editable', 'scheduled_at', 'sent_at', 'recipients_count',
-    'sent_count', 'opened_count', 'clicked_count', 'bounced_count', 'created_at', 'updated_at',
+    'sent_count', 'failed_count', 'opened_count', 'clicked_count', 'bounced_count', 'created_at', 'updated_at',
 ];
 
 it('gives marketing.view to every role and marketing.manage to administrators and managers only', function () {

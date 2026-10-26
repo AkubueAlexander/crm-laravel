@@ -15,6 +15,7 @@ use Spatie\Permission\PermissionRegistrar;
 
 function cmptrSetup(string $role = 'manager'): array
 {
+    \Illuminate\Support\Facades\Queue::fake();
     $tenant = Tenant::factory()->create();
     TenantContext::set($tenant);
     app(PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);

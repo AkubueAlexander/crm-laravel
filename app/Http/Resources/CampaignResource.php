@@ -27,6 +27,7 @@ class CampaignResource extends JsonResource
             'sent_at' => $this->sent_at?->toIso8601String(),
             'recipients_count' => $this->recipients_count,
             'sent_count' => $this->sent_count,
+            'failed_count' => $this->failed_count,
             'opened_count' => $this->opened_count,
             'clicked_count' => $this->clicked_count,
             'bounced_count' => $this->bounced_count,
