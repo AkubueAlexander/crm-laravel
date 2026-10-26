@@ -12,6 +12,8 @@ import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import { apiErrorMessage } from '@/shared/lib/apiErrorMessage';
 import { useCampaigns } from '../api/useCampaigns';
 import { useDeleteCampaign } from '../api/useDeleteCampaign';
+import { transitionErrorMessage, useTransitionCampaign } from '../api/useTransitionCampaign';
+import { LIFECYCLE_TARGET, type LifecycleKind } from '../schemas/campaignForm';
 import {
     CAMPAIGN_STATUSES,
     validateCampaignsSearch,
@@ -25,6 +27,8 @@ import { CampaignFormDialog } from './CampaignFormDialog';
 import { MarketingTabs } from './MarketingTabs';
 import { CampaignProgressBar } from './CampaignProgressBar';
 import { CampaignProgressLive } from './CampaignProgressLive';
+import { CampaignRowActions } from './CampaignRowActions';
+import { CampaignLifecycleDialog } from './CampaignLifecycleDialog';
 
 const columnHelper = createColumnHelper<Campaign>();
 const EMPTY: Campaign[] = [];
@@ -100,6 +104,10 @@ export function CampaignsPage() {
     // 9.1c: null = closed, 'new' = create dialog, Campaign = edit dialog.
     const [formTarget, setFormTarget] = useState<Campaign | 'new' | null>(null);
 
+    // 9.4e: lifecycle actions (send / schedule / cancel / retry) share one optimistic mutation and one confirm dialog.
+    const transition = useTransitionCampaign();
+    const [lifecycle, setLifecycle] = useState<{ campaign: Campaign; kind: LifecycleKind } | null>(null);
+
     const columns = useMemo(
         () => [
             columnHelper.accessor('name', {
@@ -173,27 +181,25 @@ export function CampaignsPage() {
                 header: '',
                 cell: ({ row }) => {
                     const c = row.original;
-                    if (!canManage || !c.editable) return null;
+                    if (!canManage) return null;
                     return (
-                        <div className="flex gap-2">
-                            <button
-                                type="button"
-                                onClick={() => setFormTarget(c)}
-                                className="rounded-md border px-2 py-1 text-xs"
-                            >
-                                Edit
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    del.reset();
-                                    setPendingDelete(c);
-                                }}
-                                className="rounded-md border px-2 py-1 text-xs text-red-700"
-                            >
-                                Delete
-                            </button>
-                        </div>
+                        <CampaignRowActions
+                            campaign={c}
+                            busy={transition.isPending && transition.variables?.campaign.id === c.id}
+                            onEdit={() => setFormTarget(c)}
+                            onDelete={() => {
+                                del.reset();
+                                setPendingDelete(c);
+                            }}
+                            onLifecycle={(kind) => {
+                                transition.reset();
+                                setLifecycle({ campaign: c, kind });
+                            }}
+                            onUnschedule={() => {
+                                transition.reset();
+                                transition.mutate({ campaign: c, toStatus: 'draft' });
+                            }}
+                        />
                     );
                 },
                 enableSorting: false,
@@ -201,7 +207,7 @@ export function CampaignsPage() {
         ],
         // del.reset is stable; setPendingDelete is a state setter.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [canManage],
+        [canManage, transition.isPending, transition.variables?.campaign.id],
     );
 
     const sorting: SortingState = [{ id: sort, desc: direction === 'desc' }];
@@ -254,6 +260,12 @@ export function CampaignsPage() {
                     )}
                 </div>
             </div>
+
+            {transition.isError && !lifecycle && (
+                <p role="alert" className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                    {transitionErrorMessage(transition.error)}
+                </p>
+            )}
 
             <div className="mb-3 flex flex-wrap items-center gap-2">
                 <input
@@ -370,6 +382,23 @@ export function CampaignsPage() {
             )}
 
             <CampaignFormDialog target={formTarget} onClose={() => setFormTarget(null)} />
+
+            <CampaignLifecycleDialog
+                intent={lifecycle}
+                isPending={transition.isPending}
+                error={transition.isError ? transitionErrorMessage(transition.error) : null}
+                onConfirm={(scheduledAt) => {
+                    if (!lifecycle) return;
+                    transition.mutate(
+                        { campaign: lifecycle.campaign, toStatus: LIFECYCLE_TARGET[lifecycle.kind], scheduledAt },
+                        { onSuccess: () => setLifecycle(null) },
+                    );
+                }}
+                onClose={() => {
+                    transition.reset();
+                    setLifecycle(null);
+                }}
+            />
 
             <ConfirmDeleteCampaignDialog
                 campaign={pendingDelete}

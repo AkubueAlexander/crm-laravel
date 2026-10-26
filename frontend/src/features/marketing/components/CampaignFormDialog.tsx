@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type UseFormRegisterReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isAxiosError } from 'axios';
 import { apiErrorMessage } from '@/shared/lib/apiErrorMessage';
 import { useCreateCampaign } from '../api/useCreateCampaign';
 import { useUpdateCampaign } from '../api/useUpdateCampaign';
+import { useSegmentOptions, useTemplateOptions, type PickerOption } from '../api/useCampaignPickerOptions';
 import type { Campaign } from '../schemas/campaign';
 import { campaignFormSchema, toCampaignInput, type CampaignFormValues } from '../schemas/campaignForm';
 
@@ -27,9 +28,66 @@ function serverFieldErrors(error: unknown): Record<string, string> {
     return out;
 }
 
+type PickerProps = {
+    id: string;
+    label: string;
+    none: string;
+    fallbackLabel: string;
+    currentId: number | null;
+    options: PickerOption[] | undefined;
+    isPending: boolean;
+    isError: boolean;
+    registration: UseFormRegisterReturn;
+    error?: string;
+};
+
+// The <select> is rendered only after its options loaded, so RHF applies the default value to a populated list.
+function Picker({ id, label, none, fallbackLabel, currentId, options, isPending, isError, registration, error }: PickerProps) {
+    const list = options ?? [];
+    // A stored id that is not in the (capped) list stays selectable, so saving never silently clears it.
+    const orphan = currentId !== null && !list.some((o) => o.id === currentId);
+
+    return (
+        <div>
+            <label htmlFor={id} className="mb-1 block text-sm font-medium">
+                {label} <span className="font-normal text-[var(--color-ink-muted)]">(needed to send)</span>
+            </label>
+            {isPending ? (
+                <p className="text-sm text-[var(--color-ink-muted)]">Loading...</p>
+            ) : isError || !options ? (
+                <p role="alert" className="text-sm text-red-700">
+                    Could not load the list. The current choice is kept.
+                </p>
+            ) : (
+                <select
+                    id={id}
+                    aria-invalid={error ? true : undefined}
+                    className="w-full rounded-md border px-3 py-2 text-sm"
+                    {...registration}
+                >
+                    <option value="">{none}</option>
+                    {orphan && <option value={String(currentId)}>{`${fallbackLabel} #${currentId}`}</option>}
+                    {list.map((o) => (
+                        <option key={o.id} value={String(o.id)}>
+                            {o.name}
+                        </option>
+                    ))}
+                </select>
+            )}
+            {error && (
+                <p role="alert" className="mt-1 text-xs text-red-700">
+                    {error}
+                </p>
+            )}
+        </div>
+    );
+}
+
 function CampaignForm({ campaign, onClose }: { campaign: Campaign | null; onClose: () => void }) {
     const create = useCreateCampaign();
     const update = useUpdateCampaign();
+    const segments = useSegmentOptions();
+    const templates = useTemplateOptions();
     const [formError, setFormError] = useState<string | null>(null);
 
     const {
@@ -40,7 +98,12 @@ function CampaignForm({ campaign, onClose }: { campaign: Campaign | null; onClos
         formState: { errors, isSubmitting },
     } = useForm<CampaignFormValues>({
         resolver: zodResolver(campaignFormSchema),
-        defaultValues: { name: campaign?.name ?? '', subject: campaign?.subject ?? '' },
+        defaultValues: {
+            name: campaign?.name ?? '',
+            subject: campaign?.subject ?? '',
+            segment_id: campaign?.segment_id != null ? String(campaign.segment_id) : '',
+            email_template_id: campaign?.email_template_id != null ? String(campaign.email_template_id) : '',
+        },
     });
 
     useEffect(() => {
@@ -68,13 +131,12 @@ function CampaignForm({ campaign, onClose }: { campaign: Campaign | null; onClos
         } catch (error) {
             const fields = serverFieldErrors(error);
             let handled = false;
-            if (fields.name) {
-                setError('name', { type: 'server', message: fields.name });
-                handled = true;
-            }
-            if (fields.subject) {
-                setError('subject', { type: 'server', message: fields.subject });
-                handled = true;
+            for (const field of ['name', 'subject', 'segment_id', 'email_template_id'] as const) {
+                const message = fields[field];
+                if (message) {
+                    setError(field, { type: 'server', message });
+                    handled = true;
+                }
             }
             if (fields.status) {
                 setFormError(fields.status);
@@ -136,6 +198,32 @@ function CampaignForm({ campaign, onClose }: { campaign: Campaign | null; onClos
                             </p>
                         )}
                     </div>
+
+                    <Picker
+                        id="campaign-segment"
+                        label="Segment"
+                        none="No segment"
+                        fallbackLabel="Segment"
+                        currentId={campaign?.segment_id ?? null}
+                        options={segments.data}
+                        isPending={segments.isPending}
+                        isError={segments.isError}
+                        registration={register('segment_id')}
+                        error={errors.segment_id?.message}
+                    />
+
+                    <Picker
+                        id="campaign-template"
+                        label="Email template"
+                        none="No template"
+                        fallbackLabel="Template"
+                        currentId={campaign?.email_template_id ?? null}
+                        options={templates.data}
+                        isPending={templates.isPending}
+                        isError={templates.isError}
+                        registration={register('email_template_id')}
+                        error={errors.email_template_id?.message}
+                    />
 
                     {formError && (
                         <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">

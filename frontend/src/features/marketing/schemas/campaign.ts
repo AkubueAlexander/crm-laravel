@@ -19,6 +19,11 @@ export const campaignSchema = z.object({
     opened_count: z.number(),
     clicked_count: z.number(),
     bounced_count: z.number(),
+    lock_version: z.number(),
+    segment_id: z.number().nullable(),
+    email_template_id: z.number().nullable(),
+    started_at: z.string().nullable(),
+    completed_at: z.string().nullable(),
     created_at: z.string().nullable(),
     updated_at: z.string().nullable(),
 });

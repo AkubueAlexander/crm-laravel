@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * A campaign as the SPA sees it (9.1). An explicit whitelist: no tenant id, no creator id.
+ * 9.4e folds in the lifecycle fields (lock_version for the transition endpoint, the audience ids for the form).
  *
  * @mixin Campaign
  */
@@ -31,6 +32,11 @@ class CampaignResource extends JsonResource
             'opened_count' => $this->opened_count,
             'clicked_count' => $this->clicked_count,
             'bounced_count' => $this->bounced_count,
+            'lock_version' => (int) $this->lock_version,
+            'segment_id' => $this->segment_id,
+            'email_template_id' => $this->email_template_id,
+            'started_at' => $this->started_at?->toIso8601String(),
+            'completed_at' => $this->completed_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];
