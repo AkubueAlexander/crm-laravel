@@ -53,6 +53,17 @@ final class UnsubscribeController extends Controller
 
     private function resolve(string $token): ?object
     {
+        $enrollment = \App\Domain\Marketing\Sending\EnrollmentUnsubscribeToken::parse($token);
+        if ($enrollment !== null) {
+            // 9.6c-2: automation emails carry an enrollment token (the tenant comes from the signed token).
+            $row = DB::table('automation_enrollments')
+                ->where('tenant_id', $enrollment['tenant_id'])
+                ->where('id', $enrollment['enrollment_id'])
+                ->first(['tenant_id', 'email']);
+
+            return $row === null ? null : (object) ['tenant_id' => $row->tenant_id, 'campaign_id' => null, 'email' => $row->email];
+        }
+
         $parsed = UnsubscribeToken::parse($token);
         if ($parsed === null) {
             return null;
