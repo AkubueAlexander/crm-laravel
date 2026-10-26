@@ -39,6 +39,14 @@ export const automationSchema = z.object({
     // {} for triggers without parameters; { segment_id } for the segment trigger.
     trigger_config: z.object({ segment_id: z.number().nullable().optional() }),
     lock_version: z.number().int(),
+    // Enrollment counts by status (9.6c-3); total is the sum of the four.
+    enrollments: z.object({
+        active: z.number().int(),
+        completed: z.number().int(),
+        cancelled: z.number().int(),
+        failed: z.number().int(),
+        total: z.number().int(),
+    }),
     steps: z.array(automationStepSchema),
     created_at: z.string().nullable(),
     updated_at: z.string().nullable(),

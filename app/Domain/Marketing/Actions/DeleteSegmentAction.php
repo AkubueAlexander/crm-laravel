@@ -38,6 +38,20 @@ final class DeleteSegmentAction
                 ]);
             }
 
+            // 9.6c-3: an ACTIVE "segment_entered" automation scans this segment; deleting it would silently stop it.
+            $usedByAutomation = DB::table('automations')
+                ->where('tenant_id', $tenantId)
+                ->where('status', 'active')
+                ->where('trigger_type', 'segment_entered')
+                ->whereRaw("(trigger_config->>'segment_id') = ?", [(string) $segmentId])
+                ->exists();
+
+            if ($usedByAutomation) {
+                throw ValidationException::withMessages([
+                    'segment' => ['This segment is used by an active automation and cannot be deleted. Pause that automation first.'],
+                ]);
+            }
+
             $segment->delete();
         });
     }

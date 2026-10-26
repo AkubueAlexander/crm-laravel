@@ -53,7 +53,7 @@ function autmapiCreate(User $actor, int $templateId, array $override = []): \App
 /** @return list<string> */
 function autmapiKeys(): array
 {
-    return ['id', 'name', 'description', 'status', 'trigger_type', 'trigger_config', 'lock_version', 'steps', 'created_at', 'updated_at'];
+    return ['id', 'name', 'description', 'status', 'trigger_type', 'trigger_config', 'lock_version', 'enrollments', 'steps', 'created_at', 'updated_at'];
 }
 
 it('autmapi: any marketing viewer can read the catalog', function () {

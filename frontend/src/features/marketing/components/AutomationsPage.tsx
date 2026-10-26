@@ -135,6 +135,20 @@ export function AutomationsPage() {
                 },
                 enableSorting: false,
             }),
+            columnHelper.display({
+                id: 'enrollments',
+                header: 'Enrolled',
+                cell: ({ row }) => {
+                    const e = row.original.enrollments;
+                    return (
+                        <div>
+                            <div>{e.total}</div>
+                            <div className="text-xs text-[var(--color-ink-muted)]">{e.active} running</div>
+                        </div>
+                    );
+                },
+                enableSorting: false,
+            }),
             columnHelper.accessor('status', {
                 header: 'Status',
                 cell: (info) => (

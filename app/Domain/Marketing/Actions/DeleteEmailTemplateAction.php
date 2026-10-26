@@ -40,6 +40,22 @@ final class DeleteEmailTemplateAction
                 ]);
             }
 
+            // 9.6c-3: an ACTIVE automation sends this template; deleting it would make every run of it fail.
+            $usedByAutomation = DB::table('automation_steps as s')
+                ->join('automations as a', 'a.id', '=', 's.automation_id')
+                ->where('s.tenant_id', $actor->tenant_id)
+                ->where('a.tenant_id', $actor->tenant_id)
+                ->where('a.status', 'active')
+                ->where('s.type', 'send_email')
+                ->whereRaw("(s.config->>'email_template_id') = ?", [(string) $id])
+                ->exists();
+
+            if ($usedByAutomation) {
+                throw ValidationException::withMessages([
+                    'template' => ['This template is used by an active automation and cannot be deleted. Pause that automation first.'],
+                ]);
+            }
+
             $template->delete();
         });
     }

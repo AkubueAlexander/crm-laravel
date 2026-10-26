@@ -41,7 +41,7 @@ class AutomationController extends Controller
         }
 
         return AutomationResource::collection(
-            $query->orderBy($sort, $direction)->orderBy('id', $direction)->paginate(self::PER_PAGE)->withQueryString()
+            $this->withEnrollmentCounts($query->orderBy($sort, $direction)->orderBy('id', $direction)->paginate(self::PER_PAGE)->withQueryString(), (int) $request->user()->tenant_id)
         );
     }
 
@@ -107,6 +107,15 @@ class AutomationController extends Controller
         }
 
         return new AutomationResource($updated);
+    }
+
+    private function withEnrollmentCounts(\Illuminate\Pagination\LengthAwarePaginator $page, int $tenantId): \Illuminate\Pagination\LengthAwarePaginator
+    {
+        // 9.6c-3: one grouped query for the whole page instead of one per row.
+        $counts = \App\Domain\Marketing\Automations\EnrollmentCounts::forAutomations($tenantId, $page->getCollection()->pluck('id')->all());
+        $page->getCollection()->each(fn (Automation $a) => $a->setAttribute('enrollment_counts', $counts[(int) $a->id]));
+
+        return $page;
     }
 
     private function find(Request $request, int $id): Automation
