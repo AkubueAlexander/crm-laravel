@@ -28,6 +28,15 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // 9.5: open/click tracking switch and the provider-agnostic bounce/complaint webhook (HMAC-SHA256 of the raw body).
+    'campaigns' => [
+        'tracking' => (bool) env('CAMPAIGN_TRACKING', true),
+    ],
+
+    'email_events' => [
+        'secret' => env('EMAIL_EVENTS_SECRET'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

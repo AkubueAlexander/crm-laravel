@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Models\Tenant;
 use App\Domain\Marketing\Actions\TransitionCampaignAction;
 use App\Domain\Marketing\Exceptions\CampaignTransitionException;
+use App\Domain\Marketing\Engagement\EngagementTracking;
 use App\Domain\Marketing\Sending\EmailSuppressions;
 use App\Domain\Marketing\Sending\SendRenderer;
 use App\Domain\Marketing\Sending\UnsubscribeToken;
@@ -142,6 +143,14 @@ class SendCampaignChunkJob implements ShouldQueue
                     $sender,
                     null,
                 );
+
+                // 9.5: open pixel + click-tracked links (the footer unsubscribe link is never rewritten).
+                if (EngagementTracking::enabled()) {
+                    $mail['html'] = EngagementTracking::apply($mail['html'], $this->tenantId, (int) $recipient->id);
+                }
+
+                // 9.5: a provider adapter echoes this header back in its bounce/complaint events (see EngagementController::events).
+                $mail['headers']['X-Campaign-Recipient'] = UnsubscribeToken::make($this->tenantId, (int) $recipient->id);
 
                 Mail::to((string) $recipient->email)->send(
                     new CampaignEmail($mail['subject'], $mail['html'], $mail['text'], $mail['headers']),

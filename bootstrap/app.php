@@ -22,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
             // 9.4c: public unsubscribe pages (the signed token is the credential: no session, no CSRF, throttled).
             Route::middleware(['api', 'throttle:30,1'])
                 ->group(base_path('routes/unsubscribe.php'));
+
+            // 9.5: public tracking pixel, click redirect and the signed provider webhook.
+            Route::middleware(['api', 'throttle:600,1'])
+                ->group(base_path('routes/engagement.php'));
         },
 
     )
