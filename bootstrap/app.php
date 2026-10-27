@@ -36,6 +36,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->prefix('api/public')
                 ->group(base_path('routes/lead_forms_public.php'));
 
+            // 9.8c: public lead form page (serves the built standalone entry; frameable, no session, no CSRF).
+            Route::middleware(['throttle:120,1'])
+                ->get('f/{uuid}', \App\Http\Controllers\PublicForms\LeadFormPageController::class)
+                ->whereUuid('uuid');
+
             // 9.5: public tracking pixel, click redirect and the signed provider webhook.
             Route::middleware(['api', 'throttle:600,1'])
                 ->group(base_path('routes/engagement.php'));
