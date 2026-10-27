@@ -96,6 +96,17 @@ function ConditionRowImpl({ index, catalog, count, onRemove, onMove }: Props) {
               className={controlClass}
               {...valueReg}
             />
+          ) : kind === 'number' ? (
+            <input
+              key="number"
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={100}
+              aria-label={`Condition ${index + 1} value`}
+              className={controlClass}
+              {...valueReg}
+            />
           ) : kind === 'days' ? (
             <div className="flex items-center gap-2">
               <input

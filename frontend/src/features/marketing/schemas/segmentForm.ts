@@ -3,7 +3,7 @@ import type { Segment } from '@/features/marketing/schemas/segment';
 
 // ---- Field catalog (GET /segments/fields). The UI renders from this; it never hardcodes fields/operators.
 
-export const valueKindSchema = z.enum(['string', 'none', 'date', 'days']);
+export const valueKindSchema = z.enum(['string', 'none', 'date', 'days', 'number']);
 export type ValueKind = z.infer<typeof valueKindSchema>;
 
 export const segmentFieldSchema = z.object({
@@ -59,6 +59,11 @@ export function validateConditionValue(kind: ValueKind, raw: string): string | n
       if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) {
         return 'Enter a real date';
       }
+      return null;
+    }
+    case 'number': {
+      if (!/^\d+$/.test(value)) return 'Enter a whole number';
+      if (value.length > 3 || Number(value) > 100) return 'Use a number between 0 and 100';
       return null;
     }
     case 'days': {
@@ -136,7 +141,7 @@ export type SegmentPayload = SegmentDefinition & {
 function rowValue(kind: ValueKind | null, raw: string): string | number | null {
   const value = raw.trim();
   if (kind === 'none') return null;
-  if (kind === 'days') return Number(value);
+  if (kind === 'days' || kind === 'number') return Number(value);
   return value;
 }
 

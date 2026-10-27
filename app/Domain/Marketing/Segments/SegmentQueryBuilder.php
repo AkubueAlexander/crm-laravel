@@ -45,14 +45,14 @@ final class SegmentQueryBuilder
 
     /**
      * @param  array{field: string, operator: string, value: string|int|null}  $condition
-     * @return array{0: string, 1: list<string>}
+     * @return array{0: string, 1: list<string|int>}
      */
     private static function clause(array $condition): array
     {
         $definition = SegmentDsl::definition($condition['field']);
         $expr = $definition['expr'];
         $value = $condition['value'] ?? null;
-        $presence = $definition['type'] === 'presence';
+        $presence = in_array($definition['type'], ['presence', 'number'], true);
 
         return match ($condition['operator']) {
             'contains' => ["{$expr} like ?", [self::like((string) $value, true)]],
@@ -65,6 +65,9 @@ final class SegmentQueryBuilder
             'before' => ["{$expr} < ?", [CarbonImmutable::parse((string) $value)->startOfDay()->toDateTimeString()]],
             'after' => ["{$expr} >= ?", [CarbonImmutable::parse((string) $value)->addDay()->startOfDay()->toDateTimeString()]],
             'in_last_days' => ["{$expr} >= ?", [now()->subDays((int) $value)->toDateTimeString()]],
+            'gte' => ["{$expr} >= ?", [(int) $value]],
+            'lte' => ["{$expr} <= ?", [(int) $value]],
+            'num_equals' => ["{$expr} = ?", [(int) $value]],
         };
     }
 

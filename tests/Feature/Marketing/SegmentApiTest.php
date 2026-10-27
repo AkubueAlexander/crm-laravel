@@ -119,7 +119,7 @@ it('serves the field catalog the builder renders', function () {
 
     expect($response->json('max_conditions'))->toBe(20);
     expect($response->json('match_modes'))->toBe(['all', 'any']);
-    expect(collect($response->json('data'))->pluck('field')->all())->toBe(['name', 'email', 'job_title', 'phone', 'account', 'created_at']);
+    expect(collect($response->json('data'))->pluck('field')->all())->toBe(['name', 'email', 'job_title', 'phone', 'account', 'created_at', 'lead_score']);
     expect($response->json('data.0'))->toHaveKeys(['field', 'label', 'type', 'operators']);
     expect($response->json('data.0.operators.0'))->toHaveKeys(['operator', 'label', 'value_kind']);
 });

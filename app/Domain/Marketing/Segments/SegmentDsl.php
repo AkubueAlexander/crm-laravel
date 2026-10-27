@@ -21,6 +21,8 @@ final class SegmentDsl
 
     public const MAX_DAYS = 3650;
 
+    public const MAX_SCORE = 100;
+
     /** operator => label + the kind of value it takes (none | string | date | days). */
     public const OPERATORS = [
         'contains' => ['label' => 'contains', 'kind' => 'string'],
@@ -33,6 +35,9 @@ final class SegmentDsl
         'before' => ['label' => 'is before', 'kind' => 'date'],
         'after' => ['label' => 'is after', 'kind' => 'date'],
         'in_last_days' => ['label' => 'was in the last N days', 'kind' => 'days'],
+        'gte' => ['label' => 'is at least', 'kind' => 'number'],
+        'lte' => ['label' => 'is at most', 'kind' => 'number'],
+        'num_equals' => ['label' => 'is exactly', 'kind' => 'number'],
     ];
 
     /** @var array<string, list<string>> */
@@ -40,6 +45,7 @@ final class SegmentDsl
         'text' => ['contains', 'not_contains', 'equals', 'not_equals', 'starts_with', 'is_empty', 'is_not_empty'],
         'presence' => ['is_empty', 'is_not_empty'],
         'date' => ['before', 'after', 'in_last_days'],
+        'number' => ['gte', 'lte', 'num_equals', 'is_empty', 'is_not_empty'],
     ];
 
     /**
@@ -56,6 +62,8 @@ final class SegmentDsl
         'phone' => ['label' => 'Phone number', 'type' => 'presence', 'expr' => 'contacts.phone_key'],
         'account' => ['label' => 'Account', 'type' => 'presence', 'expr' => 'contacts.account_id'],
         'created_at' => ['label' => 'Created', 'type' => 'date', 'expr' => 'contacts.created_at'],
+        // 9.7: highest score among the (non-deleted) leads this contact was converted from; null when none.
+        'lead_score' => ['label' => 'Lead score', 'type' => 'number', 'expr' => '(select max(l.lead_score) from leads l where l.converted_contact_id = contacts.id and l.tenant_id = contacts.tenant_id and l.deleted_at is null)'],
     ];
 
     /** @return array{label: string, type: string, expr: string} */
@@ -189,6 +197,7 @@ final class SegmentDsl
                     'string' => trim((string) $condition['value']),
                     'date' => (string) $condition['value'],
                     'days' => self::toDays($condition['value']),
+                    'number' => self::toScore($condition['value']),
                     default => null,
                 },
             ];
@@ -203,6 +212,7 @@ final class SegmentDsl
             'string' => self::stringError($value),
             'date' => self::dateError($value),
             'days' => self::daysError($value),
+            'number' => self::scoreError($value),
             default => null,
         };
     }
@@ -235,6 +245,30 @@ final class SegmentDsl
 
         if ($days === null || $days < 1 || $days > self::MAX_DAYS) {
             return 'Enter a whole number of days between 1 and '.self::MAX_DAYS.'.';
+        }
+
+        return null;
+    }
+
+    private static function scoreError(mixed $value): ?string
+    {
+        $score = self::toScore($value);
+
+        if ($score === null || $score < 0 || $score > self::MAX_SCORE) {
+            return 'Enter a whole number between 0 and '.self::MAX_SCORE.'.';
+        }
+
+        return null;
+    }
+
+    private static function toScore(mixed $value): ?int
+    {
+        if (is_int($value)) {
+            return $value;
+        }
+
+        if (is_string($value) && ctype_digit($value) && strlen($value) <= 3) {
+            return (int) $value;
         }
 
         return null;

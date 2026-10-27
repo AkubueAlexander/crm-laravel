@@ -69,7 +69,7 @@ it('exposes a field catalog whose every operator is known and evaluable', functi
 
     $fields = SegmentDsl::fields();
 
-    expect(collect($fields)->pluck('field')->all())->toBe(['name', 'email', 'job_title', 'phone', 'account', 'created_at']);
+    expect(collect($fields)->pluck('field')->all())->toBe(['name', 'email', 'job_title', 'phone', 'account', 'created_at', 'lead_score']);
 
     foreach ($fields as $field) {
         expect($field)->toHaveKeys(['field', 'label', 'type', 'operators']);
@@ -82,6 +82,7 @@ it('exposes a field catalog whose every operator is known and evaluable', functi
                 'string' => 'x',
                 'date' => '2026-01-01',
                 'days' => 7,
+                'number' => 50,
                 default => null,
             };
             $conditions = [segmC($field['field'], $operator['operator'], $value)];
