@@ -4,6 +4,9 @@ import { useLeads } from '../api/useLeads';
 import { useDeleteLead } from '../api/useLeadMutations';
 import { LEAD_FILTERABLE_STATUSES, LEAD_SORTABLE_COLUMNS, type Lead, type LeadSortColumn } from '../schemas/lead';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
+import { Modal } from '@/shared/components/Modal';
+import { LeadScoreBadge } from './LeadScoreBadge';
+import { LeadScoreBreakdown } from './LeadScoreBreakdown';
 
 type LeadListProps = {
     onEdit: (lead: Lead) => void;
@@ -19,6 +22,7 @@ export function LeadList({ onEdit, onConvert, onActivity }: LeadListProps) {
     const [sorting, setSorting] = useState<SortingState>([{ id: 'created_at', desc: true }]);
     const [statusFilter, setStatusFilter] = useState('');
     const [search, setSearch] = useState('');
+    const [scoreLead, setScoreLead] = useState<Lead | null>(null);
     const debouncedSearch = useDebouncedValue(search.trim(), 300);
 
     useEffect(() => {
@@ -39,6 +43,19 @@ export function LeadList({ onEdit, onConvert, onActivity }: LeadListProps) {
             columnHelper.accessor('company', { header: 'Company' }),
             columnHelper.accessor('status', { header: 'Status', cell: (i) => <span className="capitalize">{i.getValue()}</span> }),
             columnHelper.accessor('owner', { header: 'Owner', cell: (i) => i.getValue()?.name ?? 'Unassigned', enableSorting: false }),
+            columnHelper.accessor('score', {
+                header: 'Score',
+                enableSorting: false,
+                cell: (i) => (
+                    <button
+                        type="button"
+                        onClick={() => setScoreLead(i.row.original)}
+                        aria-label={`Score ${i.getValue()}, show breakdown`}
+                    >
+                        <LeadScoreBadge score={i.getValue()} />
+                    </button>
+                ),
+            }),
             columnHelper.accessor('created_at', { header: 'Created', cell: (i) => (i.getValue() ? new Date(i.getValue()!).toLocaleDateString() : '-') }),
             columnHelper.display({
                 id: 'actions',
@@ -85,6 +102,10 @@ export function LeadList({ onEdit, onConvert, onActivity }: LeadListProps) {
 
     return (
         <div>
+            <Modal open={!!scoreLead} onClose={() => setScoreLead(null)} title="Lead score">
+                {scoreLead && <LeadScoreBreakdown lead={scoreLead} />}
+            </Modal>
+
             <div className="mb-3 flex items-center gap-2">
                 <label htmlFor="status-filter" className="text-sm font-medium">Status</label>
                 <select

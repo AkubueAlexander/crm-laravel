@@ -22,3 +22,6 @@ Schedule::command('automations:run-due')->everyMinute()->withoutOverlapping();
 
 // 9.6c-2: enroll contacts that now match the segment of an active "segment_entered" automation.
 Schedule::command('automations:scan-segments')->everyFiveMinutes()->withoutOverlapping();
+
+// 9.7: rescore leads that were never scored or had campaign engagement in the last two hours.
+Schedule::command('leads:rescore')->hourly()->withoutOverlapping();

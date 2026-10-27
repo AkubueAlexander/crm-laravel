@@ -17,6 +17,9 @@ final class UpdateLeadAction
         // ASSIGNABLE_STATUSES excludes it. Only ConvertLeadAction sets it.
         $lead->update($data);
 
+        // 9.7: any field the score depends on may have changed.
+        \App\Domain\Leads\Scoring\LeadScoring::applyTo($lead);
+
         return $lead;
     }
 }

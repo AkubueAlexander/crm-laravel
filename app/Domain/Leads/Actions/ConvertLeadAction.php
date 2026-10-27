@@ -82,6 +82,9 @@ final class ConvertLeadAction
                 'converted_deal_id' => $deal->id,
             ])->save();
 
+            // 9.7: the status changed to converted.
+            \App\Domain\Leads\Scoring\LeadScoring::applyTo($locked);
+
             return $locked;
         });
     }

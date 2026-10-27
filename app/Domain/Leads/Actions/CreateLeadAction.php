@@ -22,6 +22,9 @@ final class CreateLeadAction
         // 9.6c-1: let active "lead_created" automations enroll the new lead (queued after commit).
         \App\Jobs\EnrollForTriggerJob::fire((int) $lead->tenant_id, 'lead_created', null, (int) $lead->id);
 
+        // 9.7: score the new lead (stored on the row, also set on the returned model).
+        \App\Domain\Leads\Scoring\LeadScoring::applyTo($lead);
+
         return $lead;
     }
 }

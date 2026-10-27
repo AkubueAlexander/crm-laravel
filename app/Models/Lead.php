@@ -35,6 +35,9 @@ class Lead extends Model
     {
         return [
             'converted_at' => 'datetime',
+            'lead_score' => 'integer',
+            'score_factors' => 'array',
+            'score_updated_at' => 'datetime',
         ];
     }
 

@@ -14,6 +14,10 @@ export const leadSchema = z.object({
     status: z.enum(['new', 'contacted', 'qualified', 'disqualified', 'converted']),
     owner_id: z.number().nullable(),
     owner: z.object({ id: z.number(), name: z.string() }).nullable().optional(),
+    // 9.7: computed server-side, read-only (never part of the create/update schemas).
+    score: z.number().int(),
+    score_factors: z.array(z.object({ key: z.string(), label: z.string(), points: z.number().int() })),
+    score_updated_at: z.string().nullable(),
     converted_at: z.string().nullable(),
     converted_contact_id: z.number().nullable(),
     converted_account_id: z.number().nullable(),
