@@ -26,7 +26,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
                 role="dialog"
                 aria-modal="true"
                 aria-label={title}
-                className="w-full max-w-lg rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-lg"
+                className="max-h-[calc(100vh-2rem)] w-full max-w-lg overflow-y-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-lg"
             >
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-base font-medium text-[var(--color-ink)]">{title}</h2>
