@@ -23,6 +23,7 @@ const NAV_ITEMS: NavItem[] = [
     { label: 'Accounts', to: '/accounts', permission: 'accounts.view' },
     { label: 'Forecast', to: '/forecast', permission: 'forecast.view' },
     { label: 'Marketing', to: '/marketing', permission: 'marketing.view' },
+    { label: 'Products', to: '/products', permission: 'products.view' },
     { label: 'Sales', to: '/sales', permission: 'sales.view' },
     { label: 'Inventory', to: '/inventory', permission: 'inventory.view' },
     { label: 'Accounting', to: '/accounting', permission: 'accounting.view' },

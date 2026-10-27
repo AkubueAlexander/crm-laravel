@@ -22,6 +22,8 @@ import { createTemplateRoutes } from '@/features/marketing/templateRoutes';
 import { createAutomationRoutes } from '@/features/marketing/automationRoutes';
 import { LeadFormsPage } from '@/features/marketing/components/LeadFormsPage';
 import { CampaignDashboard } from '@/features/marketing/components/CampaignDashboard';
+import { ProductsPage } from '@/features/products/components/ProductsPage';
+import { validateProductsSearch } from '@/features/products/schemas/product';
 const segmentBuilderRoutes = createSegmentBuilderRoutes(() => authenticatedLayoutRoute);
 const templateRoutes = createTemplateRoutes(() => authenticatedLayoutRoute);
 const automationRoutes = createAutomationRoutes(() => authenticatedLayoutRoute);
@@ -147,6 +149,14 @@ const acceptInviteRoute = createRoute({
     component: AcceptInvitationPage,
 });
 
+// 10.0c: product catalog. Filters, sort and page live in the URL (8.7).
+const productsRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/products',
+    validateSearch: validateProductsSearch,
+    component: ProductsPage,
+});
+
 // 9.10: campaign dashboard.
 const campaignDashboardRoute = createRoute({
     getParentRoute: () => authenticatedLayoutRoute,
@@ -157,7 +167,7 @@ const campaignDashboardRoute = createRoute({
 const routeTree = rootRoute.addChildren([
     loginRoute,
     acceptInviteRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute]),
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute, productsRoute]),
 ]);
 export const router = createRouter({ routeTree });
 
