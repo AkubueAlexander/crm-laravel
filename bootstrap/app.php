@@ -31,6 +31,11 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::middleware(['api', 'throttle:30,1'])
                 ->group(base_path('routes/unsubscribe.php'));
 
+            // 9.8a-2: public lead-capture forms (unauthenticated; throttled per route; CAPTCHA + honeypot inside the action).
+            Route::middleware(['api'])
+                ->prefix('api/public')
+                ->group(base_path('routes/lead_forms_public.php'));
+
             // 9.5: public tracking pixel, click redirect and the signed provider webhook.
             Route::middleware(['api', 'throttle:600,1'])
                 ->group(base_path('routes/engagement.php'));
@@ -39,6 +44,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->statefulApi();
+
+        // 9.8a-2: public lead forms carry no session and no credentials, so they take no CSRF token.
+        $middleware->validateCsrfTokens(except: ['api/public/*']);
 
         $middleware->alias([
             'resolve.tenant' => ResolveTenant::class,

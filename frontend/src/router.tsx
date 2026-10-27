@@ -20,6 +20,7 @@ import { validateAuditSearch } from '@/features/audit/schemas/audit';
 import { createSegmentBuilderRoutes } from '@/features/marketing/segmentBuilderRoutes';
 import { createTemplateRoutes } from '@/features/marketing/templateRoutes';
 import { createAutomationRoutes } from '@/features/marketing/automationRoutes';
+import { LeadFormsPage } from '@/features/marketing/components/LeadFormsPage';
 const segmentBuilderRoutes = createSegmentBuilderRoutes(() => authenticatedLayoutRoute);
 const templateRoutes = createTemplateRoutes(() => authenticatedLayoutRoute);
 const automationRoutes = createAutomationRoutes(() => authenticatedLayoutRoute);
@@ -123,6 +124,13 @@ const segmentsRoute = createRoute({
     component: SegmentsPage,
 });
 
+// 9.8b: lead capture forms (admin). The public page for a form is /f/{uuid} (9.8c), outside this layout.
+const leadFormsRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/marketing/forms',
+    component: LeadFormsPage,
+});
+
 // 8c.3c: audit log viewer. Filters and page live in the URL (8.7).
 const auditRoute = createRoute({
     getParentRoute: () => authenticatedLayoutRoute,
@@ -141,7 +149,7 @@ const acceptInviteRoute = createRoute({
 const routeTree = rootRoute.addChildren([
     loginRoute,
     acceptInviteRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes]),
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute]),
 ]);
 export const router = createRouter({ routeTree });
 

@@ -33,6 +33,12 @@ return [
         'tracking' => (bool) env('CAMPAIGN_TRACKING', true),
     ],
 
+    // 9.8a-2: Cloudflare Turnstile for the public lead forms. With no secret the check only passes in local/testing.
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
     'email_events' => [
         'secret' => env('EMAIL_EVENTS_SECRET'),
     ],
