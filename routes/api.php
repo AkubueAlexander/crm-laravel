@@ -159,6 +159,17 @@ Route::prefix('v1')->group(function () {
         // 9.3b: email templates (routes/email_templates.php)
         require __DIR__ . '/email_templates.php';
         require __DIR__ . '/campaign_lifecycle.php';
+        // 10.0b: product catalog. {product} is a plain id (no route-model binding): every lookup carries an explicit tenant predicate.
+        Route::get('products', [\App\Http\Controllers\Api\Products\ProductController::class, 'index']);
+
+        Route::post('products', [\App\Http\Controllers\Api\Products\ProductController::class, 'store']);
+
+        Route::get('products/{product}', [\App\Http\Controllers\Api\Products\ProductController::class, 'show'])->whereNumber('product');
+
+        Route::put('products/{product}', [\App\Http\Controllers\Api\Products\ProductController::class, 'update'])->whereNumber('product');
+
+        Route::delete('products/{product}', [\App\Http\Controllers\Api\Products\ProductController::class, 'destroy'])->whereNumber('product');
+
         // 9.10: read-only campaign report (totals, rates, daily series, utm attribution).
         Route::get('campaigns/{campaign}/report', [\App\Http\Controllers\Api\Marketing\CampaignReportController::class, 'show'])
             ->whereNumber('campaign')

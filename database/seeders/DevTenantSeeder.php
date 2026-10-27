@@ -41,6 +41,8 @@ class DevTenantSeeder extends Seeder
         'audit.view',
         'marketing.view',
         'marketing.manage',
+        'products.view',
+        'products.manage',
     ];
 
     public function run(): void
