@@ -21,6 +21,11 @@ class LeadResource extends JsonResource
             'phone' => $this->phone,
             'company' => $this->company,
             'source' => $this->source,
+            // 9.9: where the lead came from (read-only).
+            'lead_form_id' => $this->lead_form_id,
+            'utm_source' => $this->utm_source,
+            'utm_medium' => $this->utm_medium,
+            'utm_campaign' => $this->utm_campaign,
             'status' => $this->status,
             'owner_id' => $this->owner_id,
             'owner' => $this->whenLoaded('owner', fn () => $this->owner?->only(['id', 'name'])),

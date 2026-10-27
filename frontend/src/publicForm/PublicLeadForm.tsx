@@ -145,6 +145,13 @@ function FormBody({ uuid, definition }: { uuid: string; definition: PublicFormDe
         body.website = honeypot.current?.value ?? '';
         if (token) body.captcha_token = token;
 
+        // 9.9: campaign attribution from the page URL (?utm_source=...&utm_medium=...&utm_campaign=...).
+        const params = new URLSearchParams(window.location.search);
+        for (const key of ['utm_source', 'utm_medium', 'utm_campaign']) {
+            const value = (params.get(key) ?? '').trim();
+            if (value !== '') body[key] = value.slice(0, 100);
+        }
+
         mutation.mutate(body);
     };
 

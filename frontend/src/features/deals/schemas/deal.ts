@@ -22,6 +22,12 @@ export const dealSchema = z.object({
     expected_close_date: z.string().nullable(),
     stage: dealStageSchema,
     stage_label: z.string(),
+    // 9.9: attribution copied from the lead on conversion, read-only.
+    source: z.string().nullable().optional(),
+    lead_form_id: z.number().nullable().optional(),
+    utm_source: z.string().nullable().optional(),
+    utm_medium: z.string().nullable().optional(),
+    utm_campaign: z.string().nullable().optional(),
     lock_version: z.number(),
     created_at: z.string(),
     updated_at: z.string(),

@@ -6,7 +6,7 @@ import {
     useReactTable,
     type SortingState,
 } from '@tanstack/react-table';
-import { useNavigate, useSearch } from '@tanstack/react-router';
+import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import { usePermission } from '@/shared/hooks/usePermission';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import { apiErrorMessage } from '@/shared/lib/apiErrorMessage';
@@ -114,7 +114,19 @@ export function CampaignsPage() {
                 header: 'Campaign',
                 cell: (info) => (
                     <div>
-                        <div className="font-medium">{info.getValue()}</div>
+                        <div className="font-medium">
+                            {info.row.original.status === 'draft' ? (
+                                info.getValue()
+                            ) : (
+                                <Link
+                                    to="/marketing/campaigns/$campaignId"
+                                    params={{ campaignId: String(info.row.original.id) }}
+                                    className="underline-offset-2 hover:underline"
+                                >
+                                    {info.getValue()}
+                                </Link>
+                            )}
+                        </div>
                         {info.row.original.subject && (
                             <div className="text-xs text-[var(--color-ink-muted)]">{info.row.original.subject}</div>
                         )}

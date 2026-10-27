@@ -24,6 +24,9 @@ use Illuminate\Support\Str;
  *
  * Duplicate detection (5.0) is intentionally not run: a person already chose
  * to convert this specific lead.
+ *
+ * 9.9: the lead's attribution (source, lead form, UTM tags) is copied onto the
+ * deal at creation, so revenue can be traced back to where the lead came from.
  */
 final class ConvertLeadAction
 {
@@ -63,7 +66,7 @@ final class ConvertLeadAction
             // board_id is deliberately not set: the deals migration reviewed for
             // this chunk has no such column. `state` is left to DealState's
             // configured default (Lead) rather than guessing its stored key.
-            $deal = Deal::create([
+            $deal = new Deal([
                 'account_id' => $account?->id,
                 'contact_id' => $contact->id,
                 'name' => Str::limit($this->dealName($locked, $lastName, $data), 255, ''),
@@ -71,6 +74,9 @@ final class ConvertLeadAction
                 'amount' => $data['amount'] ?? null,
                 'expected_close_date' => $data['expected_close_date'] ?? null,
             ]);
+
+            // 9.9: attribution is not mass-assignable on Deal; it is copied from the lead row, never from request data.
+            $deal->forceFill($this->attribution($locked))->save();
 
             // Written directly (not via request validation): this is the only
             // place a lead becomes 'converted'.
@@ -87,6 +93,18 @@ final class ConvertLeadAction
 
             return $locked;
         });
+    }
+
+    /** @return array{source: ?string, lead_form_id: ?int, utm_source: ?string, utm_medium: ?string, utm_campaign: ?string} */
+    private function attribution(Lead $lead): array
+    {
+        return [
+            'source' => $this->blankToNull($lead->source),
+            'lead_form_id' => $lead->lead_form_id !== null ? (int) $lead->lead_form_id : null,
+            'utm_source' => $this->blankToNull($lead->utm_source),
+            'utm_medium' => $this->blankToNull($lead->utm_medium),
+            'utm_campaign' => $this->blankToNull($lead->utm_campaign),
+        ];
     }
 
     /** Reuses a same-named account in the current tenant, otherwise creates one. */

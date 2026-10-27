@@ -21,6 +21,7 @@ import { createSegmentBuilderRoutes } from '@/features/marketing/segmentBuilderR
 import { createTemplateRoutes } from '@/features/marketing/templateRoutes';
 import { createAutomationRoutes } from '@/features/marketing/automationRoutes';
 import { LeadFormsPage } from '@/features/marketing/components/LeadFormsPage';
+import { CampaignDashboard } from '@/features/marketing/components/CampaignDashboard';
 const segmentBuilderRoutes = createSegmentBuilderRoutes(() => authenticatedLayoutRoute);
 const templateRoutes = createTemplateRoutes(() => authenticatedLayoutRoute);
 const automationRoutes = createAutomationRoutes(() => authenticatedLayoutRoute);
@@ -146,10 +147,17 @@ const acceptInviteRoute = createRoute({
     component: AcceptInvitationPage,
 });
 
+// 9.10: campaign dashboard.
+const campaignDashboardRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/marketing/campaigns/$campaignId',
+    component: CampaignDashboard,
+});
+
 const routeTree = rootRoute.addChildren([
     loginRoute,
     acceptInviteRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute]),
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute]),
 ]);
 export const router = createRouter({ routeTree });
 

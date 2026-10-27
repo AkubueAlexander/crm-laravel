@@ -19,6 +19,12 @@ class DealResource extends JsonResource
             'expected_close_date' => $this->expected_close_date?->toDateString(),
             'stage' => array_search($this->state::class, TransitionDealAction::STATE_MAP) ?: null,
             'stage_label' => $this->state->label(),
+            // 9.9: where the deal came from (copied from the lead on conversion; read-only).
+            'source' => $this->source,
+            'lead_form_id' => $this->lead_form_id,
+            'utm_source' => $this->utm_source,
+            'utm_medium' => $this->utm_medium,
+            'utm_campaign' => $this->utm_campaign,
             'lock_version' => $this->lock_version,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\DB;
 final class CaptureLeadAction
 {
     /** @param array<string, mixed> $data validated form values */
-    public function execute(int $tenantId, array $data, ?string $source): ?Lead
+    public function execute(int $tenantId, array $data, ?string $source, array $attribution = []): ?Lead
     {
         $clean = array_intersect_key($data, LeadFormDsl::FIELDS);
         $email = isset($clean['email']) ? trim((string) $clean['email']) : '';
@@ -39,6 +39,8 @@ final class CaptureLeadAction
         $lead->fill($clean + []);
         $lead->fill(['source' => $source, 'status' => 'new']);
         $lead->tenant_id = $tenantId;
+        // 9.9: attribution is set by the system (form row + sanitized UTM values), never mass-assigned from visitor input.
+        $lead->forceFill(array_intersect_key($attribution, array_flip(['lead_form_id', 'utm_source', 'utm_medium', 'utm_campaign'])));
         $lead->save();
 
         EnrollForTriggerJob::fire((int) $lead->tenant_id, 'lead_created', null, (int) $lead->id);

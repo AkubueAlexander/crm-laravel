@@ -11,6 +11,11 @@ export const leadSchema = z.object({
     phone: z.string().nullable(),
     company: z.string().nullable(),
     source: z.string().nullable(),
+    // 9.9: attribution, read-only.
+    lead_form_id: z.number().nullable().optional(),
+    utm_source: z.string().nullable().optional(),
+    utm_medium: z.string().nullable().optional(),
+    utm_campaign: z.string().nullable().optional(),
     status: z.enum(['new', 'contacted', 'qualified', 'disqualified', 'converted']),
     owner_id: z.number().nullable(),
     owner: z.object({ id: z.number(), name: z.string() }).nullable().optional(),

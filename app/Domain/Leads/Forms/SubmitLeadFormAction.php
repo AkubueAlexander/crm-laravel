@@ -57,7 +57,15 @@ final class SubmitLeadFormAction
         // HTTP request scope only (the context dies with the request); queue workers clear theirs in a finally.
         TenantContext::set($tenant);
 
-        app(CaptureLeadAction::class)->execute((int) $form->tenant_id, $clean, $form->source);
+        // 9.9: attribution = the form row (never the request) + a whitelist of UTM tags, control chars stripped, max 100.
+        $attribution = ['lead_form_id' => (int) $form->id];
+        foreach (['utm_source', 'utm_medium', 'utm_campaign'] as $key) {
+            $value = $input[$key] ?? null;
+            $value = is_string($value) ? trim(preg_replace('/[\x00-\x1F\x7F]/u', '', $value) ?? '') : '';
+            $attribution[$key] = $value !== '' ? mb_substr($value, 0, 100) : null;
+        }
+
+        app(CaptureLeadAction::class)->execute((int) $form->tenant_id, $clean, $form->source, $attribution);
 
         return $message;
     }

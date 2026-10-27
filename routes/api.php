@@ -159,6 +159,10 @@ Route::prefix('v1')->group(function () {
         // 9.3b: email templates (routes/email_templates.php)
         require __DIR__ . '/email_templates.php';
         require __DIR__ . '/campaign_lifecycle.php';
+        // 9.10: read-only campaign report (totals, rates, daily series, utm attribution).
+        Route::get('campaigns/{campaign}/report', [\App\Http\Controllers\Api\Marketing\CampaignReportController::class, 'show'])
+            ->whereNumber('campaign')
+            ->middleware('throttle:60,1');
         // 9.6a-2: automations (routes/automations.php)
         require __DIR__ . '/automations.php';
         // 9.8a: lead capture forms, admin side (routes/lead_forms.php)
