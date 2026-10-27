@@ -161,6 +161,8 @@ Route::prefix('v1')->group(function () {
         require __DIR__ . '/campaign_lifecycle.php';
         // 9.6a-2: automations (routes/automations.php)
         require __DIR__ . '/automations.php';
+        // 9.8a: lead capture forms, admin side (routes/lead_forms.php)
+        require __DIR__ . '/lead_forms.php';
 
         // 8b.1: global search. Tenant scope + per-group *.view permission; debounced client-side.
         Route::get('search', SearchController::class)->middleware('throttle:120,1');
