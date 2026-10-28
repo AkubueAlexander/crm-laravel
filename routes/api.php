@@ -159,6 +159,8 @@ Route::prefix('v1')->group(function () {
         // 9.3b: email templates (routes/email_templates.php)
         require __DIR__ . '/email_templates.php';
         require __DIR__ . '/campaign_lifecycle.php';
+        // 10.4b: invoices (routes/invoices.php)
+        require __DIR__ . '/invoices.php';
         // 10.0b: product catalog. {product} is a plain id (no route-model binding): every lookup carries an explicit tenant predicate.
         Route::get('products', [\App\Http\Controllers\Api\Products\ProductController::class, 'index']);
 
