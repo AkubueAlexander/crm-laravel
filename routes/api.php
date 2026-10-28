@@ -170,6 +170,17 @@ Route::prefix('v1')->group(function () {
 
         Route::delete('products/{product}', [\App\Http\Controllers\Api\Products\ProductController::class, 'destroy'])->whereNumber('product');
 
+        // 10.1b: quotes. {quote} is a plain id (no route-model binding): every lookup carries an explicit tenant predicate.
+        Route::get('quotes', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'index']);
+
+        Route::post('quotes', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'store']);
+
+        Route::get('quotes/{quote}', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'show'])->whereNumber('quote');
+
+        Route::put('quotes/{quote}', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'update'])->whereNumber('quote');
+
+        Route::delete('quotes/{quote}', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'destroy'])->whereNumber('quote');
+
         // 9.10: read-only campaign report (totals, rates, daily series, utm attribution).
         Route::get('campaigns/{campaign}/report', [\App\Http\Controllers\Api\Marketing\CampaignReportController::class, 'show'])
             ->whereNumber('campaign')
