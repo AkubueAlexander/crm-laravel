@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { paginationMetaSchema } from '@/shared/schemas/pagination';
 import { TAX_CATEGORIES } from '@/features/products/schemas/product';
+import { paymentSchema } from './payment';
 
 export const INVOICE_STATUSES = ['draft', 'issued', 'paid', 'void'] as const;
 export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
@@ -65,6 +66,8 @@ export const invoiceSchema = z.object({
     subtotal: z.string(),
     tax_total: z.string(),
     total: z.string(),
+    amount_paid: z.string(),
+    balance: z.string(),
     issued_at: z.string().nullable(),
     paid_at: z.string().nullable(),
     voided_at: z.string().nullable(),
@@ -72,6 +75,7 @@ export const invoiceSchema = z.object({
     created_by: z.number().nullable(),
     lines_count: z.number().optional(),
     lines: z.array(invoiceLineSchema).optional(),
+    payments: z.array(paymentSchema).optional(),
     created_at: z.string().nullable(),
     updated_at: z.string().nullable(),
 });

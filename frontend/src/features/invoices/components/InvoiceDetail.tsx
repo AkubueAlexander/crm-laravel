@@ -8,6 +8,7 @@ import { usePermission } from '@/shared/hooks/usePermission';
 import { apiErrorMessage } from '@/shared/lib/apiErrorMessage';
 import { formatMoney } from '@/features/quotes/schemas/quote';
 import { PdfPreview } from '@/shared/components/PdfPreview';
+import { PaymentsSection } from './PaymentsSection';
 import { useInvoice } from '../api/useInvoices';
 import { transitionInvoiceErrorMessage, useTransitionInvoice } from '../api/useInvoiceMutations';
 import { INVOICE_ACTION_LABELS, INVOICE_STATUS_LABELS, INVOICE_TRANSITIONS, type Invoice, type InvoiceStatus } from '../schemas/invoice';
@@ -244,6 +245,8 @@ function InvoiceView({ invoice }: { invoice: Invoice }) {
                 <dt className="font-medium">Total</dt>
                 <dd className="text-right font-medium">{money(invoice.total)}</dd>
             </dl>
+
+            <PaymentsSection invoice={invoice} />
 
             {(invoice.notes || invoice.terms) && (
                 <div className="mt-6 grid grid-cols-1 gap-4 text-sm md:grid-cols-2">

@@ -77,6 +77,11 @@ export function InvoicesPage() {
                 header: 'Total',
                 cell: (info) => formatMoney(info.getValue(), info.row.original.currency),
             }),
+            columnHelper.accessor('balance', {
+                header: 'Balance',
+                cell: (info) => (info.row.original.status === 'issued' || info.row.original.status === 'paid' ? formatMoney(info.getValue(), info.row.original.currency) : '-'),
+                enableSorting: false,
+            }),
             columnHelper.accessor('due_date', {
                 header: 'Due',
                 cell: (info) => info.getValue() ?? '-',
