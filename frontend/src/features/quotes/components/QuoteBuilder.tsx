@@ -10,6 +10,7 @@ import { useProduct, useProducts } from '@/features/products/api/useProducts';
 import { TAX_CATEGORIES, type Product, type ProductVariant } from '@/features/products/schemas/product';
 import { useQuote } from '../api/useQuotes';
 import { useSaveQuote } from '../api/useQuoteMutations';
+import { useQuoteVersions, useReviseQuote } from '../api/useQuoteVersions';
 import { QUOTE_STATUS_LABELS, formatMoney, type Quote } from '../schemas/quote';
 import {
     emptyQuoteValues,
@@ -178,6 +179,76 @@ function TotalsPreview({ control }: { control: Control<QuoteFormValues> }) {
     );
 }
 
+// 10.2: version switcher + "Revise". A revision is a new row with the same number and version + 1; only the
+// latest version of a quote that left draft can be revised (the server enforces it, the button only mirrors it).
+function VersionBar({ quote, canManage }: { quote: Quote; canManage: boolean }) {
+    const versions = useQuoteVersions(quote.id);
+    const revise = useReviseQuote();
+    const navigate = useNavigate();
+    const [reviseError, setReviseError] = useState<string | null>(null);
+
+    const rows = versions.data ?? [];
+    const latest = rows[0] ?? null; // newest first
+    const isLatest = latest === null || latest.id === quote.id;
+    const canRevise = canManage && quote.status !== 'draft' && isLatest;
+
+    async function onRevise() {
+        setReviseError(null);
+        try {
+            const created = await revise.mutateAsync(quote.id);
+            await navigate({ to: '/quotes/$quoteId', params: { quoteId: String(created.id) } });
+        } catch (error) {
+            setReviseError(Object.values(serverFieldErrors(error))[0] ?? apiErrorMessage(error, 'Could not create a new version. Please try again.'));
+        }
+    }
+
+    if (rows.length <= 1 && !canRevise) return null;
+
+    return (
+        <div className="mb-3 flex flex-wrap items-center gap-3">
+            {rows.length > 1 && (
+                <label className="flex items-center gap-2 text-sm">
+                    Version
+                    <select
+                        value={quote.id}
+                        onChange={(e) => void navigate({ to: '/quotes/$quoteId', params: { quoteId: e.target.value } })}
+                        className="rounded-md border px-2 py-1 text-sm"
+                    >
+                        {rows.map((v) => (
+                            <option key={v.id} value={v.id}>
+                                {`v${v.version} - ${QUOTE_STATUS_LABELS[v.status]}${v.id === latest?.id ? ' (latest)' : ''}`}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+            )}
+            {!isLatest && latest && (
+                <span className="text-sm text-[var(--color-ink-muted)]">
+                    Viewing an older version.{' '}
+                    <Link to="/quotes/$quoteId" params={{ quoteId: String(latest.id) }} className="underline">
+                        Go to the latest
+                    </Link>
+                </span>
+            )}
+            {canRevise && (
+                <button
+                    type="button"
+                    onClick={() => void onRevise()}
+                    disabled={revise.isPending}
+                    className="rounded-md border px-3 py-1.5 text-sm disabled:opacity-50"
+                >
+                    {revise.isPending ? 'Creating...' : 'Revise (new version)'}
+                </button>
+            )}
+            {reviseError && (
+                <p role="alert" className="text-sm text-red-700">
+                    {reviseError}
+                </p>
+            )}
+        </div>
+    );
+}
+
 function QuoteEditor({ quote }: { quote: Quote | null }) {
     const canManage = usePermission('quotes.manage');
     const readOnly = !canManage || (quote !== null && quote.status !== 'draft');
@@ -248,6 +319,8 @@ function QuoteEditor({ quote }: { quote: Quote | null }) {
                     )}
                 </div>
             </div>
+
+            {quote && <VersionBar quote={quote} canManage={canManage} />}
 
             {readOnly && quote && (
                 <p className="mb-3 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-ink-muted)]">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Quotes;
 
 use App\Domain\Quotes\Actions\DeleteQuoteAction;
+use App\Domain\Quotes\Actions\ReviseQuoteAction;
 use App\Domain\Quotes\Actions\SaveQuoteAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Quotes\ListQuotesRequest;
@@ -28,6 +29,8 @@ final class QuoteController extends Controller
 
         $quotes = Quote::query()
             ->where('tenant_id', $tenantId)
+            // 10.2: one row per quote in the list: its latest version. Older versions are reached through /versions.
+            ->whereRaw('quotes.version = (select max(v.version) from quotes v where v.tenant_id = quotes.tenant_id and v.quote_seq = quotes.quote_seq)')
             ->withCount('lines')
             ->when($q !== '', function ($query) use ($q) {
                 $like = '%'.addcslashes($q, '\\%_').'%';
@@ -56,6 +59,24 @@ final class QuoteController extends Controller
         );
     }
 
+    /** Every version of the quote that {quote} belongs to, newest first (no lines). */
+    public function versions(Request $request, int $quote): JsonResponse
+    {
+        Gate::authorize('quotes.view');
+
+        $tenantId = (int) $request->user()->tenant_id;
+        $seq = Quote::query()->where('tenant_id', $tenantId)->findOrFail($quote)->quote_seq;
+
+        $rows = Quote::query()
+            ->where('tenant_id', $tenantId)
+            ->where('quote_seq', $seq)
+            ->orderByDesc('version')
+            ->get();
+
+        // Explicit envelope: resource wrapping is off, so a bare collection would serialise as a plain array.
+        return response()->json(['data' => QuoteResource::collection($rows)->resolve($request)]);
+    }
+
     public function store(SaveQuoteRequest $request, SaveQuoteAction $action): JsonResponse
     {
         $quote = $action->execute($request->user(), null, $request->validated());
@@ -66,6 +87,11 @@ final class QuoteController extends Controller
     public function update(SaveQuoteRequest $request, int $quote, SaveQuoteAction $action): QuoteResource
     {
         return new QuoteResource($action->execute($request->user(), $quote, $request->validated()));
+    }
+
+    public function revise(Request $request, int $quote, ReviseQuoteAction $action): JsonResponse
+    {
+        return (new QuoteResource($action->execute($request->user(), $quote)))->response()->setStatusCode(201);
     }
 
     public function destroy(Request $request, int $quote, DeleteQuoteAction $action): Response

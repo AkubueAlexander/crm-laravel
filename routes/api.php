@@ -181,6 +181,11 @@ Route::prefix('v1')->group(function () {
 
         Route::delete('quotes/{quote}', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'destroy'])->whereNumber('quote');
 
+        // 10.2: versions. Revise copies a quote that left draft into a new draft version (same number, version + 1).
+        Route::get('quotes/{quote}/versions', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'versions'])->whereNumber('quote');
+
+        Route::post('quotes/{quote}/revise', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'revise'])->whereNumber('quote')->middleware('throttle:30,1');
+
         // 9.10: read-only campaign report (totals, rates, daily series, utm attribution).
         Route::get('campaigns/{campaign}/report', [\App\Http\Controllers\Api\Marketing\CampaignReportController::class, 'show'])
             ->whereNumber('campaign')
