@@ -48,6 +48,8 @@ class DevTenantSeeder extends Seeder
         'quotes.approve',
         'invoices.view',
         'invoices.manage',
+        'inventory.view',
+        'inventory.manage',
     ];
 
     public function run(): void

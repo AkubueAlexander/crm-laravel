@@ -2,6 +2,7 @@ import { usePermission } from '@/shared/hooks/usePermission';
 import { useCurrentUser } from '@/features/auth/api/useCurrentUser';
 import { BrandingSettingsForm } from './BrandingSettingsForm';
 import { PipelineSettingsForm } from './PipelineSettingsForm';
+import { QuoteSettingsForm } from './QuoteSettingsForm';
 
 const card = 'rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-6';
 
@@ -29,6 +30,11 @@ export function SettingsPage() {
             <section className={card}>
                 <h2 className="mb-4 text-base font-medium text-[var(--color-ink)]">Pipeline</h2>
                 <PipelineSettingsForm />
+            </section>
+
+            <section className={card}>
+                <h2 className="mb-4 text-base font-medium text-[var(--color-ink)]">Quotes</h2>
+                <QuoteSettingsForm />
             </section>
         </div>
     );

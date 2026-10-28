@@ -124,6 +124,11 @@ Route::prefix('v1')->group(function () {
 
         Route::put('settings/pipeline', [TenantSettingsController::class, 'updatePipeline']);
 
+        // 10.3c: quote settings (auto-approval threshold). settings.manage is checked in the request and again in the Action.
+        Route::get('settings/quotes', [\App\Http\Controllers\Api\Settings\QuoteSettingsController::class, 'show']);
+
+        Route::put('settings/quotes', [\App\Http\Controllers\Api\Settings\QuoteSettingsController::class, 'update'])->middleware('throttle:20,1');
+
         // POST (not PUT): PHP does not parse multipart bodies on PUT, and this one carries a file.
         Route::post('settings/branding', [TenantSettingsController::class, 'updateBranding'])->middleware('throttle:20,1');
 
@@ -161,6 +166,8 @@ Route::prefix('v1')->group(function () {
         require __DIR__ . '/campaign_lifecycle.php';
         // 10.4b: invoices (routes/invoices.php)
         require __DIR__ . '/invoices.php';
+        // 11.0b: inventory (routes/inventory.php)
+        require __DIR__ . '/inventory.php';
         // 10.5: PDF documents (routes/documents.php)
         require __DIR__ . '/documents.php';
         // 10.0b: product catalog. {product} is a plain id (no route-model binding): every lookup carries an explicit tenant predicate.
