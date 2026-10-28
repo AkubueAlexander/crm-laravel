@@ -24,6 +24,9 @@ import { LeadFormsPage } from '@/features/marketing/components/LeadFormsPage';
 import { CampaignDashboard } from '@/features/marketing/components/CampaignDashboard';
 import { ProductsPage } from '@/features/products/components/ProductsPage';
 import { validateProductsSearch } from '@/features/products/schemas/product';
+import { QuotesPage } from '@/features/quotes/components/QuotesPage';
+import { QuoteBuilder } from '@/features/quotes/components/QuoteBuilder';
+import { validateQuotesSearch } from '@/features/quotes/schemas/quote';
 const segmentBuilderRoutes = createSegmentBuilderRoutes(() => authenticatedLayoutRoute);
 const templateRoutes = createTemplateRoutes(() => authenticatedLayoutRoute);
 const automationRoutes = createAutomationRoutes(() => authenticatedLayoutRoute);
@@ -157,6 +160,26 @@ const productsRoute = createRoute({
     component: ProductsPage,
 });
 
+// 10.1c: quotes. The list keeps filters/sort/page in the URL (8.7); "new" is a literal path, so it wins over $quoteId.
+const quotesRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/quotes',
+    validateSearch: validateQuotesSearch,
+    component: QuotesPage,
+});
+
+const quoteNewRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/quotes/new',
+    component: QuoteBuilder,
+});
+
+const quoteEditRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/quotes/$quoteId',
+    component: QuoteBuilder,
+});
+
 // 9.10: campaign dashboard.
 const campaignDashboardRoute = createRoute({
     getParentRoute: () => authenticatedLayoutRoute,
@@ -167,7 +190,7 @@ const campaignDashboardRoute = createRoute({
 const routeTree = rootRoute.addChildren([
     loginRoute,
     acceptInviteRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute, productsRoute]),
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute, productsRoute, quotesRoute, quoteNewRoute, quoteEditRoute]),
 ]);
 export const router = createRouter({ routeTree });
 
