@@ -12,6 +12,7 @@ import { useQuote } from '../api/useQuotes';
 import { useSaveQuote } from '../api/useQuoteMutations';
 import { useQuoteVersions, useReviseQuote } from '../api/useQuoteVersions';
 import { QuoteWorkflowBar } from './QuoteWorkflowBar';
+import { PdfPreview } from '@/shared/components/PdfPreview';
 import { QUOTE_STATUS_LABELS, formatMoney, type Quote } from '../schemas/quote';
 import {
     emptyQuoteValues,
@@ -323,6 +324,7 @@ function QuoteEditor({ quote }: { quote: Quote | null }) {
 
             {quote && <VersionBar quote={quote} canManage={canManage} />}
             {quote && <QuoteWorkflowBar quote={quote} formDirty={isDirty} />}
+            {quote && <PdfPreview url={`/api/v1/quotes/${quote.id}/pdf`} />}
 
             {readOnly && quote && (
                 <p className="mb-3 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-ink-muted)]">

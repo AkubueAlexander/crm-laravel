@@ -37,6 +37,8 @@ class InvoiceResource extends JsonResource
             'subtotal' => $this->subtotal,
             'tax_total' => $this->tax_total,
             'total' => $this->total,
+            'amount_paid' => $this->amount_paid,
+            'balance' => number_format(((int) round(((float) $this->total) * 100) - (int) round(((float) $this->amount_paid) * 100)) / 100, 2, '.', ''),
             'issued_at' => $this->issued_at?->toIso8601String(),
             'paid_at' => $this->paid_at?->toIso8601String(),
             'voided_at' => $this->voided_at?->toIso8601String(),

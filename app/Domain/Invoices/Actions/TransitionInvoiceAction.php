@@ -4,6 +4,7 @@ namespace App\Domain\Invoices\Actions;
 
 use App\Domain\Invoices\Exceptions\InvoiceTransitionException;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -12,12 +13,14 @@ use Illuminate\Validation\ValidationException;
 use Spatie\Permission\PermissionRegistrar;
 
 /**
- * 10.4a: the ONLY place an invoice changes status (state-machine pattern 3.0). The client sends { to_status,
- * lock_version, note? }; the server decides everything else. lock_version is bumped on every transition and a
- * mismatch is a 409 carrying the current invoice.
+ * 10.4a/10.6a: the ONLY place an invoice changes status by a workflow move (state-machine pattern 3.0). The client
+ * sends { to_status, lock_version, note? }; the server decides everything else. lock_version is bumped on every
+ * transition and a mismatch is a 409 carrying the current invoice.
  *
  * draft -> issued | void ; issued -> paid | void ; paid and void are terminal. Issuing stamps issue_date (today) and
- * due_date (today + payment terms). Marking paid is manual until 10.6 adds real payment records.
+ * due_date (today + payment terms). "paid" settles the outstanding balance in one go: it records a payment of the
+ * remaining balance (method "other") so the ledger always adds up to the total. An invoice with live payments cannot
+ * be voided: reverse the payments first (VoidPaymentAction).
  */
 final class TransitionInvoiceAction
 {
@@ -67,10 +70,27 @@ final class TransitionInvoiceAction
                     break;
 
                 case 'paid':
-                    $changes += ['paid_at' => $now, 'paid_by' => $actor->id];
+                    $balanceCents = $this->cents($invoice->total) - $this->cents($invoice->amount_paid);
+
+                    if ($balanceCents > 0) {
+                        (new Payment())->forceFill([
+                            'tenant_id' => $tenantId,
+                            'invoice_id' => $invoice->id,
+                            'amount' => number_format($balanceCents / 100, 2, '.', ''),
+                            'method' => 'other',
+                            'paid_on' => Carbon::today()->toDateString(),
+                            'note' => 'Marked as paid',
+                            'recorded_by' => $actor->id,
+                        ])->save();
+                    }
+
+                    $changes += ['amount_paid' => $invoice->total, 'paid_at' => $now, 'paid_by' => $actor->id];
                     break;
 
                 case 'void':
+                    if ($this->cents($invoice->amount_paid) > 0) {
+                        throw InvoiceTransitionException::hasPayments();
+                    }
                     if ($note === null) {
                         throw InvoiceTransitionException::noteRequired();
                     }
@@ -82,5 +102,10 @@ final class TransitionInvoiceAction
 
             return $invoice;
         });
+    }
+
+    private function cents(mixed $value): int
+    {
+        return (int) round(((float) $value) * 100);
     }
 }

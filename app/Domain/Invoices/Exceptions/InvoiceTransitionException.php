@@ -17,6 +17,8 @@ final class InvoiceTransitionException extends RuntimeException
 
     public const NOTE_REQUIRED = 'note_required';
 
+    public const HAS_PAYMENTS = 'has_payments';
+
     private function __construct(
         public readonly string $reason,
         string $message,
@@ -39,6 +41,11 @@ final class InvoiceTransitionException extends RuntimeException
     public static function noteRequired(): self
     {
         return new self(self::NOTE_REQUIRED, 'Give a reason when voiding an invoice.');
+    }
+
+    public static function hasPayments(): self
+    {
+        return new self(self::HAS_PAYMENTS, 'Reverse the recorded payments before voiding this invoice.');
     }
 
     public function isStale(): bool

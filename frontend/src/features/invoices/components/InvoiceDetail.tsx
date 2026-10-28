@@ -7,6 +7,7 @@ import { Modal } from '@/shared/components/Modal';
 import { usePermission } from '@/shared/hooks/usePermission';
 import { apiErrorMessage } from '@/shared/lib/apiErrorMessage';
 import { formatMoney } from '@/features/quotes/schemas/quote';
+import { PdfPreview } from '@/shared/components/PdfPreview';
 import { useInvoice } from '../api/useInvoices';
 import { transitionInvoiceErrorMessage, useTransitionInvoice } from '../api/useInvoiceMutations';
 import { INVOICE_ACTION_LABELS, INVOICE_STATUS_LABELS, INVOICE_TRANSITIONS, type Invoice, type InvoiceStatus } from '../schemas/invoice';
@@ -160,6 +161,7 @@ function InvoiceView({ invoice }: { invoice: Invoice }) {
             </div>
 
             <InvoiceWorkflowBar invoice={invoice} />
+            <PdfPreview url={`/api/v1/invoices/${invoice.id}/pdf`} />
 
             <dl className="mb-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm md:grid-cols-4">
                 <div>

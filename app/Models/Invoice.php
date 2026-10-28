@@ -27,6 +27,7 @@ class Invoice extends Model
         'subtotal' => 0,
         'tax_total' => 0,
         'total' => 0,
+        'amount_paid' => 0,
     ];
 
     protected $casts = [
@@ -39,6 +40,7 @@ class Invoice extends Model
         'subtotal' => 'decimal:2',
         'tax_total' => 'decimal:2',
         'total' => 'decimal:2',
+        'amount_paid' => 'decimal:2',
         'issued_at' => 'datetime',
         'paid_at' => 'datetime',
         'voided_at' => 'datetime',
@@ -47,6 +49,11 @@ class Invoice extends Model
     public function lines(): HasMany
     {
         return $this->hasMany(InvoiceLine::class)->orderBy('position')->orderBy('id');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class)->orderBy('id');
     }
 
     public function quote(): BelongsTo
