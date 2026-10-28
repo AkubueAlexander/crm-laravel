@@ -11,6 +11,7 @@ import { TAX_CATEGORIES, type Product, type ProductVariant } from '@/features/pr
 import { useQuote } from '../api/useQuotes';
 import { useSaveQuote } from '../api/useQuoteMutations';
 import { useQuoteVersions, useReviseQuote } from '../api/useQuoteVersions';
+import { QuoteWorkflowBar } from './QuoteWorkflowBar';
 import { QUOTE_STATUS_LABELS, formatMoney, type Quote } from '../schemas/quote';
 import {
     emptyQuoteValues,
@@ -264,7 +265,7 @@ function QuoteEditor({ quote }: { quote: Quote | null }) {
         handleSubmit,
         setError,
         reset,
-        formState: { errors, isSubmitting },
+        formState: { errors, isSubmitting, isDirty },
     } = useForm<QuoteFormValues>({
         resolver: zodResolver(quoteFormSchema),
         defaultValues: quote ? valuesFromQuote(quote) : emptyQuoteValues(),
@@ -321,6 +322,7 @@ function QuoteEditor({ quote }: { quote: Quote | null }) {
             </div>
 
             {quote && <VersionBar quote={quote} canManage={canManage} />}
+            {quote && <QuoteWorkflowBar quote={quote} formDirty={isDirty} />}
 
             {readOnly && quote && (
                 <p className="mb-3 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-ink-muted)]">

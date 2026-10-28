@@ -53,6 +53,10 @@ export const quoteSchema = z.object({
     tax_total: z.string(),
     total: z.string(),
     created_by: z.number().nullable(),
+    submitted_at: z.string().nullable().optional(),
+    decided_at: z.string().nullable().optional(),
+    decision_note: z.string().nullable().optional(),
+    sent_at: z.string().nullable().optional(),
     lines_count: z.number().optional(),
     lines: z.array(quoteLineSchema).optional(),
     created_at: z.string().nullable(),
@@ -60,6 +64,32 @@ export const quoteSchema = z.object({
 });
 
 export type Quote = z.infer<typeof quoteSchema>;
+
+// 10.3a mirror (TransitionQuoteAction::TRANSITIONS). The server is the authority; this only decides which buttons show.
+export const QUOTE_TRANSITIONS: Record<QuoteStatus, QuoteStatus[]> = {
+    draft: ['pending_approval'],
+    pending_approval: ['approved', 'rejected', 'draft'],
+    approved: ['sent'],
+    sent: ['accepted', 'declined', 'expired'],
+    rejected: [],
+    accepted: [],
+    declined: [],
+    expired: [],
+};
+
+// Moving INTO these needs quotes.approve; everything else needs quotes.manage.
+export const QUOTE_APPROVER_TARGETS: QuoteStatus[] = ['approved', 'rejected'];
+
+export const QUOTE_ACTION_LABELS: Record<QuoteStatus, string> = {
+    draft: 'Withdraw',
+    pending_approval: 'Submit for approval',
+    approved: 'Approve',
+    rejected: 'Reject',
+    sent: 'Mark sent',
+    accepted: 'Mark accepted',
+    declined: 'Mark declined',
+    expired: 'Mark expired',
+};
 export type QuoteLine = z.infer<typeof quoteLineSchema>;
 
 export const quotesPageSchema = z.object({

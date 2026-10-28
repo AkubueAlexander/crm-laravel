@@ -412,7 +412,7 @@ it('answers every bad token with the same 404 and suppresses nothing', function 
 
     $forged = UnsubscribeToken::make($other->id, $recipientId);
     $good = UnsubscribeToken::make($tenant->id, $recipientId);
-    $tampered = substr($good, 0, -1).(substr($good, -1) === 'A' ? 'B' : 'A');
+    $tampered = substr($good, 0, 5).(substr($good, 5, 1) === 'A' ? 'B' : 'A').substr($good, 6);
     $unknown = UnsubscribeToken::make($tenant->id, 999999);
 
     foreach ([$forged, $tampered, $unknown, 'not-a-real-token-at-all'] as $token) {
