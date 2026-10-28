@@ -43,6 +43,8 @@ class DevTenantSeeder extends Seeder
         'marketing.manage',
         'products.view',
         'products.manage',
+        'quotes.view',
+        'quotes.manage',
     ];
 
     public function run(): void

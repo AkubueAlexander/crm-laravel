@@ -46,6 +46,8 @@ final class RoleCatalog
         'marketing.manage',
         'products.view',
         'products.manage',
+        'quotes.view',
+        'quotes.manage',
     ];
 
     /** Held by administrators only. */
@@ -112,6 +114,7 @@ final class RoleCatalog
                 'activities.view', 'activities.create', 'activities.update', 'activities.complete',
                 'marketing.view', // sales: read-only marketing
                 'products.view', // sales: read-only catalog
+                'quotes.view', 'quotes.manage', // sales: build their own quotes
                 'deals.view',
             ],
             'viewer' => array_values(array_filter(self::ALL_PERMISSIONS, fn (string $p) => str_ends_with($p, '.view') && ! in_array($p, self::MANAGEMENT, true))),
