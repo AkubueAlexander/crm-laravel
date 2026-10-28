@@ -13,5 +13,9 @@ Route::post('invoices', [InvoiceController::class, 'store'])->middleware('thrott
 
 Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->whereNumber('invoice');
 
+// 10.6b: payments. Record a payment against an issued invoice; reverse (never edit or delete) a payment.
+Route::post('invoices/{invoice}/payments', [\App\Http\Controllers\Api\Invoices\PaymentController::class, 'store'])->whereNumber('invoice')->middleware('throttle:30,1');
+Route::post('payments/{payment}/void', [\App\Http\Controllers\Api\Invoices\PaymentController::class, 'void'])->whereNumber('payment')->middleware('throttle:30,1');
+
 // The single status-transition endpoint (state-machine pattern 3.0): { to_status, lock_version, note? }.
 Route::post('invoices/{invoice}/transition', [InvoiceLifecycleController::class, 'transition'])->whereNumber('invoice')->middleware('throttle:30,1');

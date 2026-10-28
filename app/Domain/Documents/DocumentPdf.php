@@ -45,7 +45,7 @@ final class DocumentPdf
         app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
         Gate::forUser($actor)->authorize('invoices.view');
 
-        $invoice = Invoice::query()->where('tenant_id', $tenantId)->with('lines')->findOrFail($invoiceId);
+        $invoice = Invoice::query()->where('tenant_id', $tenantId)->with(['lines', 'payments'])->findOrFail($invoiceId);
 
         $meta = [
             ['Status', $this->words($invoice->status)],
@@ -54,7 +54,19 @@ final class DocumentPdf
             ['Payment terms', $invoice->payment_terms_days.' days'],
         ];
 
-        return $this->render($tenantId, 'Invoice', $invoice->invoice_number, $invoice->title, $invoice->currency, $meta, $invoice->account_id, $invoice->notes, $invoice->terms, $invoice->lines, $invoice->subtotal, $invoice->tax_total, $invoice->total);
+        $live = $invoice->payments->filter(fn ($p) => $p->voided_at === null);
+        $paidInfo = [
+            'paid' => $this->money($invoice->amount_paid, $invoice->currency),
+            'balance' => $this->money(max(0, ((float) $invoice->total) - ((float) $invoice->amount_paid)), $invoice->currency),
+            'payments' => $live->map(fn ($p) => [
+                'date' => $p->paid_on?->format('Y-m-d') ?? '-',
+                'method' => $this->words($p->method),
+                'reference' => $p->reference ?? '',
+                'amount' => $this->money($p->amount, $invoice->currency),
+            ])->values()->all(),
+        ];
+
+        return $this->render($tenantId, 'Invoice', $invoice->invoice_number, $invoice->title, $invoice->currency, $meta, $invoice->account_id, $invoice->notes, $invoice->terms, $invoice->lines, $invoice->subtotal, $invoice->tax_total, $invoice->total, $paidInfo);
     }
 
     /**
@@ -62,7 +74,7 @@ final class DocumentPdf
      * @param iterable<\App\Models\QuoteLine|\App\Models\InvoiceLine> $lines
      * @return array{filename: string, content: string}
      */
-    private function render(int $tenantId, string $label, string $number, string $title, string $currency, array $meta, ?int $accountId, ?string $notes, ?string $terms, iterable $lines, string $subtotal, string $taxTotal, string $total): array
+    private function render(int $tenantId, string $label, string $number, string $title, string $currency, array $meta, ?int $accountId, ?string $notes, ?string $terms, iterable $lines, string $subtotal, string $taxTotal, string $total, ?array $paidInfo = null): array
     {
         $rows = [];
         foreach ($lines as $l) {
@@ -91,6 +103,7 @@ final class DocumentPdf
             'total' => $this->money($total, $currency),
             'notes' => $notes,
             'terms' => $terms,
+            'paidInfo' => $paidInfo,
         ])->render();
 
         $options = new Options();

@@ -94,7 +94,29 @@
     <tr><td class="muted">Subtotal</td><td class="right">{{ $subtotal }}</td></tr>
     <tr><td class="muted">Tax</td><td class="right">{{ $taxTotal }}</td></tr>
     <tr class="grand"><td>Total</td><td class="right">{{ $total }}</td></tr>
+@if ($paidInfo)
+    <tr><td class="muted">Amount paid</td><td class="right">{{ $paidInfo['paid'] }}</td></tr>
+    <tr class="grand"><td>Balance due</td><td class="right">{{ $paidInfo['balance'] }}</td></tr>
+@endif
 </table>
+
+@if ($paidInfo && count($paidInfo['payments']) > 0)
+    <div class="block">
+        <h2>Payments received</h2>
+        <table class="lines">
+            <tbody>
+                @foreach ($paidInfo['payments'] as $p)
+                    <tr>
+                        <td>{{ $p['date'] }}</td>
+                        <td>{{ $p['method'] }}</td>
+                        <td class="muted">{{ $p['reference'] }}</td>
+                        <td class="right">{{ $p['amount'] }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+@endif
 
 @if ($notes)
     <div class="block">

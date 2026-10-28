@@ -49,7 +49,7 @@ final class InvoiceController extends Controller
         return new InvoiceResource(
             Invoice::query()
                 ->where('tenant_id', (int) $request->user()->tenant_id)
-                ->with('lines')
+                ->with(['lines', 'payments'])
                 ->findOrFail($invoice),
         );
     }

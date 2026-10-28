@@ -61,6 +61,7 @@ class InvoiceResource extends JsonResource
                 'line_total' => $l->line_total,
                 'tax_amount' => $l->tax_amount,
             ])->values()->all()),
+            'payments' => $this->whenLoaded('payments', fn () => $this->payments->map(fn ($p) => (new PaymentResource($p))->resolve($request))->values()->all()),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];
