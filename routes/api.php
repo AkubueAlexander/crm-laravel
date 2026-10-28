@@ -186,6 +186,9 @@ Route::prefix('v1')->group(function () {
 
         Route::post('quotes/{quote}/revise', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'revise'])->whereNumber('quote')->middleware('throttle:30,1');
 
+        // 10.3a: the single status-transition endpoint (state-machine pattern 3.0): { to_status, lock_version, note? }.
+        Route::post('quotes/{quote}/transition', [\App\Http\Controllers\Api\Quotes\QuoteLifecycleController::class, 'transition'])->whereNumber('quote')->middleware('throttle:30,1');
+
         // 9.10: read-only campaign report (totals, rates, daily series, utm attribution).
         Route::get('campaigns/{campaign}/report', [\App\Http\Controllers\Api\Marketing\CampaignReportController::class, 'show'])
             ->whereNumber('campaign')

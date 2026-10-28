@@ -36,6 +36,10 @@ class QuoteResource extends JsonResource
             'tax_total' => $this->tax_total,
             'total' => $this->total,
             'created_by' => $this->created_by,
+            'submitted_at' => $this->submitted_at ? \Illuminate\Support\Carbon::parse($this->submitted_at)->toIso8601String() : null,
+            'decided_at' => $this->decided_at ? \Illuminate\Support\Carbon::parse($this->decided_at)->toIso8601String() : null,
+            'decision_note' => $this->decision_note,
+            'sent_at' => $this->sent_at ? \Illuminate\Support\Carbon::parse($this->sent_at)->toIso8601String() : null,
             'lines_count' => $this->whenCounted('lines'),
             'lines' => $this->whenLoaded('lines', fn () => $this->lines->map(fn ($l) => [
                 'id' => $l->id,

@@ -48,6 +48,7 @@ final class RoleCatalog
         'products.manage',
         'quotes.view',
         'quotes.manage',
+        'quotes.approve',
     ];
 
     /** Held by administrators only. */
