@@ -25,6 +25,7 @@ const NAV_ITEMS: NavItem[] = [
     { label: 'Marketing', to: '/marketing', permission: 'marketing.view' },
     { label: 'Products', to: '/products', permission: 'products.view' },
     { label: 'Quotes', to: '/quotes', permission: 'quotes.view' },
+    { label: 'Invoices', to: '/invoices', permission: 'invoices.view' },
     { label: 'Inventory', to: '/inventory', permission: 'inventory.view' },
     { label: 'Accounting', to: '/accounting', permission: 'accounting.view' },
     { label: 'Users', to: '/users', permission: 'users.manage' },

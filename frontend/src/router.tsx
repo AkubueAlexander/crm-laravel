@@ -27,6 +27,9 @@ import { validateProductsSearch } from '@/features/products/schemas/product';
 import { QuotesPage } from '@/features/quotes/components/QuotesPage';
 import { QuoteBuilder } from '@/features/quotes/components/QuoteBuilder';
 import { validateQuotesSearch } from '@/features/quotes/schemas/quote';
+import { InvoicesPage } from '@/features/invoices/components/InvoicesPage';
+import { InvoiceDetail } from '@/features/invoices/components/InvoiceDetail';
+import { validateInvoicesSearch } from '@/features/invoices/schemas/invoice';
 const segmentBuilderRoutes = createSegmentBuilderRoutes(() => authenticatedLayoutRoute);
 const templateRoutes = createTemplateRoutes(() => authenticatedLayoutRoute);
 const automationRoutes = createAutomationRoutes(() => authenticatedLayoutRoute);
@@ -180,6 +183,20 @@ const quoteEditRoute = createRoute({
     component: QuoteBuilder,
 });
 
+// 10.4c: invoices. The list keeps filters/sort/page in the URL (8.7).
+const invoicesRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/invoices',
+    validateSearch: validateInvoicesSearch,
+    component: InvoicesPage,
+});
+
+const invoiceDetailRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/invoices/$invoiceId',
+    component: InvoiceDetail,
+});
+
 // 9.10: campaign dashboard.
 const campaignDashboardRoute = createRoute({
     getParentRoute: () => authenticatedLayoutRoute,
@@ -190,7 +207,7 @@ const campaignDashboardRoute = createRoute({
 const routeTree = rootRoute.addChildren([
     loginRoute,
     acceptInviteRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute, productsRoute, quotesRoute, quoteNewRoute, quoteEditRoute]),
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute, productsRoute, quotesRoute, quoteNewRoute, quoteEditRoute, invoicesRoute, invoiceDetailRoute]),
 ]);
 export const router = createRouter({ routeTree });
 

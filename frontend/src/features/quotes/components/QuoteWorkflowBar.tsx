@@ -3,7 +3,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Modal } from '@/shared/components/Modal';
+import { useNavigate } from '@tanstack/react-router';
 import { usePermission } from '@/shared/hooks/usePermission';
+import { apiErrorMessage } from '@/shared/lib/apiErrorMessage';
+import { useCreateInvoice } from '@/features/invoices/api/useInvoiceMutations';
 import { useQuoteVersions } from '../api/useQuoteVersions';
 import { transitionQuoteErrorMessage, useTransitionQuote } from '../api/useTransitionQuote';
 import { QUOTE_ACTION_LABELS, QUOTE_APPROVER_TARGETS, QUOTE_TRANSITIONS, type Quote, type QuoteStatus } from '../schemas/quote';
@@ -25,6 +28,9 @@ export function QuoteWorkflowBar({ quote, formDirty }: { quote: Quote; formDirty
     const canManage = usePermission('quotes.manage');
     const canApprove = usePermission('quotes.approve');
     const transition = useTransitionQuote();
+    const canInvoice = usePermission('invoices.manage');
+    const createInvoice = useCreateInvoice();
+    const navigate = useNavigate();
     const versions = useQuoteVersions(quote.id);
     const [error, setError] = useState<string | null>(null);
     const [rejectOpen, setRejectOpen] = useState(false);
@@ -42,6 +48,16 @@ export function QuoteWorkflowBar({ quote, formDirty }: { quote: Quote; formDirty
     const targets = isLatest
         ? QUOTE_TRANSITIONS[quote.status].filter((to) => (QUOTE_APPROVER_TARGETS.includes(to) ? canApprove : canManage))
         : [];
+
+    async function onCreateInvoice() {
+        setError(null);
+        try {
+            const invoice = await createInvoice.mutateAsync({ quoteId: quote.id });
+            await navigate({ to: '/invoices/$invoiceId', params: { invoiceId: String(invoice.id) } });
+        } catch (err) {
+            setError(apiErrorMessage(err, 'Could not create the invoice. Please try again.'));
+        }
+    }
 
     async function run(to: QuoteStatus, note?: string): Promise<boolean> {
         setError(null);
@@ -79,7 +95,7 @@ export function QuoteWorkflowBar({ quote, formDirty }: { quote: Quote; formDirty
     }
     if (quote.sent_at) info.push(`Sent ${when(quote.sent_at)}`);
 
-    if (targets.length === 0 && info.length === 0 && !quote.decision_note && !error) return null;
+    if (targets.length === 0 && info.length === 0 && !quote.decision_note && !error && !(canInvoice && quote.status === 'accepted')) return null;
 
     return (
         <div className="mb-3 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2">
@@ -114,6 +130,19 @@ export function QuoteWorkflowBar({ quote, formDirty }: { quote: Quote; formDirty
                             {transition.isPending && transition.variables?.toStatus === to ? 'Working...' : QUOTE_ACTION_LABELS[to]}
                         </button>
                     ))}
+                </div>
+            )}
+
+            {canInvoice && quote.status === 'accepted' && (
+                <div className="mt-2">
+                    <button
+                        type="button"
+                        disabled={createInvoice.isPending}
+                        onClick={() => void onCreateInvoice()}
+                        className="rounded-md bg-[var(--color-ink)] px-3 py-1.5 text-sm text-white hover:opacity-90 disabled:opacity-50"
+                    >
+                        {createInvoice.isPending ? 'Creating...' : 'Create invoice'}
+                    </button>
                 </div>
             )}
 
