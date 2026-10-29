@@ -100,6 +100,9 @@ export function JournalPage() {
                     <Link to="/accounting/reports/trial-balance" className="text-sm underline">
                         Reports
                     </Link>
+                    <Link to="/accounting/sync" className="text-sm underline">
+                        Sync
+                    </Link>
                     <Link to="/accounting/accounts" className="text-sm underline">
                         Chart of accounts
                     </Link>

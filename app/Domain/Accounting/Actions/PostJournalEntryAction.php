@@ -33,10 +33,14 @@ final class PostJournalEntryAction
         ?string $sourceType = null,
         ?int $sourceId = null,
         ?int $reversesEntryId = null,
+        bool $authorize = true,
     ): JournalEntry {
         $tenantId = (int) $actor->tenant_id;
         app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
-        Gate::forUser($actor)->authorize('accounting.manage');
+        // $authorize = false is for system postings (InvoiceLedgerPoster) whose caller already passed its own permission check.
+        if ($authorize) {
+            Gate::forUser($actor)->authorize('accounting.manage');
+        }
 
         $errors = [];
 

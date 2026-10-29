@@ -55,6 +55,8 @@ final class RoleCatalog
         'inventory.manage',
         'accounting.view',
         'accounting.manage',
+        'hr.view',
+        'hr.manage',
     ];
 
     /** Held by administrators only. */
@@ -124,6 +126,7 @@ final class RoleCatalog
                 'quotes.view', 'quotes.manage', // sales: build their own quotes
                 'invoices.view', // sales: see invoices
                 'inventory.view', // sales: see stock
+                'hr.view', // sales: see teams and territories
                 'deals.view',
             ],
             'viewer' => array_values(array_filter(self::ALL_PERMISSIONS, fn (string $p) => str_ends_with($p, '.view') && ! in_array($p, self::MANAGEMENT, true))),

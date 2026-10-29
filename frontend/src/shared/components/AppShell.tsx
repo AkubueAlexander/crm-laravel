@@ -28,6 +28,7 @@ const NAV_ITEMS: NavItem[] = [
     { label: 'Invoices', to: '/invoices', permission: 'invoices.view' },
     { label: 'Inventory', to: '/inventory', permission: 'inventory.view' },
     { label: 'Accounting', to: '/accounting', permission: 'accounting.view' },
+    { label: 'HR', to: '/hr', permission: 'hr.view' },
     { label: 'Users', to: '/users', permission: 'users.manage' },
     { label: 'Audit log', to: '/audit', permission: 'audit.view' },
     { label: 'Settings', to: '/settings', permission: 'settings.manage' },

@@ -82,7 +82,7 @@ final class RecordPaymentAction
                 throw ValidationException::withMessages(['amount' => ['Amount exceeds the outstanding balance of '.$this->money($balanceCents).'.']]);
             }
 
-            (new Payment())->forceFill([
+            $recorded = (new Payment())->forceFill([
                 'tenant_id' => $tenantId,
                 'invoice_id' => $invoice->id,
                 'amount' => $this->money($amountCents),
@@ -91,7 +91,8 @@ final class RecordPaymentAction
                 'reference' => $reference,
                 'note' => $note,
                 'recorded_by' => $actor->id,
-            ])->save();
+            ]);
+            $recorded->save();
 
             $newPaid = $paidCents + $amountCents;
             $changes = ['amount_paid' => $this->money($newPaid), 'lock_version' => $invoice->lock_version + 1];
@@ -101,6 +102,8 @@ final class RecordPaymentAction
             }
 
             $invoice->forceFill($changes)->save();
+
+            app(\App\Domain\Accounting\Posting\InvoiceLedgerPoster::class)->paymentRecorded($actor, $recorded, $invoice);
 
             return $invoice->load('payments');
         });

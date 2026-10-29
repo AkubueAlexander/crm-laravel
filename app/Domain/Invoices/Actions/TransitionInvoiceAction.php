@@ -58,6 +58,8 @@ final class TransitionInvoiceAction
             $now = now();
             $changes = ['status' => $toStatus, 'lock_version' => $invoice->lock_version + 1];
 
+            $settlementPayment = null;
+
             switch ($toStatus) {
                 case 'issued':
                     $today = Carbon::today();
@@ -73,7 +75,7 @@ final class TransitionInvoiceAction
                     $balanceCents = $this->cents($invoice->total) - $this->cents($invoice->amount_paid);
 
                     if ($balanceCents > 0) {
-                        (new Payment())->forceFill([
+                        $settlementPayment = (new Payment())->forceFill([
                             'tenant_id' => $tenantId,
                             'invoice_id' => $invoice->id,
                             'amount' => number_format($balanceCents / 100, 2, '.', ''),
@@ -81,7 +83,8 @@ final class TransitionInvoiceAction
                             'paid_on' => Carbon::today()->toDateString(),
                             'note' => 'Marked as paid',
                             'recorded_by' => $actor->id,
-                        ])->save();
+                        ]);
+                        $settlementPayment->save();
                     }
 
                     $changes += ['amount_paid' => $invoice->total, 'paid_at' => $now, 'paid_by' => $actor->id];
@@ -99,6 +102,8 @@ final class TransitionInvoiceAction
             }
 
             $invoice->forceFill($changes)->save();
+
+            app(\App\Domain\Accounting\Posting\InvoiceLedgerPoster::class)->afterTransition($actor, $invoice, $toStatus, $settlementPayment);
 
             return $invoice;
         });

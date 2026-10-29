@@ -52,6 +52,8 @@ class DevTenantSeeder extends Seeder
         'inventory.manage',
         'accounting.view',
         'accounting.manage',
+        'hr.view',
+        'hr.manage',
     ];
 
     public function run(): void

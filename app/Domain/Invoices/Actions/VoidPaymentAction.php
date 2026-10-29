@@ -52,6 +52,8 @@ final class VoidPaymentAction
 
             $invoice->forceFill($changes)->save();
 
+            app(\App\Domain\Accounting\Posting\InvoiceLedgerPoster::class)->paymentVoided($actor, $payment, $invoice);
+
             return $invoice->load('payments');
         });
     }

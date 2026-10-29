@@ -48,6 +48,11 @@ import { IncomeStatementPage } from '@/features/accounting/components/IncomeStat
 import { BalanceSheetPage } from '@/features/accounting/components/BalanceSheetPage';
 import { AccountLedgerPage } from '@/features/accounting/components/AccountLedgerPage';
 import { validateAsOfSearch, validateLedgerSearch, validateRangeSearch } from '@/features/accounting/schemas/reports';
+import { SyncPage } from '@/features/accounting/components/SyncPage';
+import { validateSyncSearch } from '@/features/accounting/schemas/sync';
+import { EmployeesPage } from '@/features/hr/components/EmployeesPage';
+import { HrUnitsPage } from '@/features/hr/components/HrUnitsPage';
+import { validateEmployeesSearch, validateHrUnitsSearch } from '@/features/hr/schemas/hr';
 const segmentBuilderRoutes = createSegmentBuilderRoutes(() => authenticatedLayoutRoute);
 const templateRoutes = createTemplateRoutes(() => authenticatedLayoutRoute);
 const automationRoutes = createAutomationRoutes(() => authenticatedLayoutRoute);
@@ -322,10 +327,33 @@ const accountLedgerRoute = createRoute({
     component: AccountLedgerPage,
 });
 
+// 12.2c: ledger sync status and run history. Page lives in the URL (8.7).
+const accountingSyncRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/accounting/sync',
+    validateSearch: validateSyncSearch,
+    component: SyncPage,
+});
+
+// 13.1c: HR. Employees keep filters/page in the URL (8.7); teams and territories share one page with a kind tab.
+const employeesRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/hr',
+    validateSearch: validateEmployeesSearch,
+    component: EmployeesPage,
+});
+
+const hrUnitsRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/hr/units',
+    validateSearch: validateHrUnitsSearch,
+    component: HrUnitsPage,
+});
+
 const routeTree = rootRoute.addChildren([
     loginRoute,
     acceptInviteRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute, productsRoute, quotesRoute, quoteNewRoute, quoteEditRoute, invoicesRoute, invoiceDetailRoute, inventoryRoute, inventoryDetailRoute, suppliersRoute, purchaseOrdersRoute, purchaseOrderNewRoute, purchaseOrderDetailRoute, purchaseOrderEditRoute, accountingRoute, ledgerAccountsRoute, journalNewRoute, journalDetailRoute, trialBalanceRoute, incomeStatementRoute, balanceSheetRoute, accountLedgerRoute]),
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute, productsRoute, quotesRoute, quoteNewRoute, quoteEditRoute, invoicesRoute, invoiceDetailRoute, inventoryRoute, inventoryDetailRoute, suppliersRoute, purchaseOrdersRoute, purchaseOrderNewRoute, purchaseOrderDetailRoute, purchaseOrderEditRoute, accountingRoute, ledgerAccountsRoute, journalNewRoute, journalDetailRoute, trialBalanceRoute, incomeStatementRoute, balanceSheetRoute, accountLedgerRoute, accountingSyncRoute, employeesRoute, hrUnitsRoute]),
 ]);
 export const router = createRouter({ routeTree });
 
