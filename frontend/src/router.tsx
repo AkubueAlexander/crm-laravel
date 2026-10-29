@@ -38,6 +38,16 @@ import { PurchaseOrderDetail } from '@/features/purchasing/components/PurchaseOr
 import { validatePurchaseOrdersSearch, validateSuppliersSearch } from '@/features/purchasing/schemas/purchasing';
 import { ItemDetail } from '@/features/inventory/components/ItemDetail';
 import { validateInventorySearch } from '@/features/inventory/schemas/inventory';
+import { LedgerAccountsPage } from '@/features/accounting/components/AccountsPage';
+import { JournalPage } from '@/features/accounting/components/JournalPage';
+import { JournalEntryBuilder } from '@/features/accounting/components/JournalEntryBuilder';
+import { JournalEntryDetail } from '@/features/accounting/components/JournalEntryDetail';
+import { validateJournalSearch } from '@/features/accounting/schemas/accounting';
+import { TrialBalancePage } from '@/features/accounting/components/TrialBalancePage';
+import { IncomeStatementPage } from '@/features/accounting/components/IncomeStatementPage';
+import { BalanceSheetPage } from '@/features/accounting/components/BalanceSheetPage';
+import { AccountLedgerPage } from '@/features/accounting/components/AccountLedgerPage';
+import { validateAsOfSearch, validateLedgerSearch, validateRangeSearch } from '@/features/accounting/schemas/reports';
 const segmentBuilderRoutes = createSegmentBuilderRoutes(() => authenticatedLayoutRoute);
 const templateRoutes = createTemplateRoutes(() => authenticatedLayoutRoute);
 const automationRoutes = createAutomationRoutes(() => authenticatedLayoutRoute);
@@ -257,10 +267,65 @@ const purchaseOrderEditRoute = createRoute({
     path: '/purchase-orders/$poId/edit',
     component: PurchaseOrderBuilder,
 });
+// 12.1a: accounting. The journal is the landing page and keeps filters/page in the URL (8.7); "new" is a literal path, so it wins over $entryId.
+const accountingRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/accounting',
+    validateSearch: validateJournalSearch,
+    component: JournalPage,
+});
+
+const ledgerAccountsRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/accounting/accounts',
+    component: LedgerAccountsPage,
+});
+
+const journalNewRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/accounting/journal/new',
+    component: JournalEntryBuilder,
+});
+
+const journalDetailRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/accounting/journal/$entryId',
+    component: JournalEntryDetail,
+});
+
+// 12.1b: accounting reports. Dates/account/page live in the URL (8.7).
+const trialBalanceRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/accounting/reports/trial-balance',
+    validateSearch: validateAsOfSearch,
+    component: TrialBalancePage,
+});
+
+const incomeStatementRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/accounting/reports/income-statement',
+    validateSearch: validateRangeSearch,
+    component: IncomeStatementPage,
+});
+
+const balanceSheetRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/accounting/reports/balance-sheet',
+    validateSearch: validateAsOfSearch,
+    component: BalanceSheetPage,
+});
+
+const accountLedgerRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/accounting/reports/ledger',
+    validateSearch: validateLedgerSearch,
+    component: AccountLedgerPage,
+});
+
 const routeTree = rootRoute.addChildren([
     loginRoute,
     acceptInviteRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute, productsRoute, quotesRoute, quoteNewRoute, quoteEditRoute, invoicesRoute, invoiceDetailRoute, inventoryRoute, inventoryDetailRoute, suppliersRoute, purchaseOrdersRoute, purchaseOrderNewRoute, purchaseOrderDetailRoute, purchaseOrderEditRoute]),
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute, productsRoute, quotesRoute, quoteNewRoute, quoteEditRoute, invoicesRoute, invoiceDetailRoute, inventoryRoute, inventoryDetailRoute, suppliersRoute, purchaseOrdersRoute, purchaseOrderNewRoute, purchaseOrderDetailRoute, purchaseOrderEditRoute, accountingRoute, ledgerAccountsRoute, journalNewRoute, journalDetailRoute, trialBalanceRoute, incomeStatementRoute, balanceSheetRoute, accountLedgerRoute]),
 ]);
 export const router = createRouter({ routeTree });
 
