@@ -129,7 +129,15 @@ export function InventoryPage() {
     return (
         <div>
             <div className="mb-4 flex items-center justify-between">
-                <h1 className="text-lg font-medium text-[var(--color-ink)]">Inventory</h1>
+                <div className="flex items-center gap-4">
+                    <h1 className="text-lg font-medium text-[var(--color-ink)]">Inventory</h1>
+                    <Link to="/purchase-orders" className="text-sm underline">
+                        Purchase orders
+                    </Link>
+                    <Link to="/suppliers" className="text-sm underline">
+                        Suppliers
+                    </Link>
+                </div>
                 <div className="flex items-center gap-3">
                     {isFetching && !isPending && <span className="text-xs text-gray-400">Refreshing...</span>}
                     {canManage && (

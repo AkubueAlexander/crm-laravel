@@ -31,6 +31,11 @@ import { InvoicesPage } from '@/features/invoices/components/InvoicesPage';
 import { InvoiceDetail } from '@/features/invoices/components/InvoiceDetail';
 import { validateInvoicesSearch } from '@/features/invoices/schemas/invoice';
 import { InventoryPage } from '@/features/inventory/components/InventoryPage';
+import { SuppliersPage } from '@/features/purchasing/components/SuppliersPage';
+import { PurchaseOrdersPage } from '@/features/purchasing/components/PurchaseOrdersPage';
+import { PurchaseOrderBuilder } from '@/features/purchasing/components/PurchaseOrderBuilder';
+import { PurchaseOrderDetail } from '@/features/purchasing/components/PurchaseOrderDetail';
+import { validatePurchaseOrdersSearch, validateSuppliersSearch } from '@/features/purchasing/schemas/purchasing';
 import { ItemDetail } from '@/features/inventory/components/ItemDetail';
 import { validateInventorySearch } from '@/features/inventory/schemas/inventory';
 const segmentBuilderRoutes = createSegmentBuilderRoutes(() => authenticatedLayoutRoute);
@@ -220,10 +225,42 @@ const inventoryDetailRoute = createRoute({
     path: '/inventory/$itemId',
     component: ItemDetail,
 });
+// 11.2c: suppliers and purchase orders. Lists keep filters/sort/page in the URL (8.7); "new" is a literal path, so it wins over $poId.
+const suppliersRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/suppliers',
+    validateSearch: validateSuppliersSearch,
+    component: SuppliersPage,
+});
+
+const purchaseOrdersRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/purchase-orders',
+    validateSearch: validatePurchaseOrdersSearch,
+    component: PurchaseOrdersPage,
+});
+
+const purchaseOrderNewRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/purchase-orders/new',
+    component: PurchaseOrderBuilder,
+});
+
+const purchaseOrderDetailRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/purchase-orders/$poId',
+    component: PurchaseOrderDetail,
+});
+
+const purchaseOrderEditRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/purchase-orders/$poId/edit',
+    component: PurchaseOrderBuilder,
+});
 const routeTree = rootRoute.addChildren([
     loginRoute,
     acceptInviteRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute, productsRoute, quotesRoute, quoteNewRoute, quoteEditRoute, invoicesRoute, invoiceDetailRoute, inventoryRoute, inventoryDetailRoute]),
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute, productsRoute, quotesRoute, quoteNewRoute, quoteEditRoute, invoicesRoute, invoiceDetailRoute, inventoryRoute, inventoryDetailRoute, suppliersRoute, purchaseOrdersRoute, purchaseOrderNewRoute, purchaseOrderDetailRoute, purchaseOrderEditRoute]),
 ]);
 export const router = createRouter({ routeTree });
 
