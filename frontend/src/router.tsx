@@ -53,6 +53,8 @@ import { validateSyncSearch } from '@/features/accounting/schemas/sync';
 import { EmployeesPage } from '@/features/hr/components/EmployeesPage';
 import { HrUnitsPage } from '@/features/hr/components/HrUnitsPage';
 import { validateEmployeesSearch, validateHrUnitsSearch } from '@/features/hr/schemas/hr';
+import { LeavePage } from '@/features/hr/components/LeavePage';
+import { validateLeaveSearch } from '@/features/hr/schemas/leave';
 const segmentBuilderRoutes = createSegmentBuilderRoutes(() => authenticatedLayoutRoute);
 const templateRoutes = createTemplateRoutes(() => authenticatedLayoutRoute);
 const automationRoutes = createAutomationRoutes(() => authenticatedLayoutRoute);
@@ -350,10 +352,18 @@ const hrUnitsRoute = createRoute({
     component: HrUnitsPage,
 });
 
+// 13.2b: leave requests. Status, sort and page live in the URL (8.7).
+const leaveRoute = createRoute({
+    getParentRoute: () => authenticatedLayoutRoute,
+    path: '/hr/leave',
+    validateSearch: validateLeaveSearch,
+    component: LeavePage,
+});
+
 const routeTree = rootRoute.addChildren([
     loginRoute,
     acceptInviteRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute, productsRoute, quotesRoute, quoteNewRoute, quoteEditRoute, invoicesRoute, invoiceDetailRoute, inventoryRoute, inventoryDetailRoute, suppliersRoute, purchaseOrdersRoute, purchaseOrderNewRoute, purchaseOrderDetailRoute, purchaseOrderEditRoute, accountingRoute, ledgerAccountsRoute, journalNewRoute, journalDetailRoute, trialBalanceRoute, incomeStatementRoute, balanceSheetRoute, accountLedgerRoute, accountingSyncRoute, employeesRoute, hrUnitsRoute]),
+    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute, productsRoute, quotesRoute, quoteNewRoute, quoteEditRoute, invoicesRoute, invoiceDetailRoute, inventoryRoute, inventoryDetailRoute, suppliersRoute, purchaseOrdersRoute, purchaseOrderNewRoute, purchaseOrderDetailRoute, purchaseOrderEditRoute, accountingRoute, ledgerAccountsRoute, journalNewRoute, journalDetailRoute, trialBalanceRoute, incomeStatementRoute, balanceSheetRoute, accountLedgerRoute, accountingSyncRoute, employeesRoute, hrUnitsRoute, leaveRoute]),
 ]);
 export const router = createRouter({ routeTree });
 

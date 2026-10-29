@@ -98,6 +98,9 @@ export function EmployeesPage() {
                     <Link to="/hr/units" className="text-sm underline">
                         Teams &amp; territories
                     </Link>
+                    <Link to="/hr/leave" className="text-sm underline">
+                        Leave
+                    </Link>
                 </div>
                 <div className="flex items-center gap-3">
                     {isFetching && !isPending && <span className="text-xs text-gray-400">Refreshing...</span>}
