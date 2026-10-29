@@ -170,6 +170,8 @@ Route::prefix('v1')->group(function () {
         require __DIR__ . '/inventory.php';
         // 11.2b: suppliers and purchase orders (routes/purchasing.php)
         require __DIR__ . '/purchasing.php';
+        // 12.0b: general ledger (routes/accounting.php)
+        require __DIR__ . '/accounting.php';
         // 10.5: PDF documents (routes/documents.php)
         require __DIR__ . '/documents.php';
         // 10.0b: product catalog. {product} is a plain id (no route-model binding): every lookup carries an explicit tenant predicate.

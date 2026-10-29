@@ -6,16 +6,22 @@ use App\Domain\Inventory\StockQuantity;
 use App\Models\InventoryItem;
 use App\Models\InventoryMovement;
 use App\Models\User;
+use App\Notifications\LowStockNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\PermissionRegistrar;
+use Throwable;
 
 /**
  * 11.0a: the ONLY writer of on_hand. Appends one signed row to the ledger and moves the item's on_hand in the same
  * transaction, under a pessimistic row lock (lockForUpdate), so two concurrent movements can never lose an update or
  * drive stock negative. Types: receipt (adds), issue (removes), adjustment (signed correction, reason required).
  * All arithmetic is integer thousandths; the client never sends a balance.
+ *
+ * 11.3: when a movement takes an active item from ABOVE its reorder level to AT OR BELOW it, users who can manage
+ * inventory get a LowStockNotification. It is sent after the outermost transaction commits (so a rolled-back
+ * purchase-order receipt never alerts) and a notification failure can never undo the stock movement.
  */
 final class RecordStockMovementAction
 {
@@ -67,8 +73,9 @@ final class RecordStockMovementAction
         }
 
         $delta = $type === 'issue' ? -$milli : $milli;
+        $alert = null;
 
-        return DB::transaction(function () use ($actor, $itemId, $tenantId, $type, $delta, $reference, $note): InventoryMovement {
+        $movement = DB::transaction(function () use ($actor, $itemId, $tenantId, $type, $delta, $reference, $note, &$alert): InventoryMovement {
             // Explicit tenant predicate on top of the global scope: another tenant's id is a 404.
             $item = InventoryItem::query()->where('tenant_id', $tenantId)->lockForUpdate()->findOrFail($itemId);
 
@@ -101,7 +108,63 @@ final class RecordStockMovementAction
 
             $item->forceFill(['on_hand' => StockQuantity::format($after)])->save();
 
+            // 11.3: a crossing, not a state: only the movement that takes stock from above the level to at/below it.
+            $reorder = StockQuantity::fromDecimal($item->reorder_level);
+            if ($reorder > 0 && $before > $reorder && $after <= $reorder) {
+                $alert = [
+                    'item_id' => (int) $item->id,
+                    'sku' => (string) $item->sku,
+                    'name' => (string) $item->name,
+                    'unit' => (string) $item->unit,
+                    'on_hand' => StockQuantity::format($after),
+                    'reorder_level' => StockQuantity::format($reorder),
+                ];
+            }
+
             return $movement;
         });
+
+        if ($alert !== null) {
+            // Runs after the OUTERMOST transaction commits (immediately when there is none).
+            DB::afterCommit(fn () => $this->alertLowStock($tenantId, $alert));
+        }
+
+        return $movement;
+    }
+
+    /** @param array{item_id: int, sku: string, name: string, unit: string, on_hand: string, reorder_level: string} $alert */
+    private function alertLowStock(int $tenantId, array $alert): void
+    {
+        try {
+            app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
+
+            // Explicit tenant predicate: User has no tenant scope. Deactivated users are skipped.
+            $recipients = User::query()
+                ->where('tenant_id', $tenantId)
+                ->whereNull('deactivated_at')
+                ->get()
+                ->filter(fn (User $u) => $u->can('inventory.manage'));
+        } catch (Throwable $e) {
+            report($e);
+
+            return;
+        }
+
+        foreach ($recipients as $user) {
+            try {
+                $user->notify(new LowStockNotification(
+                    $tenantId,
+                    $alert['item_id'],
+                    $alert['sku'],
+                    $alert['name'],
+                    $alert['unit'],
+                    $alert['on_hand'],
+                    $alert['reorder_level'],
+                ));
+            } catch (Throwable $e) {
+                // A broadcast outage must not stop the other recipients' notifications.
+                report($e);
+            }
+        }
     }
 }

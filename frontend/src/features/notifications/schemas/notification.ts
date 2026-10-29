@@ -10,6 +10,12 @@ export const notificationDataSchema = z
         target_id: z.number().nullish(),
         activity_id: z.number().nullish(),
         activity_type: z.string().nullish(),
+        item_id: z.number().nullish(),
+        sku: z.string().nullish(),
+        name: z.string().nullish(),
+        unit: z.string().nullish(),
+        on_hand: z.string().nullish(),
+        reorder_level: z.string().nullish(),
     })
     .passthrough();
 
@@ -38,3 +44,4 @@ export type NotificationsResponse = z.infer<typeof notificationsResponseSchema>;
 
 export const NOTIFICATIONS_PER_PAGE = 15;
 export const OVERDUE_KIND = 'activity_overdue';
+export const LOW_STOCK_KIND = 'low_stock';

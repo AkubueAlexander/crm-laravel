@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { useNotifications } from '../api/useNotifications';
 import { useNotificationsLive } from '../api/useNotificationsLive';
 import { useMarkAllNotificationsRead, useMarkNotificationRead } from '../api/useNotificationMutations';
-import { OVERDUE_KIND, type AppNotification } from '../schemas/notification';
+import { LOW_STOCK_KIND, OVERDUE_KIND, type AppNotification } from '../schemas/notification';
 
 // There are no record detail routes yet, so a click opens the target's section list
 // (same trade-off as global search; deep links arrive with 8.7).
@@ -30,6 +30,12 @@ function formatWhen(iso: string): string {
 }
 
 function describeNotification(n: AppNotification): { title: string; detail: string | null } {
+    if (n.kind === LOW_STOCK_KIND) {
+        return {
+            title: `Low stock: ${n.data.sku ?? 'Item'}`,
+            detail: `${n.data.name ?? ''} - ${n.data.on_hand ?? '?'} left (reorder at ${n.data.reorder_level ?? '?'})`,
+        };
+    }
     if (n.kind === OVERDUE_KIND) {
         return {
             title: `Overdue: ${n.data.subject ?? 'Activity'}`,
@@ -76,6 +82,10 @@ export function NotificationBell() {
     function choose(n: AppNotification) {
         if (!n.read_at) markRead.mutate(n.id);
         setOpen(false);
+        if (n.kind === LOW_STOCK_KIND && typeof n.data.item_id === 'number') {
+            void navigate({ to: '/inventory/$itemId', params: { itemId: String(n.data.item_id) } });
+            return;
+        }
         const to = routeFor(n);
         if (to) void navigate({ to });
     }

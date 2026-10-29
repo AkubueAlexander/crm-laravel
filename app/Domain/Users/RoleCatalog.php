@@ -53,6 +53,8 @@ final class RoleCatalog
         'invoices.manage',
         'inventory.view',
         'inventory.manage',
+        'accounting.view',
+        'accounting.manage',
     ];
 
     /** Held by administrators only. */
