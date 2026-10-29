@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Accounting\JournalEntryController;
 use App\Http\Controllers\Api\Accounting\LedgerAccountController;
 use App\Http\Controllers\Api\Accounting\LedgerReportController;
+use App\Http\Controllers\Api\Accounting\LedgerSyncController;
 use Illuminate\Support\Facades\Route;
 
 // 12.0b: general ledger. Required from routes/api.php INSIDE the authenticated group (auth:sanctum, resolve.tenant).
@@ -35,3 +36,12 @@ Route::get('accounting/reports/income-statement', [LedgerReportController::class
 Route::get('accounting/reports/balance-sheet', [LedgerReportController::class, 'balanceSheet'])->middleware('throttle:60,1');
 
 Route::get('accounting/reports/ledger', [LedgerReportController::class, 'ledger'])->middleware('throttle:60,1');
+
+// 12.2: ledger sync to QuickBooks/Xero (provider choice, "Sync now", run history). Literal paths only.
+Route::get('accounting/sync', [LedgerSyncController::class, 'show']);
+
+Route::put('accounting/sync/settings', [LedgerSyncController::class, 'saveSettings'])->middleware('throttle:30,1');
+
+Route::post('accounting/sync/run', [LedgerSyncController::class, 'run'])->middleware('throttle:10,1');
+
+Route::get('accounting/sync/runs', [LedgerSyncController::class, 'runs']);
