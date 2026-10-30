@@ -1,7 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\ClientErrorController;
+use App\Http\Middleware\AssignRequestId;
 use App\Http\Middleware\ResolveTenant;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Middleware\Authenticate;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -27,6 +31,13 @@ return Application::configure(basePath: dirname(__DIR__))
                         ->whereNumber('automation');
                 });
 
+            // 14.1: the SPA reports uncaught frontend errors (authenticated, throttled per user).
+            Route::middleware(['api', 'auth:sanctum', 'resolve.tenant', 'throttle:20,1'])
+                ->prefix('api/v1')
+                ->group(function () {
+                    Route::post('client-errors', [ClientErrorController::class, 'store']);
+                });
+
             // 9.4c: public unsubscribe pages (the signed token is the credential: no session, no CSRF, throttled).
             Route::middleware(['api', 'throttle:30,1'])
                 ->group(base_path('routes/unsubscribe.php'));
@@ -48,6 +59,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // 14.1: correlation id on every request/response.
+        $middleware->prepend(AssignRequestId::class);
+
         $middleware->statefulApi();
 
         // 9.8a-2: public lead forms carry no session and no credentials, so they take no CSRF token.
@@ -65,6 +79,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->shouldRenderJsonWhen(fn () => true);
 
+        // 14.3: every error leaves the API as { message, errors, code }.
         $exceptions->render(function (ValidationException $e) {
             return response()->json([
                 'message' => $e->getMessage(),
@@ -73,11 +88,39 @@ return Application::configure(basePath: dirname(__DIR__))
             ], 422);
         });
 
-        $exceptions->render(function (HttpExceptionInterface $e) {
+        $exceptions->render(function (AuthenticationException $e) {
             return response()->json([
-                'message' => $e->getMessage() ?: 'An error occurred.',
+                'message' => 'Unauthenticated.',
+                'errors' => [],
+                'code' => 'unauthenticated',
+            ], 401);
+        });
+
+        $exceptions->render(function (HttpExceptionInterface $e) {
+            $message = $e->getMessage() ?: 'An error occurred.';
+
+            // Laravel converts ModelNotFoundException into a 404 whose message names the model class: do not leak it.
+            if ($e->getPrevious() instanceof ModelNotFoundException) {
+                $message = 'Resource not found.';
+            }
+
+            return response()->json([
+                'message' => $message,
                 'errors' => [],
                 'code' => 'http_'.$e->getStatusCode(),
-            ], $e->getStatusCode());
+            ], $e->getStatusCode(), $e->getHeaders());
+        });
+
+        // Anything unhandled: a generic 500 in production. In debug, fall through to Laravel's detailed render.
+        $exceptions->render(function (\Throwable $e) {
+            if (config('app.debug')) {
+                return null;
+            }
+
+            return response()->json([
+                'message' => 'Server error.',
+                'errors' => [],
+                'code' => 'server_error',
+            ], 500);
         });
     })->create();

@@ -2,6 +2,7 @@ import { createRootRoute, createRoute, createRouter, lazyRouteComponent, Outlet 
 import { RequireAuth } from '@/shared/components/RequireAuth';
 import { AppShell } from '@/shared/components/AppShell';
 import { LoginForm } from '@/features/auth/components/LoginForm';
+import { RouteErrorFallback } from '@/shared/components/ErrorBoundary';
 import { validateUsersSearch } from '@/features/users/schemas/user';
 import { validateCampaignsSearch } from '@/features/marketing/schemas/campaign';
 import { validateSegmentsSearch } from '@/features/marketing/schemas/segment';
@@ -421,6 +422,7 @@ export const router = createRouter({
     routeTree,
     defaultPendingComponent: PendingPage,
     defaultPendingMs: 150,
+    defaultErrorComponent: RouteErrorFallback,
 });
 
 declare module '@tanstack/react-router' {
