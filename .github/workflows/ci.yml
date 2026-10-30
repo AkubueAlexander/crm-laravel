@@ -57,8 +57,7 @@ jobs:
       - name: Larastan (static analysis)
         run: |
           if [ -f vendor/bin/phpstan ] && { [ -f phpstan.neon ] || [ -f phpstan.neon.dist ]; }; then vendor/bin/phpstan analyse --no-progress --memory-limit=1G; else echo "phpstan not configured, skipped"; fi
-      - name: Composer audit (advisory, not yet blocking)
-        continue-on-error: true
+      - name: Composer audit (blocking)
         run: composer audit --no-interaction
       - name: Pest
         run: php artisan test

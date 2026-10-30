@@ -1,60 +1,68 @@
-import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/react-router';
+import { createRootRoute, createRoute, createRouter, lazyRouteComponent, Outlet } from '@tanstack/react-router';
 import { RequireAuth } from '@/shared/components/RequireAuth';
 import { AppShell } from '@/shared/components/AppShell';
 import { LoginForm } from '@/features/auth/components/LoginForm';
-import { DealsBoard } from '@/features/deals/components/Board';
-import { ForecastDashboard } from '@/features/forecasting/components/Dashboard';
-import { ContactsPage } from '@/features/contacts/components/ContactsPage';
-import { AccountsPage } from '@/features/accounts/components/AccountsPage';
-import { LeadsPage } from '@/features/leads/LeadsPage';
-import { SettingsPage } from '@/features/settings/components/SettingsPage';
-import { UsersPage } from '@/features/users/components/UsersPage';
 import { validateUsersSearch } from '@/features/users/schemas/user';
-import { AcceptInvitationPage } from '@/features/users/components/AcceptInvitationPage';
-import { AuditLogPage } from '@/features/audit/components/AuditLogPage';
-import { CampaignsPage } from '@/features/marketing/components/CampaignsPage';
 import { validateCampaignsSearch } from '@/features/marketing/schemas/campaign';
-import { SegmentsPage } from '@/features/marketing/components/SegmentsPage';
 import { validateSegmentsSearch } from '@/features/marketing/schemas/segment';
 import { validateAuditSearch } from '@/features/audit/schemas/audit';
 import { createSegmentBuilderRoutes } from '@/features/marketing/segmentBuilderRoutes';
 import { createTemplateRoutes } from '@/features/marketing/templateRoutes';
 import { createAutomationRoutes } from '@/features/marketing/automationRoutes';
-import { LeadFormsPage } from '@/features/marketing/components/LeadFormsPage';
-import { CampaignDashboard } from '@/features/marketing/components/CampaignDashboard';
-import { ProductsPage } from '@/features/products/components/ProductsPage';
 import { validateProductsSearch } from '@/features/products/schemas/product';
-import { QuotesPage } from '@/features/quotes/components/QuotesPage';
-import { QuoteBuilder } from '@/features/quotes/components/QuoteBuilder';
 import { validateQuotesSearch } from '@/features/quotes/schemas/quote';
-import { InvoicesPage } from '@/features/invoices/components/InvoicesPage';
-import { InvoiceDetail } from '@/features/invoices/components/InvoiceDetail';
 import { validateInvoicesSearch } from '@/features/invoices/schemas/invoice';
-import { InventoryPage } from '@/features/inventory/components/InventoryPage';
-import { SuppliersPage } from '@/features/purchasing/components/SuppliersPage';
-import { PurchaseOrdersPage } from '@/features/purchasing/components/PurchaseOrdersPage';
-import { PurchaseOrderBuilder } from '@/features/purchasing/components/PurchaseOrderBuilder';
-import { PurchaseOrderDetail } from '@/features/purchasing/components/PurchaseOrderDetail';
 import { validatePurchaseOrdersSearch, validateSuppliersSearch } from '@/features/purchasing/schemas/purchasing';
-import { ItemDetail } from '@/features/inventory/components/ItemDetail';
 import { validateInventorySearch } from '@/features/inventory/schemas/inventory';
-import { LedgerAccountsPage } from '@/features/accounting/components/AccountsPage';
-import { JournalPage } from '@/features/accounting/components/JournalPage';
-import { JournalEntryBuilder } from '@/features/accounting/components/JournalEntryBuilder';
-import { JournalEntryDetail } from '@/features/accounting/components/JournalEntryDetail';
 import { validateJournalSearch } from '@/features/accounting/schemas/accounting';
-import { TrialBalancePage } from '@/features/accounting/components/TrialBalancePage';
-import { IncomeStatementPage } from '@/features/accounting/components/IncomeStatementPage';
-import { BalanceSheetPage } from '@/features/accounting/components/BalanceSheetPage';
-import { AccountLedgerPage } from '@/features/accounting/components/AccountLedgerPage';
 import { validateAsOfSearch, validateLedgerSearch, validateRangeSearch } from '@/features/accounting/schemas/reports';
-import { SyncPage } from '@/features/accounting/components/SyncPage';
 import { validateSyncSearch } from '@/features/accounting/schemas/sync';
-import { EmployeesPage } from '@/features/hr/components/EmployeesPage';
-import { HrUnitsPage } from '@/features/hr/components/HrUnitsPage';
 import { validateEmployeesSearch, validateHrUnitsSearch } from '@/features/hr/schemas/hr';
-import { LeavePage } from '@/features/hr/components/LeavePage';
 import { validateLeaveSearch } from '@/features/hr/schemas/leave';
+
+// 6.3: route-level code-splitting. Every page is its own chunk, loaded on first visit.
+// Only the shell, the login form, the schema validators and the route plumbing stay in the main bundle.
+const DealsBoard = lazyRouteComponent(() => import('@/features/deals/components/Board'), 'DealsBoard');
+const ForecastDashboard = lazyRouteComponent(() => import('@/features/forecasting/components/Dashboard'), 'ForecastDashboard');
+const ContactsPage = lazyRouteComponent(() => import('@/features/contacts/components/ContactsPage'), 'ContactsPage');
+const AccountsPage = lazyRouteComponent(() => import('@/features/accounts/components/AccountsPage'), 'AccountsPage');
+const LeadsPage = lazyRouteComponent(() => import('@/features/leads/LeadsPage'), 'LeadsPage');
+const SettingsPage = lazyRouteComponent(() => import('@/features/settings/components/SettingsPage'), 'SettingsPage');
+const UsersPage = lazyRouteComponent(() => import('@/features/users/components/UsersPage'), 'UsersPage');
+const AcceptInvitationPage = lazyRouteComponent(() => import('@/features/users/components/AcceptInvitationPage'), 'AcceptInvitationPage');
+const AuditLogPage = lazyRouteComponent(() => import('@/features/audit/components/AuditLogPage'), 'AuditLogPage');
+const CampaignsPage = lazyRouteComponent(() => import('@/features/marketing/components/CampaignsPage'), 'CampaignsPage');
+const SegmentsPage = lazyRouteComponent(() => import('@/features/marketing/components/SegmentsPage'), 'SegmentsPage');
+const LeadFormsPage = lazyRouteComponent(() => import('@/features/marketing/components/LeadFormsPage'), 'LeadFormsPage');
+const CampaignDashboard = lazyRouteComponent(() => import('@/features/marketing/components/CampaignDashboard'), 'CampaignDashboard');
+const ProductsPage = lazyRouteComponent(() => import('@/features/products/components/ProductsPage'), 'ProductsPage');
+const QuotesPage = lazyRouteComponent(() => import('@/features/quotes/components/QuotesPage'), 'QuotesPage');
+const QuoteBuilder = lazyRouteComponent(() => import('@/features/quotes/components/QuoteBuilder'), 'QuoteBuilder');
+const InvoicesPage = lazyRouteComponent(() => import('@/features/invoices/components/InvoicesPage'), 'InvoicesPage');
+const InvoiceDetail = lazyRouteComponent(() => import('@/features/invoices/components/InvoiceDetail'), 'InvoiceDetail');
+const InventoryPage = lazyRouteComponent(() => import('@/features/inventory/components/InventoryPage'), 'InventoryPage');
+const ItemDetail = lazyRouteComponent(() => import('@/features/inventory/components/ItemDetail'), 'ItemDetail');
+const SuppliersPage = lazyRouteComponent(() => import('@/features/purchasing/components/SuppliersPage'), 'SuppliersPage');
+const PurchaseOrdersPage = lazyRouteComponent(() => import('@/features/purchasing/components/PurchaseOrdersPage'), 'PurchaseOrdersPage');
+const PurchaseOrderBuilder = lazyRouteComponent(() => import('@/features/purchasing/components/PurchaseOrderBuilder'), 'PurchaseOrderBuilder');
+const PurchaseOrderDetail = lazyRouteComponent(() => import('@/features/purchasing/components/PurchaseOrderDetail'), 'PurchaseOrderDetail');
+const LedgerAccountsPage = lazyRouteComponent(() => import('@/features/accounting/components/AccountsPage'), 'LedgerAccountsPage');
+const JournalPage = lazyRouteComponent(() => import('@/features/accounting/components/JournalPage'), 'JournalPage');
+const JournalEntryBuilder = lazyRouteComponent(() => import('@/features/accounting/components/JournalEntryBuilder'), 'JournalEntryBuilder');
+const JournalEntryDetail = lazyRouteComponent(() => import('@/features/accounting/components/JournalEntryDetail'), 'JournalEntryDetail');
+const TrialBalancePage = lazyRouteComponent(() => import('@/features/accounting/components/TrialBalancePage'), 'TrialBalancePage');
+const IncomeStatementPage = lazyRouteComponent(() => import('@/features/accounting/components/IncomeStatementPage'), 'IncomeStatementPage');
+const BalanceSheetPage = lazyRouteComponent(() => import('@/features/accounting/components/BalanceSheetPage'), 'BalanceSheetPage');
+const AccountLedgerPage = lazyRouteComponent(() => import('@/features/accounting/components/AccountLedgerPage'), 'AccountLedgerPage');
+const SyncPage = lazyRouteComponent(() => import('@/features/accounting/components/SyncPage'), 'SyncPage');
+const EmployeesPage = lazyRouteComponent(() => import('@/features/hr/components/EmployeesPage'), 'EmployeesPage');
+const HrUnitsPage = lazyRouteComponent(() => import('@/features/hr/components/HrUnitsPage'), 'HrUnitsPage');
+const LeavePage = lazyRouteComponent(() => import('@/features/hr/components/LeavePage'), 'LeavePage');
+
+function PendingPage() {
+    return <div className="p-4 text-sm text-[var(--color-ink-muted)]">Loading...</div>;
+}
+
 const segmentBuilderRoutes = createSegmentBuilderRoutes(() => authenticatedLayoutRoute);
 const templateRoutes = createTemplateRoutes(() => authenticatedLayoutRoute);
 const automationRoutes = createAutomationRoutes(() => authenticatedLayoutRoute);
@@ -81,7 +89,6 @@ const loginRoute = createRoute({
         </div>
     ),
 });
-
 
 const authenticatedLayoutRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -242,6 +249,7 @@ const inventoryDetailRoute = createRoute({
     path: '/inventory/$itemId',
     component: ItemDetail,
 });
+
 // 11.2c: suppliers and purchase orders. Lists keep filters/sort/page in the URL (8.7); "new" is a literal path, so it wins over $poId.
 const suppliersRoute = createRoute({
     getParentRoute: () => authenticatedLayoutRoute,
@@ -274,6 +282,7 @@ const purchaseOrderEditRoute = createRoute({
     path: '/purchase-orders/$poId/edit',
     component: PurchaseOrderBuilder,
 });
+
 // 12.1a: accounting. The journal is the landing page and keeps filters/page in the URL (8.7); "new" is a literal path, so it wins over $entryId.
 const accountingRoute = createRoute({
     getParentRoute: () => authenticatedLayoutRoute,
@@ -363,9 +372,56 @@ const leaveRoute = createRoute({
 const routeTree = rootRoute.addChildren([
     loginRoute,
     acceptInviteRoute,
-    authenticatedLayoutRoute.addChildren([dashboardRoute, dealsRoute, contactsRoute, leadsRoute, accountsRoute, forecastRoute, settingsRoute, usersRoute, auditRoute, marketingRoute, segmentsRoute, ...segmentBuilderRoutes, ...templateRoutes, ...automationRoutes, leadFormsRoute, campaignDashboardRoute, productsRoute, quotesRoute, quoteNewRoute, quoteEditRoute, invoicesRoute, invoiceDetailRoute, inventoryRoute, inventoryDetailRoute, suppliersRoute, purchaseOrdersRoute, purchaseOrderNewRoute, purchaseOrderDetailRoute, purchaseOrderEditRoute, accountingRoute, ledgerAccountsRoute, journalNewRoute, journalDetailRoute, trialBalanceRoute, incomeStatementRoute, balanceSheetRoute, accountLedgerRoute, accountingSyncRoute, employeesRoute, hrUnitsRoute, leaveRoute]),
+    authenticatedLayoutRoute.addChildren([
+        dashboardRoute,
+        dealsRoute,
+        contactsRoute,
+        leadsRoute,
+        accountsRoute,
+        forecastRoute,
+        settingsRoute,
+        usersRoute,
+        auditRoute,
+        marketingRoute,
+        segmentsRoute,
+        ...segmentBuilderRoutes,
+        ...templateRoutes,
+        ...automationRoutes,
+        leadFormsRoute,
+        campaignDashboardRoute,
+        productsRoute,
+        quotesRoute,
+        quoteNewRoute,
+        quoteEditRoute,
+        invoicesRoute,
+        invoiceDetailRoute,
+        inventoryRoute,
+        inventoryDetailRoute,
+        suppliersRoute,
+        purchaseOrdersRoute,
+        purchaseOrderNewRoute,
+        purchaseOrderDetailRoute,
+        purchaseOrderEditRoute,
+        accountingRoute,
+        ledgerAccountsRoute,
+        journalNewRoute,
+        journalDetailRoute,
+        trialBalanceRoute,
+        incomeStatementRoute,
+        balanceSheetRoute,
+        accountLedgerRoute,
+        accountingSyncRoute,
+        employeesRoute,
+        hrUnitsRoute,
+        leaveRoute,
+    ]),
 ]);
-export const router = createRouter({ routeTree });
+
+export const router = createRouter({
+    routeTree,
+    defaultPendingComponent: PendingPage,
+    defaultPendingMs: 150,
+});
 
 declare module '@tanstack/react-router' {
     interface Register {
