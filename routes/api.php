@@ -28,6 +28,7 @@ Route::prefix('v1')->group(function () {
 
     // 2.1: unauthenticated - login only needs the CSRF cookie already set.
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+        ->middleware('throttle:10,1') // 14.4 login
         ->name('login');
 
     // 8c.2c: public invitation endpoints. The token is the credential, so they are throttled hard, and
@@ -51,7 +52,7 @@ Route::prefix('v1')->group(function () {
 
         Route::get('deals', [DealsController::class, 'index']);
 
-        Broadcast::routes(['middleware' => []]);
+        Broadcast::routes(['middleware' => ['throttle:120,1']]); // 14.4 broadcast auth
 
         Route::get('forecast', ForecastController::class);
 
