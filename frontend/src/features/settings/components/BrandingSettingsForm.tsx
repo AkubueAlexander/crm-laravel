@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { apiErrorMessage } from '@/shared/lib/apiErrorMessage';
+import { applyServerErrors } from '@/shared/lib/applyServerErrors';
 import { useTenant } from '@/shared/hooks/useTenant';
 import { useUpdateBranding } from '../api/useUpdateBranding';
 import {
@@ -67,6 +68,7 @@ export function BrandingSettingsForm() {
 
     const submit = form.handleSubmit((values) => {
         update.mutate(values, {
+            onError: (err) => applyServerErrors(form, err),
             onSuccess: (saved) => {
                 form.reset({ primary_color: brandingAccent(saved.branding) ?? '', remove_logo: false, logo: undefined });
                 setFileKey((key) => key + 1);

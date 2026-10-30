@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { apiErrorMessage } from '@/shared/lib/apiErrorMessage';
+import { applyServerErrors } from '@/shared/lib/applyServerErrors';
 import { usePipelineSettings, useUpdatePipelineSettings } from '../api/usePipelineSettings';
 import {
     pipelineFormSchema,
@@ -43,6 +44,7 @@ function PipelineForm({ settings }: { settings: PipelineSettings }) {
 
     const submit = form.handleSubmit((values) => {
         update.mutate(pipelinePayload(values), {
+            onError: (err) => applyServerErrors(form, err),
             // Re-baseline from what the server stored, so the form is no longer dirty.
             onSuccess: (saved) => form.reset(pipelineFormValues(saved)),
         });

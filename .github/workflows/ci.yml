@@ -77,6 +77,8 @@ jobs:
       - run: npm ci
       - name: Type check
         run: npx tsc --noEmit
+      - name: Unit tests (Vitest)
+        run: npm test
       - name: ESLint
         run: |
           if [ -f eslint.config.js ] || [ -f eslint.config.mjs ] || [ -f .eslintrc.cjs ] || [ -f .eslintrc.json ]; then npx eslint src; else echo "eslint not configured, skipped"; fi

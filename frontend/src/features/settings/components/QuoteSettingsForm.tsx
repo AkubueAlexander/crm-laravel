@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { apiErrorMessage } from '@/shared/lib/apiErrorMessage';
+import { applyServerErrors } from '@/shared/lib/applyServerErrors';
 import { useQuoteSettings, useUpdateQuoteSettings } from '../api/useQuoteSettings';
 import {
     quoteSettingsFormSchema,
@@ -41,6 +42,7 @@ function QuoteForm({ settings }: { settings: QuoteSettings }) {
 
     const submit = form.handleSubmit((values) => {
         update.mutate(quoteSettingsPayload(values), {
+            onError: (err) => applyServerErrors(form, err),
             // Re-baseline from what the server stored, so the form is no longer dirty.
             onSuccess: (saved) => form.reset(quoteSettingsFormValues(saved)),
         });

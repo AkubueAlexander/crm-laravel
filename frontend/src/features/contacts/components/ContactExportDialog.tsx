@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { applyServerErrors } from '@/shared/lib/applyServerErrors';
 import {
     exportErrorMessage,
     useContactExport,
@@ -40,7 +41,7 @@ export function ContactExportDialog({ exportId, query, onStarted, onReset, onClo
     const submit = form.handleSubmit((values) => {
         start.mutate(
             { ...query, format: values.format },
-            { onSuccess: (created) => onStarted(created.id) },
+            { onSuccess: (created) => onStarted(created.id), onError: (err) => applyServerErrors(form, err) },
         );
     });
 
