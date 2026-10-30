@@ -1,7 +1,12 @@
-import { createRoute, notFound, useParams, type AnyRoute } from '@tanstack/react-router';
-import { TemplateEditorPage } from '@/features/marketing/components/TemplateEditorPage';
-import { TemplatesPage } from '@/features/marketing/components/TemplatesPage';
+import { lazy } from 'react';
+import { createRoute, lazyRouteComponent, notFound, useParams, type AnyRoute } from '@tanstack/react-router';
 import { validateTemplatesSearch } from '@/features/marketing/schemas/template';
+
+// 6.3b: pages are their own chunks; the route's pending fallback covers the load.
+const TemplatesPage = lazyRouteComponent(() => import('@/features/marketing/components/TemplatesPage'), 'TemplatesPage');
+const TemplateEditorPage = lazy(() =>
+  import('@/features/marketing/components/TemplateEditorPage').then((m) => ({ default: m.TemplateEditorPage })),
+);
 
 function NewTemplateRoute() {
   return <TemplateEditorPage />;

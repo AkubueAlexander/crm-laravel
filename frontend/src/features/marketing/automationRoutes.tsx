@@ -1,7 +1,12 @@
-import { createRoute, notFound, useParams, type AnyRoute } from '@tanstack/react-router';
-import { AutomationBuilderPage } from '@/features/marketing/components/AutomationBuilderPage';
-import { AutomationsPage } from '@/features/marketing/components/AutomationsPage';
+import { lazy } from 'react';
+import { createRoute, lazyRouteComponent, notFound, useParams, type AnyRoute } from '@tanstack/react-router';
 import { validateAutomationsSearch } from '@/features/marketing/schemas/automation';
+
+// 6.3b: pages are their own chunks; the route's pending fallback covers the load.
+const AutomationsPage = lazyRouteComponent(() => import('@/features/marketing/components/AutomationsPage'), 'AutomationsPage');
+const AutomationBuilderPage = lazy(() =>
+    import('@/features/marketing/components/AutomationBuilderPage').then((m) => ({ default: m.AutomationBuilderPage })),
+);
 
 function NewAutomationRoute() {
     return <AutomationBuilderPage />;

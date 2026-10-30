@@ -1,5 +1,10 @@
+import { lazy } from 'react';
 import { createRoute, notFound, useParams, type AnyRoute } from '@tanstack/react-router';
-import { SegmentBuilderPage } from '@/features/marketing/components/SegmentBuilderPage';
+
+// 6.3b: the builder page is its own chunk; the route's pending fallback covers the load.
+const SegmentBuilderPage = lazy(() =>
+  import('@/features/marketing/components/SegmentBuilderPage').then((m) => ({ default: m.SegmentBuilderPage })),
+);
 
 function NewSegmentRoute() {
   return <SegmentBuilderPage />;
