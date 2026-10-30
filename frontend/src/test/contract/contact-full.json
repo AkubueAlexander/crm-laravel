@@ -1,0 +1,12 @@
+{
+    "id": 501,
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "full_name": "Ada Lovelace",
+    "email": "ada@example.test",
+    "phone": "+234 801 234 5678",
+    "job_title": "Head of Engineering",
+    "account_id": 77,
+    "created_at": "2026-01-15T09:30:00+00:00",
+    "updated_at": "2026-02-01T14:05:00+00:00"
+}
