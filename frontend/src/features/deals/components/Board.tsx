@@ -27,13 +27,15 @@ function Column({
     return (
         <div
             ref={setNodeRef}
+            data-testid="stage-column"
+            data-stage={stage}
             className={`flex w-64 shrink-0 flex-col gap-2 rounded-lg border p-3 transition-colors ${
                 isOver ? 'border-[var(--color-accent)] bg-[var(--color-accent)]/5' : 'border-[var(--color-border)] bg-[var(--color-paper)]'
             }`}
         >
             <div className="flex items-center justify-between px-1">
                 <span className="text-sm font-medium text-[var(--color-ink)]">{label}</span>
-                <span className="text-xs text-[var(--color-ink-muted)]">{deals.length}</span>
+                <span data-testid="stage-count" className="text-xs text-[var(--color-ink-muted)]">{deals.length}</span>
             </div>
             <div className="flex flex-col gap-2">
                 {deals.map((deal) => (
@@ -56,7 +58,6 @@ export function DealsBoard() {
     const boardId = 1;
     const { tenant } = useTenant();
     const queryClient = useQueryClient();
-
 
     useEchoChannel(
         tenant ? `tenant.${tenant.id}.board.${boardId}` : '',
@@ -97,7 +98,7 @@ export function DealsBoard() {
             {
                 onError: (err) => {
                     if (isStaleDealError(err)) {
-                        setConflictMessage('This deal was updated by someone else — refresh to see the latest stage.');
+                        setConflictMessage('This deal was updated by someone else \u2014 refresh to see the latest stage.');
                     } else if (isApiError(err) && err.response?.status === 422) {
                         setConflictMessage(err.response.data.message);
                     } else {
@@ -108,13 +109,16 @@ export function DealsBoard() {
         );
     }
 
-    if (isPending) return <div className="text-sm text-[var(--color-ink-muted)]">Loading deals…</div>;
+    if (isPending) return <div className="text-sm text-[var(--color-ink-muted)]">{'Loading deals\u2026'}</div>;
     if (isError) return <div className="text-sm text-[var(--color-danger)]">Couldn't load deals.</div>;
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3" data-testid="deals-board">
             {conflictMessage && (
-                <div className="rounded-md border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 px-3 py-2 text-sm text-[var(--color-danger)]">
+                <div
+                    role="alert"
+                    className="rounded-md border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 px-3 py-2 text-sm text-[var(--color-danger)]"
+                >
                     {conflictMessage}
                 </div>
             )}

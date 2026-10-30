@@ -21,6 +21,7 @@ class DevTenantSeeder extends Seeder
         'contacts.update',
         'contacts.delete',
         'deals.view',
+        'deals.transition',
         'forecast.view',
         'accounts.view',
         'accounts.create',

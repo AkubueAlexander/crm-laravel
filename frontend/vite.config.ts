@@ -27,6 +27,9 @@ function publicFormDevRewrite(): Plugin {
     };
 }
 
+// 15.6: the E2E run points the proxy at its own Laravel instance (never the dev one on :8000).
+const apiTarget = process.env.E2E_API_TARGET ?? 'http://localhost:8000';
+
 export default defineConfig({
     plugins: [react(), tailwindcss(), publicFormDevRewrite()],
     resolve: {
@@ -37,8 +40,8 @@ export default defineConfig({
     server: {
         port: 5173,
         proxy: {
-            '/api': { target: 'http://localhost:8000', changeOrigin: true },
-            '/sanctum': { target: 'http://localhost:8000', changeOrigin: true },
+            '/api': { target: apiTarget, changeOrigin: true },
+            '/sanctum': { target: apiTarget, changeOrigin: true },
         },
     },
     build: {

@@ -21,6 +21,8 @@ export function DealCard({ deal, onActivity }: DealCardProps) {
         <div
             ref={setNodeRef}
             style={style}
+            data-testid="deal-card"
+            data-deal-id={deal.id}
             {...listeners}
             {...attributes}
             className="cursor-grab rounded-md border border-[var(--color-border)] bg-white p-3 text-sm shadow-sm active:cursor-grabbing"

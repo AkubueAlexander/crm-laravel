@@ -24,6 +24,7 @@ final class RoleCatalog
         'contacts.update',
         'contacts.delete',
         'deals.view',
+        'deals.transition',
         'forecast.view',
         'accounts.view',
         'accounts.create',
@@ -127,7 +128,7 @@ final class RoleCatalog
                 'invoices.view', // sales: see invoices
                 'inventory.view', // sales: see stock
                 'hr.view', // sales: see teams and territories
-                'deals.view',
+                'deals.view', 'deals.transition',
             ],
             'viewer' => array_values(array_filter(self::ALL_PERMISSIONS, fn (string $p) => str_ends_with($p, '.view') && ! in_array($p, self::MANAGEMENT, true))),
             default => [],
