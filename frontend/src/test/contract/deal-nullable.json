@@ -1,0 +1,18 @@
+{
+    "id": 11,
+    "board_id": 1,
+    "name": "Contract deal",
+    "owner_id": null,
+    "amount": null,
+    "expected_close_date": null,
+    "stage": "qualified",
+    "stage_label": "Qualified",
+    "source": null,
+    "lead_form_id": null,
+    "utm_source": null,
+    "utm_medium": null,
+    "utm_campaign": null,
+    "lock_version": 2,
+    "created_at": "2026-01-01T00:00:00.000000Z",
+    "updated_at": "2026-01-02T00:00:00.000000Z"
+}

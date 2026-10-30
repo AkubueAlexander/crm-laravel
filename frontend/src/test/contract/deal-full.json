@@ -1,0 +1,18 @@
+{
+    "id": 11,
+    "board_id": 1,
+    "name": "Contract deal",
+    "owner_id": 5,
+    "amount": "1500.00",
+    "expected_close_date": "2026-03-31",
+    "stage": "qualified",
+    "stage_label": "Qualified",
+    "source": "web_form",
+    "lead_form_id": 3,
+    "utm_source": "newsletter",
+    "utm_medium": "email",
+    "utm_campaign": "spring",
+    "lock_version": 2,
+    "created_at": "2026-01-01T00:00:00.000000Z",
+    "updated_at": "2026-01-02T00:00:00.000000Z"
+}
