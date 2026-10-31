@@ -41,6 +41,7 @@ class E2ePrepare extends Command
         $this->call('db:seed', ['--class' => 'Database\\Seeders\\DevTenantSeeder', '--force' => true]);
         $this->call('db:seed', ['--class' => 'Database\\Seeders\\E2eDealSeeder', '--force' => true]);
         $this->call('db:seed', ['--class' => 'Database\\Seeders\\E2eLeadSeeder', '--force' => true]);
+        $this->call('db:seed', ['--class' => 'Database\\Seeders\\E2eProductSeeder', '--force' => true]);
 
         $this->info("E2E database {$db} is ready.");
 
