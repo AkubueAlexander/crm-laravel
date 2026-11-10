@@ -8,12 +8,7 @@ use App\Jobs\RunAutomationEnrollmentJob;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-/**
- * 9.6c-2: queues one RunAutomationEnrollmentJob per due enrollment of an ACTIVE automation.
- * Rows are claimed with FOR UPDATE SKIP LOCKED and LEASED (next_run_at pushed out) in the same transaction,
- * so two overlapping runs never queue the same enrollment; if a job dies the lease simply expires and the
- * enrollment is picked up again.
- */
+
 final class RunDueAutomationEnrollmentsCommand extends Command
 {
     public const BATCH = 200;

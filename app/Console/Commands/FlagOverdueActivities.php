@@ -12,10 +12,7 @@ use Throwable;
 
 class FlagOverdueActivities extends Command
 {
-    /**
-     * Rows overdue for longer than this are still flagged but not notified, so the
-     * first run after deploy does not flood owners with a historical backlog.
-     */
+
     public const NOTIFY_WINDOW_DAYS = 7;
 
     protected $signature = 'activities:flag-overdue';
@@ -28,19 +25,14 @@ class FlagOverdueActivities extends Command
         $flagged = 0;
         $notified = 0;
 
-        // Cross-tenant by design: this is system work, not a request. The tenant scope
-        // is bypassed explicitly rather than relying on console behaviour. Soft-deleted
-        // rows stay excluded by the SoftDeletes scope. Query-builder updates skip model
-        // events, so the tenant saving-guard is not involved.
+
         Activity::withoutTenantScope()
             ->whereNull('completed_at')
             ->whereNull('overdue_at')
             ->whereNotNull('due_at')
             ->where('due_at', '<=', $now)
             ->chunkById(500, function ($rows) use ($now, &$flagged, &$notified) {
-                // Claim the rows under a lock so exactly the rows WE flag are the rows we
-                // notify about: a concurrent run, complete, or reopen cannot cause a
-                // duplicate or a notification for a row that was not flagged.
+
                 $claimed = DB::transaction(function () use ($rows, $now) {
                     $locked = Activity::withoutTenantScope()
                         ->whereIn('id', $rows->modelKeys())

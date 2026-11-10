@@ -10,7 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-/** 8c.2c: unauthenticated invitation endpoints. The token in the URL is the only credential. */
+
 final class PublicInvitationController extends Controller
 {
     public function show(string $token, AcceptInvitationAction $action): InvitationPreviewResource

@@ -10,12 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 
-/**
- * 9.4c: the public unsubscribe pages. No session and no login: the signed token is the credential.
- * - GET only shows a confirmation page and changes nothing (mail scanners and link prefetchers open links).
- * - POST suppresses the address. It is also what mail clients call for RFC 8058 one-click unsubscribe.
- * - Every invalid, tampered or unknown token gets the same 404 page, so nothing can be learned by guessing.
- */
+
 final class UnsubscribeController extends Controller
 {
     public function show(string $token): Response

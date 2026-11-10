@@ -83,7 +83,7 @@ class DevTenantSeeder extends Seeder
 
         $adminRole->syncPermissions($permissions);
 
-        // 8c.2: the standard role set (admin, manager, sales, viewer) for this tenant.
+
         RoleCatalog::provision($tenant);
 
         $user = User::updateOrCreate(

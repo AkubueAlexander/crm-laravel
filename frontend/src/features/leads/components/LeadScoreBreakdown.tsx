@@ -1,7 +1,7 @@
 import type { Lead } from '../schemas/lead';
 import { LeadScoreBadge, scoreBand } from './LeadScoreBadge';
 
-// 9.7: read-only factor breakdown (the score is computed server-side by LeadScoring).
+
 export function LeadScoreBreakdown({ lead }: { lead: Lead }) {
   const band = scoreBand(lead.score);
   return (

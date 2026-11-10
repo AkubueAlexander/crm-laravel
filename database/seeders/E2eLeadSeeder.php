@@ -7,10 +7,7 @@ use App\Models\Lead;
 use App\Models\Tenant;
 use Illuminate\Database\Seeder;
 
-/**
- * 15.6: one deterministic, convertible lead for the Playwright lead-conversion spec (8a.2).
- * `status` is left to the column default so a new lead starts in whatever state the app treats as new.
- */
+
 class E2eLeadSeeder extends Seeder
 {
     public function run(): void

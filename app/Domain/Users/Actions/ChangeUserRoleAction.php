@@ -17,7 +17,7 @@ final class ChangeUserRoleAction
     /** A user holds exactly one role: the target's roles are replaced by $role. */
     public function execute(User $actor, int $targetId, string $role): User
     {
-        // 2.4: server-side re-validation, independent of the request layer.
+
         Gate::forUser($actor)->authorize('users.manage');
 
         if (! RoleCatalog::isKnown($role)) {
@@ -28,11 +28,10 @@ final class ChangeUserRoleAction
         app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
 
         return DB::transaction(function () use ($actor, $targetId, $role, $tenantId): User {
-            // Serializes every admin-affecting change of this tenant, so two racing demotions
-            // cannot together remove the last administrator.
+
             Tenant::query()->lockForUpdate()->findOrFail($tenantId);
 
-            // User has no tenant scope: the tenant predicate here IS the isolation (1.3).
+
             $target = User::query()->where('tenant_id', $tenantId)->lockForUpdate()->findOrFail($targetId);
 
             if ((int) $target->id === (int) $actor->id) {
@@ -52,7 +51,7 @@ final class ChangeUserRoleAction
             $from = RoleCatalog::primary($target->roles()->pluck('roles.name')->all());
             $target->syncRoles([$role]);
 
-            // 8c.3: choosing the role the user already has is not an event.
+
             if ($from !== $role) {
                 AuditRecorder::record($tenantId, (int) $actor->id, 'user.role_changed', 'user', (int) $target->id, $target->name, ['from' => $from, 'to' => $role]);
             }

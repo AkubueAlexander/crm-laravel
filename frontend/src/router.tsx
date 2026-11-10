@@ -21,8 +21,8 @@ import { validateSyncSearch } from '@/features/accounting/schemas/sync';
 import { validateEmployeesSearch, validateHrUnitsSearch } from '@/features/hr/schemas/hr';
 import { validateLeaveSearch } from '@/features/hr/schemas/leave';
 
-// 6.3: route-level code-splitting. Every page is its own chunk, loaded on first visit.
-// Only the shell, the login form, the schema validators and the route plumbing stay in the main bundle.
+
+
 const DealsBoard = lazyRouteComponent(() => import('@/features/deals/components/Board'), 'DealsBoard');
 const ForecastDashboard = lazyRouteComponent(() => import('@/features/forecasting/components/Dashboard'), 'ForecastDashboard');
 const ContactsPage = lazyRouteComponent(() => import('@/features/contacts/components/ContactsPage'), 'ContactsPage');

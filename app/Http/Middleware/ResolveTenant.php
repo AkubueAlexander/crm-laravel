@@ -18,8 +18,6 @@ class ResolveTenant
 
         $user = $request->user();
 
-        // 8c.2: a deactivated account is cut off on its very next request, whatever session or
-        // remember-me cookie it still holds. Fails closed: the session is dropped and the answer is 401.
         if ($user !== null && $user->deactivated_at !== null) {
             auth()->guard('web')->logout();
 

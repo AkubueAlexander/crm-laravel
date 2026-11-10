@@ -13,7 +13,6 @@ export type UsersListParams = {
     status?: UserStatus;
 };
 
-// Prefix shared by every cached list page of a tenant (the options query uses ['users', id, 'options']).
 export function usersListKey(tenantId: unknown) {
     return ['users', tenantId, 'list'] as const;
 }

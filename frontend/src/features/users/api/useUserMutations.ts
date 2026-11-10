@@ -5,9 +5,7 @@ import type { UserRole, UsersPage } from '../schemas/user';
 import { usersListKey } from './useUsers';
 import { userRolesKey } from './useUserRoles';
 
-// Role change: optimistic patch of every cached list page, rolled back on any error (409 last_admin,
-// 422 cannot_modify_self, ...) and always reconciled with the server afterwards (3.2 pattern).
-// The response body is deliberately not parsed: the list refetch is the source of truth.
+
 export function useChangeUserRole() {
     const queryClient = useQueryClient();
     const { tenant } = useTenant();
@@ -42,8 +40,7 @@ export function useChangeUserRole() {
     });
 }
 
-// Deactivate / reactivate. Not optimistic: the server may refuse (self, last admin), and the dialog
-// shows that message, so the list only changes once the server has agreed.
+
 export function useSetUserActive() {
     const queryClient = useQueryClient();
     const { tenant } = useTenant();

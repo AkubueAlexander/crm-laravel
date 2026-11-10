@@ -1,8 +1,7 @@
 import { z } from 'zod';
 import { TAX_CATEGORIES } from './product';
 
-// UX layer only: mirrors SaveProductRequest + SaveProductAction (10.0a/b). The API is the security boundary;
-// SKU uniqueness across the tenant can only be enforced server-side (mapped back via 422).
+
 const MONEY = /^\d{1,10}(\.\d{1,2})?$/;
 const moneyMessage = 'Enter a valid price (max 2 decimals).';
 

@@ -5,11 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use PDO;
 
-/**
- * 15.6: prepares the isolated database the Playwright run talks to.
- * Refuses to run unless APP_ENV=e2e AND the default connection is a Postgres database whose name ends in _e2e,
- * so it can never wipe the dev or test databases.
- */
+
 class E2ePrepare extends Command
 {
     protected $signature = 'e2e:prepare';

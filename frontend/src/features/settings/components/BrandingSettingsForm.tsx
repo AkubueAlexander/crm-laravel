@@ -20,15 +20,15 @@ export function BrandingSettingsForm() {
     const { tenant } = useTenant();
     const update = useUpdateBranding();
 
-    // The saved state comes straight from the tenant in the ['auth', 'me'] cache (server state, 8.1).
+
     const currentLogo = brandingLogo(tenant?.branding);
     const currentColor = brandingAccent(tenant?.branding) ?? '';
 
-    // Remounting the file input is the only way to clear a chosen file.
+
     const [fileKey, setFileKey] = useState(0);
     const [preview, setPreview] = useState<string | null>(null);
 
-    // RHF + Zod (8.3). The server re-validates everything and re-encodes the image (14.2).
+
     const form = useForm<BrandingFormInput>({
         resolver: zodResolver(brandingFormSchema),
         defaultValues: { primary_color: currentColor, remove_logo: false, logo: undefined },

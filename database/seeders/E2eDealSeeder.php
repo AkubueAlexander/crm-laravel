@@ -10,10 +10,7 @@ use App\Models\Deal;
 use App\Models\Tenant;
 use Illuminate\Database\Seeder;
 
-/**
- * 15.6: deterministic deals for the Playwright kanban specs. Runs after DevTenantSeeder
- * (e2e:prepare only; never part of the normal dev seed).
- */
+
 class E2eDealSeeder extends Seeder
 {
     public function run(): void

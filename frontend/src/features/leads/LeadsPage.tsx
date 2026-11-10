@@ -7,8 +7,7 @@ import { LeadForm } from './components/LeadForm';
 import { ConvertLeadModal } from './components/ConvertLeadModal';
 import type { Lead } from './schemas/lead';
 
-// 8.2: container owns "which modal is open" (8.1: ephemeral visual state ->
-// local useState, not Zustand - it doesn't need to survive a route change).
+
 export function LeadsPage() {
     const [editingLead, setEditingLead] = useState<Lead | null>(null);
     const [convertingLead, setConvertingLead] = useState<Lead | null>(null);

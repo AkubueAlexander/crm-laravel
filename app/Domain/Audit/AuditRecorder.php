@@ -4,10 +4,7 @@ namespace App\Domain\Audit;
 
 use App\Models\AuditEvent;
 
-/**
- * 8c.3: the single way to write an audit event. Call it from inside the Action's transaction,
- * so the event commits (or rolls back) together with the change it describes.
- */
+
 final class AuditRecorder
 {
     /** @param array<string, mixed> $properties small, non-sensitive facts (never tokens, passwords or emails of third parties) */

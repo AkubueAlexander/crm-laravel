@@ -22,7 +22,7 @@ final class UserManagementController extends Controller
         $v = $request->validated();
         $q = trim((string) ($v['q'] ?? ''));
 
-        // User has no tenant scope: this predicate IS the isolation (1.3).
+
         $users = User::query()
             ->where('tenant_id', (int) $request->user()->tenant_id)
             ->with('roles')

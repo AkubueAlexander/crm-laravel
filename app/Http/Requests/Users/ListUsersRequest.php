@@ -6,10 +6,10 @@ use App\Domain\Users\RoleCatalog;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-/** Zod on the frontend is UX; this is the boundary (14.2). */
+
 class ListUsersRequest extends FormRequest
 {
-    /** Whitelisted: this value reaches ORDER BY. */
+
     public const SORTABLE = ['name', 'email', 'created_at'];
 
     public function authorize(): bool

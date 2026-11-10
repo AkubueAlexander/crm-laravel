@@ -13,15 +13,14 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
 
-/** 8c.2c: the administrator side of invitations. The public preview/accept endpoints are separate. */
+
 final class UserInvitationController extends Controller
 {
-    /** Pending (not yet accepted) invitations of the actor's tenant, newest first. */
+
     public function index(Request $request): JsonResponse
     {
         Gate::authorize('users.manage');
 
-        // User/invitations have no tenant scope: this predicate IS the isolation (1.3).
         $rows = UserInvitation::query()
             ->where('tenant_id', (int) $request->user()->tenant_id)
             ->whereNull('accepted_at')

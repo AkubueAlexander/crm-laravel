@@ -36,7 +36,7 @@ export function UsersPage() {
     const sort: UserSortColumn = search.sort ?? 'name';
     const direction = search.direction ?? 'asc';
 
-    // Single place that writes filters/sort/page back to the URL; defaults and empties are dropped.
+
     function setSearch(patch: Partial<UsersSearch>) {
         void navigate({ to: '/users', search: validateUsersSearch({ ...search, ...patch }), replace: true });
     }
@@ -159,8 +159,7 @@ export function UsersPage() {
                 enableSorting: false,
             }),
         ],
-        // setActive.reset is stable; the rest are primitives or stable mutate functions.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
         [roles, changingId, changeRoleMutate],
     );
 

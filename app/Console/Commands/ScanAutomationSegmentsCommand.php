@@ -11,11 +11,7 @@ use App\Models\Tenant;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-/**
- * 9.6c-2: the "segment_entered" trigger. For every ACTIVE automation of that kind, enrolls the contacts that
- * match its segment and are not enrolled yet. The first scan after activation enrolls everyone who matches
- * today; later scans pick up contacts that newly match. Enrollment itself is idempotent (AutomationEnroller).
- */
+
 final class ScanAutomationSegmentsCommand extends Command
 {
     protected $signature = 'automations:scan-segments';

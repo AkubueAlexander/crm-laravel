@@ -7,7 +7,7 @@ export function userRolesKey(tenantId: unknown) {
     return ['users', tenantId, 'roles'] as const;
 }
 
-// The role catalog is a fixed server-side list (RoleCatalog), so it is cached for a long time.
+
 export function useUserRoles() {
     const { tenant } = useTenant();
 

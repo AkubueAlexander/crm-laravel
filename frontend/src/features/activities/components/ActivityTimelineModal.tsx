@@ -13,8 +13,7 @@ type ActivityTimelineModalProps = {
     onClose: () => void;
 };
 
-// Drop-in for any list or detail view: hold an ActivityTimelineTarget in local
-// state (8.1: ephemeral UI state) and render this once.
+
 export function ActivityTimelineModal({ target, onClose }: ActivityTimelineModalProps) {
     return (
         <Modal open={!!target} onClose={onClose} title={target ? `Activity - ${target.label}` : 'Activity'}>

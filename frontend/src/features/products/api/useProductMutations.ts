@@ -7,8 +7,7 @@ import { productsRootKey } from './useProducts';
 
 type SaveVars = { id: number | null; input: ProductInput };
 
-// Not optimistic: the server owns the SKU-uniqueness rule, so the row appears only once the API accepted it.
-// Tenant comes from the session, never from the body (1.3).
+
 export function useSaveProduct() {
     const queryClient = useQueryClient();
     const { tenant } = useTenant();
@@ -22,7 +21,7 @@ export function useSaveProduct() {
     });
 }
 
-// Not optimistic: the user confirms first, and the server may still refuse (e.g. once quotes reference a product).
+
 export function useDeleteProduct() {
     const queryClient = useQueryClient();
     const { tenant } = useTenant();
@@ -31,7 +30,7 @@ export function useDeleteProduct() {
         mutationFn: async (productId: number): Promise<void> => {
             await apiClient.delete(`/products/${productId}`);
         },
-        // Also on error: a refusal usually means the list on screen is stale.
+
         onSettled: () => queryClient.invalidateQueries({ queryKey: productsRootKey(tenant?.id) }),
     });
 }

@@ -11,7 +11,7 @@ class PruneContactExports extends Command
 {
     protected $signature = 'contacts:prune-exports';
 
-    protected $description = 'Delete expired contact export files and old export rows (8b.4).';
+    protected $description = 'Delete expired contact export files and old export rows.';
 
     public function handle(): int
     {

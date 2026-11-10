@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { paginationMetaSchema } from '@/shared/schemas/pagination';
 
-// Mirrors ManagedUserResource (8c.2a).
+
 export const managedUserSchema = z.object({
     id: z.number(),
     name: z.string(),
@@ -42,8 +42,8 @@ export type UserSortColumn = (typeof USER_SORT_COLUMNS)[number];
 export const USER_STATUSES = ['active', 'deactivated'] as const;
 export type UserStatus = (typeof USER_STATUSES)[number];
 
-// URL-persisted filter/sort/page state for /users (8.7). Every field is optional; defaults are
-// applied by the page so the URL stays clean for the default view.
+
+
 export type UsersSearch = {
     q?: string;
     role?: string;
@@ -53,11 +53,11 @@ export type UsersSearch = {
     page?: number;
 };
 
-// Used as the route's validateSearch: never throws, drops anything malformed or empty.
+
 export function validateUsersSearch(search: Record<string, unknown>): UsersSearch {
     const out: UsersSearch = {};
 
-    // The router JSON-parses search values, so "123" can arrive as a number.
+
     const rawQ = typeof search.q === 'number' ? String(search.q) : search.q;
     if (typeof rawQ === 'string' && rawQ.trim() !== '') out.q = rawQ.trim();
 

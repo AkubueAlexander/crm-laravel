@@ -14,7 +14,7 @@ import {
 const secondaryButton = 'rounded-md border px-3 py-1.5 text-sm font-medium text-[var(--color-ink)] disabled:opacity-50';
 const primaryButton = 'rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50';
 
-// 10.3c: the quote auto-approval threshold. Empty = every submitted quote waits for a human approver.
+
 export function QuoteSettingsForm() {
     const { data, isPending, isError } = useQuoteSettings();
 

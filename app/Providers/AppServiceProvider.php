@@ -27,7 +27,6 @@ class AppServiceProvider extends ServiceProvider
 
         JsonResource::withoutWrapping();
 
-        // 8a.3: short aliases (lead, contact, account, deal) for polymorphic activities.
         Activity::registerMorphMap();
     }
 }

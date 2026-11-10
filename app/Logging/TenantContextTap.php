@@ -5,11 +5,7 @@ namespace App\Logging;
 use App\Domain\Tenant\TenantContext;
 use Monolog\LogRecord;
 
-/**
- * 14.1: Monolog tap that enriches every record with tenant_id, user_id and request_id
- * (extra fields), so a backend log line can be correlated with a frontend exception report.
- * Never throws: logging must not break the request that is being logged.
- */
+
 class TenantContextTap
 {
     public function __invoke($logger): void

@@ -7,12 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * 14.1: every request gets a correlation id. A well-formed incoming X-Request-Id is kept
- * (so the SPA or a proxy can supply one); anything else is replaced. The id is stored on the
- * request (the log processor reads it) and echoed on the response so a user-reported error
- * can be matched to a log line.
- */
+
 class AssignRequestId
 {
     public function handle(Request $request, Closure $next): Response

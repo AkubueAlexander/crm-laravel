@@ -7,10 +7,7 @@ use App\Models\Product;
 use App\Models\Tenant;
 use Illuminate\Database\Seeder;
 
-/**
- * 15.6: a deterministic catalog product for the Playwright quote-builder spec (10.1).
- * Product is never mass-assigned (SaveProductAction uses forceFill), so the seeder does the same.
- */
+
 class E2eProductSeeder extends Seeder
 {
     public function run(): void

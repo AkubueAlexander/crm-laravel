@@ -3,12 +3,9 @@
 namespace App\Domain\Leads\Forms;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
-/**
- * 9.8a-2: Cloudflare Turnstile verification for the public lead forms. Fails CLOSED: with no secret configured the
- * check only passes in the local and testing environments, so a production deploy that forgot the key refuses
- * submissions instead of accepting unprotected ones.
- */
+
 final class CaptchaVerifier
 {
     private const VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
@@ -44,8 +41,17 @@ final class CaptchaVerifier
                 'remoteip' => $ip,
             ]));
 
+            if (! ($response->successful() && $response->json('success') === true)) {
+                Log::warning('turnstile rejected', [
+                    'status' => $response->status(),
+                    'body' => $response->json(),
+                ]);
+            }
+
             return $response->successful() && $response->json('success') === true;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('turnstile exception: '.$e->getMessage());
+
             return false;
         }
     }

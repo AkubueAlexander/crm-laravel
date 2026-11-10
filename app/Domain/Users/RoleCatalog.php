@@ -8,16 +8,12 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
-/**
- * 8c.2: the fixed set of roles every tenant gets, and the permissions each one carries.
- * Roles are tenant-scoped rows (Spatie teams mode); their definitions live here, in code,
- * so they are reviewable and identical across tenants. There is no role editor.
- */
+
 final class RoleCatalog
 {
     public const ADMIN = 'admin';
 
-    /** Every permission the application checks today. DevTenantSeeder::PERMISSIONS must match (tested). */
+
     public const ALL_PERMISSIONS = [
         'contacts.view',
         'contacts.create',
