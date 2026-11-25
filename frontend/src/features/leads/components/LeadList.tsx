@@ -59,7 +59,7 @@ export function LeadList({ onEdit, onConvert, onActivity }: LeadListProps) {
             columnHelper.accessor('created_at', { header: 'Created', cell: (i) => (i.getValue() ? new Date(i.getValue()!).toLocaleDateString() : '-') }),
             columnHelper.display({
                 id: 'actions',
-                header: '',
+                header: 'Action',
                 cell: (info) => {
                     const lead = info.row.original;
                     const converted = lead.status === 'converted';

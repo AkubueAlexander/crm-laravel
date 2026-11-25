@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-// Mirrors SearchController (app/Http/Controllers/Api/Search). A group the actor
-// lacks the *.view permission for is absent from `data`, hence optional.
+
 export const SEARCH_GROUP_KEYS = ['leads', 'contacts', 'accounts', 'deals'] as const;
 export type SearchGroupKey = (typeof SEARCH_GROUP_KEYS)[number];
 

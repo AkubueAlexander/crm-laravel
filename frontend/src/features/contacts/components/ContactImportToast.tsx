@@ -8,8 +8,7 @@ type ContactImportToastProps = {
     onDismiss: () => void;
 };
 
-// Shown while the dialog is closed so a long import stays visible. It reads the same
-// cached query as the dialog, so it costs no extra request.
+
 export function ContactImportToast({ importId, onOpen, onDismiss }: ContactImportToastProps) {
     const { data } = useContactImport(importId);
 

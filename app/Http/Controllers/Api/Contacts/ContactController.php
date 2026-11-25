@@ -30,6 +30,10 @@ final class ContactController extends Controller
 
         $contacts = Contact::query()
             ->matchingSearch($q)
+            ->when(
+                !empty($v['account_id']),
+                fn ($query) => $query->where('account_id', $v['account_id'])
+            )
             ->orderBy($v['sort'] ?? 'last_name', $v['direction'] ?? 'asc')
             ->orderBy('id') // stable tiebreaker so pages never overlap
             ->paginate($v['per_page'] ?? 25)

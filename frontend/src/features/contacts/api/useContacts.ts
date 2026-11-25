@@ -9,14 +9,15 @@ export type ContactsListParams = {
     sort?: ContactSortColumn;
     direction?: 'asc' | 'desc';
     q?: string;
+    account_id?: number;
 };
 
 export function useContacts(params: ContactsListParams = {}) {
     const { tenant } = useTenant();
-    const { page = 1, perPage = 25, sort = 'last_name', direction = 'asc', q = '' } = params;
+    const { page = 1, perPage = 25, sort = 'last_name', direction = 'asc', q = '', account_id,  } = params;
 
     return useQuery({
-        queryKey: ['contacts', tenant?.id, { page, perPage, sort, direction, q }] as const,
+        queryKey: ['contacts', tenant?.id, { page, perPage, sort, direction, q, account_id, }] as const,
         queryFn: async (): Promise<ContactsPage> => {
             const { data } = await apiClient.get('/contacts', {
                 params: {
@@ -25,6 +26,7 @@ export function useContacts(params: ContactsListParams = {}) {
                     sort,
                     direction,
                     q: q || undefined,
+                    account_id: account_id || undefined,
                 },
             });
             return contactsPageSchema.parse(data);

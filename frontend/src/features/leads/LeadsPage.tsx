@@ -9,11 +9,11 @@ import type { Lead } from './schemas/lead';
 
 
 export function LeadsPage() {
+
     const [editingLead, setEditingLead] = useState<Lead | null>(null);
     const [convertingLead, setConvertingLead] = useState<Lead | null>(null);
     const [activityTarget, setActivityTarget] = useState<ActivityTimelineTarget | null>(null);
     const [isCreating, setIsCreating] = useState(false);
-    // Display-only (2.3): hides the button. ConvertLeadAction re-checks leads.convert server-side.
     const canConvert = usePermission('leads.convert');
     const canViewActivities = usePermission('activities.view');
     const modalOpen = isCreating || !!editingLead;

@@ -20,7 +20,7 @@ import { validateAsOfSearch, validateLedgerSearch, validateRangeSearch } from '@
 import { validateSyncSearch } from '@/features/accounting/schemas/sync';
 import { validateEmployeesSearch, validateHrUnitsSearch } from '@/features/hr/schemas/hr';
 import { validateLeaveSearch } from '@/features/hr/schemas/leave';
-
+import { z } from 'zod';
 
 
 const DealsBoard = lazyRouteComponent(() => import('@/features/deals/components/Board'), 'DealsBoard');
@@ -116,6 +116,9 @@ const dashboardRoute = createRoute({
 const contactsRoute = createRoute({
     getParentRoute: () => authenticatedLayoutRoute,
     path: '/contacts',
+    validateSearch: z.object({
+        account_id: z.coerce.number().optional().catch(undefined),
+    }),
     component: ContactsPage,
 });
 
@@ -188,7 +191,7 @@ const acceptInviteRoute = createRoute({
     component: AcceptInvitationPage,
 });
 
-// 10.0c: product catalog. Filters, sort and page live in the URL (8.7).
+
 const productsRoute = createRoute({
     getParentRoute: () => authenticatedLayoutRoute,
     path: '/products',
@@ -196,7 +199,7 @@ const productsRoute = createRoute({
     component: ProductsPage,
 });
 
-// 10.1c: quotes. The list keeps filters/sort/page in the URL (8.7); "new" is a literal path, so it wins over $quoteId.
+
 const quotesRoute = createRoute({
     getParentRoute: () => authenticatedLayoutRoute,
     path: '/quotes',
@@ -216,7 +219,7 @@ const quoteEditRoute = createRoute({
     component: QuoteBuilder,
 });
 
-// 10.4c: invoices. The list keeps filters/sort/page in the URL (8.7).
+
 const invoicesRoute = createRoute({
     getParentRoute: () => authenticatedLayoutRoute,
     path: '/invoices',

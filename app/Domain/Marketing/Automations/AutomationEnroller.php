@@ -7,12 +7,7 @@ namespace App\Domain\Marketing\Automations;
 use App\Domain\Marketing\Sending\EmailSuppressions;
 use Illuminate\Support\Facades\DB;
 
-/**
- * 9.6c-1: puts people into an ACTIVE automation. Plain DB access with explicit tenant predicates (safe from
- * queue jobs, commands and controllers alike). Idempotent: the unique indexes on automation_enrollments
- * decide, via insertOrIgnore, so a retried job or a double click can never enroll anyone twice.
- * Suppressed (unsubscribed, bounced, complained) and invalid addresses are never enrolled.
- */
+
 final class AutomationEnroller
 {
     /** @return array{enrolled: int, already_enrolled: int, skipped_suppressed: int, skipped_invalid: int} */

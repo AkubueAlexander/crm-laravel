@@ -8,7 +8,6 @@ final class SearchRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // Authentication is the route middleware; per-group authorization is in SearchService.
         return true;
     }
 

@@ -13,13 +13,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\PermissionRegistrar;
 
-/**
- * 10.4a: turns an ACCEPTED quote into a draft invoice (snapshot of lines and amounts as quoted). Tenant, number,
- * status and every amount come from the server (1.3); the caller only picks the quote and the payment terms.
- * One live (non-void) invoice per quote: a voided one can be re-invoiced.
- *
- * Tax seam: amounts are carried over from the quote. A TaxJar/Avalara calculation would be applied here, server-side.
- */
+
 final class CreateInvoiceFromQuoteAction
 {
     public const DEFAULT_TERMS_DAYS = 30;
@@ -46,6 +40,15 @@ final class CreateInvoiceFromQuoteAction
 
                 if ($quote->status !== 'accepted') {
                     throw ValidationException::withMessages(['quote_id' => ['Only accepted quotes can be invoiced.']]);
+                }
+
+                $latest = (int) DB::table('quotes')
+                    ->where('tenant_id', $tenantId)
+                    ->where('quote_seq', $quote->quote_seq)
+                    ->max('version');
+
+                if ($quote->version !== $latest) {
+                    throw ValidationException::withMessages(['quote_id' => ['Only the latest version of a quote can be invoiced.']]);
                 }
 
                 $alreadyInvoiced = Invoice::query()

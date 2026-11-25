@@ -98,7 +98,7 @@ function ReverseModal({ open, onClose, entry }: { open: boolean; onClose: () => 
     );
 }
 
-// 12.1a: journal entry detail (read-only, append-only ledger).
+
 export function JournalEntryDetail() {
     const allowed = usePermission('accounting.view');
     const canManage = usePermission('accounting.manage');
@@ -196,7 +196,7 @@ export function JournalEntryDetail() {
                         {lines.map((l, i) => (
                             <tr key={l.id ?? i}>
                                 <td className="border-b px-3 py-2 align-top">
-                                    <span className="font-mono text-xs">{l.account_code ?? `#${l.account_id}`}</span>
+                                    <span className="font-mono text-xs">{l.account_code ?? `#${l.ledger_account_id}`}</span>
                                     <div className="text-xs text-[var(--color-ink-muted)]">{l.account_name}</div>
                                 </td>
                                 <td className="border-b px-3 py-2 align-top">{l.description ?? ''}</td>

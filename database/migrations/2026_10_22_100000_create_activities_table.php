@@ -13,9 +13,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('tenant_id')->constrained()->cascadeOnDelete();
 
-            // Polymorphic target. The type column holds a short alias (lead, contact,
-            // account, deal), never a class name. No FK is possible on a morph pair, so
-            // the target's existence and tenant are verified in CreateActivityAction.
             $table->string('activityable_type', 32);
             $table->unsignedBigInteger('activityable_id');
 
@@ -29,12 +26,11 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            // Timeline lookup: one record's feed, newest first.
             $table->index(
                 ['tenant_id', 'activityable_type', 'activityable_id', 'created_at'],
                 'activities_tenant_target_idx'
             );
-            // 8a.4 overdue scan: open items by due date.
+
             $table->index(['tenant_id', 'completed_at', 'due_at'], 'activities_tenant_due_idx');
         });
 

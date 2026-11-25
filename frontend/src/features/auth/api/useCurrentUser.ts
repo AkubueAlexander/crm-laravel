@@ -8,7 +8,6 @@ export function useCurrentUser() {
         queryKey: ['auth', 'me'] as const,
         queryFn: async (): Promise<CurrentUser> => {
             const { data } = await apiClient.get('/me');
-
             return currentUserSchema.parse(data);
         },
 

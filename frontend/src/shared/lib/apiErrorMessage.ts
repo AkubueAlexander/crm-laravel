@@ -1,7 +1,6 @@
 import { ZodError } from 'zod';
 
-// Turns whatever a failed request threw into one sentence for the user. Prefers the server's own
-// validation message ({message, errors, code}, 14.3) over a generic one.
+
 export function apiErrorMessage(
     error: unknown,
     fallback = 'Could not reach the server. Check your connection and try again.',

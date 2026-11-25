@@ -31,8 +31,7 @@ class Activity extends Model
         'deal' => Deal::class,
     ];
 
-    // tenant_id and completed_at are deliberately NOT fillable.
-    // BelongsToTenant stamps the tenant; CompleteActivityAction owns completed_at.
+
     /** @var list<string> */
     protected $fillable = [
         'activityable_type',

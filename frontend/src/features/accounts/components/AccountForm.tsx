@@ -32,7 +32,6 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
             industry: account?.industry ?? '',
             website: account?.website ?? '',
             phone: account?.phone ?? '',
-            // undefined (not null) when unowned: the field is then omitted from PATCH unless touched.
             owner_id: account?.owner_id ?? undefined,
         },
     });
@@ -64,7 +63,6 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
                 : await createAccount.mutateAsync(payload);
             onSuccess?.(saved);
         } catch (err) {
-            // 14.3: compose with the backend's { message, errors, code } shape.
             if (isApiError(err) && err.response?.data.errors) {
                 for (const [field, messages] of Object.entries(err.response.data.errors)) {
                     setError(field as keyof CreateAccountInput, { message: messages[0] });

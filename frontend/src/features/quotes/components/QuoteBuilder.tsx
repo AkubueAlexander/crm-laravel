@@ -12,6 +12,7 @@ import { useQuote } from '../api/useQuotes';
 import { useSaveQuote } from '../api/useQuoteMutations';
 import { useQuoteVersions, useReviseQuote } from '../api/useQuoteVersions';
 import { QuoteWorkflowBar } from './QuoteWorkflowBar';
+import { AccountContactFields } from './AccountContactFields';
 import { PdfPreview } from '@/shared/components/PdfPreview';
 import { QUOTE_STATUS_LABELS, formatMoney, type Quote } from '../schemas/quote';
 import {
@@ -28,7 +29,7 @@ import {
 const INPUT = 'w-full rounded-md border px-3 py-2 text-sm';
 const CELL = 'w-full rounded-md border px-2 py-1.5 text-sm';
 
-// First message per field from a 422 body shaped { message, errors: { field: [msg, ...] }, code }.
+
 function serverFieldErrors(error: unknown): Record<string, string> {
     if (!isAxiosError(error) || error.response?.status !== 422) return {};
     const errors = (error.response.data as { errors?: Record<string, unknown> } | undefined)?.errors;
@@ -41,7 +42,7 @@ function serverFieldErrors(error: unknown): Record<string, string> {
     return out;
 }
 
-const FORM_FIELD = /^(title|currency|valid_until|notes|terms|lines\.\d+\.(name|description|quantity|unit_price|discount_percent|tax_category))$/;
+const FORM_FIELD = /^(title|currency|valid_until|notes|terms|account_id|contact_id|lines\.\d+\.(name|description|quantity|unit_price|discount_percent|tax_category))$/;
 
 function capitalize(s: string): string {
     return s.charAt(0).toUpperCase() + s.slice(1);
@@ -70,7 +71,7 @@ function lineFromCatalog(product: Product, variant: ProductVariant | null): Quot
     };
 }
 
-// Reuses the catalog hooks (10.0c). Products with variants open a second step to choose the variant.
+
 function ProductPicker({ onPick }: { onPick: (line: QuoteLineFormValues) => void }) {
     const [qInput, setQInput] = useState('');
     const q = useDebouncedValue(qInput, 300).trim();
@@ -163,7 +164,7 @@ function ProductPicker({ onPick }: { onPick: (line: QuoteLineFormValues) => void
     );
 }
 
-// Display-only estimate with the same rounding as QuoteTotals. Own component so only it re-renders on typing.
+
 function TotalsPreview({ control }: { control: Control<QuoteFormValues> }) {
     const lines = useWatch({ control, name: 'lines' });
     const currency = useWatch({ control, name: 'currency' }) ?? 'USD';
@@ -181,8 +182,7 @@ function TotalsPreview({ control }: { control: Control<QuoteFormValues> }) {
     );
 }
 
-// 10.2: version switcher + "Revise". A revision is a new row with the same number and version + 1; only the
-// latest version of a quote that left draft can be revised (the server enforces it, the button only mirrors it).
+
 function VersionBar({ quote, canManage }: { quote: Quote; canManage: boolean }) {
     const versions = useQuoteVersions(quote.id);
     const revise = useReviseQuote();
@@ -357,6 +357,8 @@ function QuoteEditor({ quote }: { quote: Quote | null }) {
                             <FieldError message={errors.valid_until?.message} />
                         </div>
                     </div>
+
+                    <AccountContactFields control={control} />
 
                     <fieldset className="rounded-md border border-[var(--color-border)] p-3">
                         <legend className="px-1 text-sm font-medium">Lines</legend>

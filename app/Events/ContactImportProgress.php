@@ -7,11 +7,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 
-/**
- * Pushed on the tenant-scoped private user channel authorized by UserChannel (1.5).
- * Broadcast immediately: the job that raises it is already running on a queue worker.
- * The client treats it as a progress signal and re-reads the import through the API.
- */
+
 final class ContactImportProgress implements ShouldBroadcastNow
 {
     use Dispatchable;

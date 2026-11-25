@@ -12,11 +12,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
 use RuntimeException;
 
-/**
- * 8c.1: tenant branding (logo + accent color), stored in tenants.branding. The uploaded
- * image is never stored as received: it is decoded and re-encoded as a small PNG, which
- * strips anything embedded in the original (polyglots, metadata) and keeps the shell light.
- */
+
 final class UpdateTenantBrandingAction
 {
     /** Private disk: the logo is only reachable through the authenticated tenant/logo route. */
@@ -32,13 +28,13 @@ final class UpdateTenantBrandingAction
     /** @param array{primary_color?: ?string, remove_logo?: mixed} $input */
     public function execute(User $actor, array $input, ?UploadedFile $logo): Tenant
     {
-        // 2.4: server-side re-validation, independent of the request layer.
+
         Gate::forUser($actor)->authorize('settings.manage');
 
-        // Decode first: a bad image must fail with nothing changed.
+
         $png = $logo !== null ? $this->reencode($logo) : null;
 
-        // The tenant is always the actor's own (1.3); nothing here reads a client-supplied id.
+
         return DB::transaction(function () use ($actor, $input, $png): Tenant {
             $tenant = Tenant::query()->lockForUpdate()->findOrFail($actor->tenant_id);
             $branding = $tenant->branding ?? [];
@@ -60,7 +56,7 @@ final class UpdateTenantBrandingAction
                     throw new RuntimeException('The logo could not be stored.');
                 }
 
-                // Content hash as the cache-busting version: a new logo is a new URL.
+
                 $branding['logo_url'] = URL::route('tenant.logo', ['v' => substr(sha1($png), 0, 12)], absolute: false);
             } elseif (filter_var($input['remove_logo'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
                 $disk->delete($path);

@@ -6,12 +6,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/**
- * A product as the SPA sees it (10.0). An explicit whitelist: no tenant id, no deleted_at.
- * Variants appear only when loaded (show/store/update); the list carries variants_count instead.
- *
- * @mixin Product
- */
+
 class ProductResource extends JsonResource
 {
     /** @return array<string, mixed> */

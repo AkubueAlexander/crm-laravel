@@ -12,6 +12,9 @@ final class CompleteActivityAction
     /**
      * Mark an activity done, or reopen it ($completed = false). Idempotent: completing
      * an already-completed activity keeps its original completed_at and is not an error.
+     *
+     * Either way the overdue flag is cleared. A reopened activity that is still past due
+     * is re-flagged by the next activities:flag-overdue run.
      */
     public function execute(User $actor, Activity $activity, bool $completed = true): Activity
     {
@@ -23,8 +26,6 @@ final class CompleteActivityAction
 
             $row->forceFill([
                 'completed_at' => $completed ? ($row->completed_at ?? now()) : null,
-                // Completing or reopening resets the flag; activities:flag-overdue
-                // re-flags a reopened row that is still past due on its next run.
                 'overdue_at' => null,
             ])->save();
 

@@ -2,8 +2,7 @@ import { z } from 'zod';
 import { TAX_CATEGORIES, type TaxCategory } from '@/features/products/schemas/product';
 import { formatMoney, type Quote } from './quote';
 
-// UX layer only: mirrors SaveQuoteRequest + SaveQuoteAction (10.1a/b). The API is the security boundary and
-// computes every stored total; ownership of account/contact/product/variant is checked server-side (422).
+
 const MONEY = /^\d{1,10}(\.\d{1,2})?$/;
 const QTY = /^\d{1,6}(\.\d{1,3})?$/;
 const PCT = /^\d{1,3}(\.\d{1,2})?$/;
@@ -36,7 +35,6 @@ export const quoteFormSchema = z.object({
     valid_until: z.string().trim().refine((v) => v === '' || /^\d{4}-\d{2}-\d{2}$/.test(v), 'Use a valid date.'),
     notes: z.string().trim().max(5000, 'Notes must be 5000 characters or fewer.'),
     terms: z.string().trim().max(10000, 'Terms must be 10000 characters or fewer.'),
-    // Carried through untouched: there is no picker for these yet, and omitting them on update would clear them.
     account_id: z.number().nullable(),
     contact_id: z.number().nullable(),
     lines: z.array(quoteLineFormSchema).max(100, 'A quote can have at most 100 lines.'),
@@ -51,7 +49,7 @@ export function emptyQuoteValues(): QuoteFormValues {
 
 function plainNumber(value: string): string {
     const n = Number(value);
-    return Number.isNaN(n) ? value : String(n);
+    return Number.isNaN(n) ? '-' : String(n);
 }
 
 export function valuesFromQuote(quote: Quote): QuoteFormValues {
@@ -77,8 +75,7 @@ export function valuesFromQuote(quote: Quote): QuoteFormValues {
     };
 }
 
-// What the API receives. Catalog lines send ids (the server takes sku/name/tax from the catalog); custom lines
-// send their own name and tax category. Totals are never sent.
+
 export type QuoteInput = {
     title: string;
     currency: string;
@@ -116,8 +113,7 @@ export function toQuoteInput(values: QuoteFormValues): QuoteInput {
     };
 }
 
-// ---- Live totals preview (display only; the server total is authoritative) ----
-// Same arithmetic and rounding as App\Domain\Quotes\QuoteTotals: integer cents, half-up, per-line tax.
+
 export const RATES_BPS: Record<TaxCategory, number> = { standard: 750, reduced: 500, zero: 0, exempt: 0 };
 
 type PreviewLine = Pick<QuoteLineFormValues, 'quantity' | 'unit_price' | 'discount_percent' | 'tax_category'>;

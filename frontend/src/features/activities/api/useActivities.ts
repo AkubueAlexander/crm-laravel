@@ -10,8 +10,7 @@ type UseActivitiesParams = {
     page: number;
 };
 
-// 1.2: tenant-namespaced key. The page/status state is part of the key, so flipping
-// back to a viewed page is instant.
+
 export function useActivities({ targetType, targetId, status, page }: UseActivitiesParams) {
     const { tenant } = useTenant();
 

@@ -36,16 +36,12 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            // 8c.2: set = the account is deactivated (not deleted). Never mass-assignable.
             'deactivated_at' => 'datetime',
         ];
     }
 
 
-    /**
-     * Broadcast notifications go to the tenant-scoped private channel (1.5), not
-     * the tenant-blind App.Models.User.{id} default.
-     */
+
     public function receivesBroadcastNotificationsOn(\Illuminate\Notifications\Notification $notification): string
     {
         return 'tenant.' . $this->tenant_id . '.user.' . $this->getKey();

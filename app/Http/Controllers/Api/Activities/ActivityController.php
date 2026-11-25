@@ -19,16 +19,16 @@ use Illuminate\Support\Facades\Gate;
 
 final class ActivityController extends Controller
 {
-    /** GET /api/v1/activities?activityable_type=lead&activityable_id=12 - one record's timeline. */
+
     public function index(ListActivitiesRequest $request): AnonymousResourceCollection
     {
         $v = $request->validated();
         $alias = $v['activityable_type'];
 
-        // Reading a record's timeline requires being able to see that record.
+
         Gate::authorize(Activity::targetViewPermission($alias));
 
-        // Tenant scope applies: another tenant's (or a missing) record is a 404.
+
         $class = Activity::targetClass($alias);
         $class::query()->findOrFail($v['activityable_id']);
 

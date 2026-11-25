@@ -32,7 +32,7 @@ export function QuotesPage() {
     const sort: QuoteSortColumn = search.sort ?? 'quote_number';
     const direction = search.direction ?? 'desc';
 
-    // Single place that writes filters/sort/page back to the URL; defaults and empties are dropped.
+
     function setSearch(patch: Partial<QuotesSearch>) {
         void navigate({ to: '/quotes', search: validateQuotesSearch({ ...search, ...patch }), replace: true });
     }
@@ -41,8 +41,8 @@ export function QuotesPage() {
     const debouncedQ = useDebouncedValue(qInput, 300);
     useEffect(() => {
         const next = debouncedQ.trim();
+
         if (next !== (search.q ?? '')) setSearch({ q: next, page: undefined });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedQ]);
 
     const { data, isPending, isFetching, isError, error } = useQuotes({ page, sort, direction, q: search.q, status: search.status, enabled: allowed });
@@ -52,7 +52,7 @@ export function QuotesPage() {
         if (data && data.data.length === 0 && page > 1) {
             setSearch({ page: Math.max(1, Math.min(page - 1, data.meta.last_page)) });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [data, page]);
 
     const del = useDeleteQuote();
@@ -61,7 +61,7 @@ export function QuotesPage() {
     const columns = useMemo(
         () => [
             columnHelper.accessor('quote_number', {
-                header: 'Number',
+                header: 'Quote Number',
                 cell: (info) => (
                     <Link to="/quotes/$quoteId" params={{ quoteId: String(info.row.original.id) }} className="font-mono text-xs underline">
                         {info.getValue()}
@@ -96,7 +96,7 @@ export function QuotesPage() {
             }),
             columnHelper.display({
                 id: 'actions',
-                header: '',
+                header: 'Actions',
                 cell: ({ row }) => {
                     const quote = row.original;
                     return (
@@ -122,12 +122,13 @@ export function QuotesPage() {
                 enableSorting: false,
             }),
         ],
-        // del.reset is stable; the setters are state setters.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
         [canManage],
     );
 
-    const sorting: SortingState = [{ id: sort, desc: direction === 'desc' }];
+    const sorting: SortingState = search.sort
+        ? [{ id: search.sort, desc: search.direction === 'desc' }]
+        : [];
 
     const table = useReactTable({
         data: data?.data ?? EMPTY,
@@ -136,10 +137,13 @@ export function QuotesPage() {
         onSortingChange: (updater) => {
             const next = typeof updater === 'function' ? updater(sorting) : updater;
             const first = next[0];
-            if (!first) return;
+            if (!first) {
+                setSearch({ sort: undefined, direction: undefined, page: undefined });
+                return;
+            }
             setSearch({ sort: first.id as QuoteSortColumn, direction: first.desc ? 'desc' : 'asc', page: undefined });
         },
-        enableSortingRemoval: false,
+        enableSortingRemoval: true,
         manualPagination: true,
         manualSorting: true,
         getCoreRowModel: getCoreRowModel(),

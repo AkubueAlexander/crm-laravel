@@ -29,7 +29,6 @@ class LeadResource extends JsonResource
             'status' => $this->status,
             'owner_id' => $this->owner_id,
             'owner' => $this->whenLoaded('owner', fn () => $this->owner?->only(['id', 'name'])),
-            // 9.7: computed server-side, read-only. score_factors is rebuilt key by key (jsonb does not keep key order).
             'score' => (int) ($this->lead_score ?? 0),
             'score_factors' => $this->scoreFactors(),
             'score_updated_at' => $this->score_updated_at?->toIso8601String(),

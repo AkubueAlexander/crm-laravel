@@ -32,7 +32,7 @@ class ContactExport extends Model
         return max(1, (int) config('crm.contact_export_max_rows', self::MAX_ROWS));
     }
 
-    // tenant_id is deliberately NOT fillable; BelongsToTenant stamps it from context (1.3).
+
     protected $fillable = [
         'user_id',
         'format',

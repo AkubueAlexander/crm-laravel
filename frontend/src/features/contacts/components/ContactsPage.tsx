@@ -40,24 +40,23 @@ function modalTitle(modal: ModalState): string {
 
 export function ContactsPage() {
     const [modal, setModal] = useState<ModalState>(null);
-    // UI-only: which import the dialog/toast follow. The import itself is server state (8.1).
+
     const [importId, setImportId] = useState<number | null>(null);
-    // UI-only: which export the dialog/toast follow, and the list's current search/sort,
-    // which is what an export is started from. The export itself is server state (8.1).
+
     const [exportId, setExportId] = useState<number | null>(null);
     const [listQuery, setListQuery] = useState<ContactListQuery>(DEFAULT_LIST_QUERY);
-    // Display-only (2.3): the API re-checks activities.view and contacts.view.
+
     const canViewActivities = usePermission('activities.view');
-    // Display-only (2.3): POST /contacts/imports re-checks contacts.create server-side and in the job.
+
     const canImport = usePermission('contacts.create');
-    // Display-only (2.3): POST /contacts/exports re-checks contacts.view server-side and in the job.
+
     const canExport = usePermission('contacts.view');
 
-    // Live progress for the import (8b.3) and the export (8b.4), pushed over the per-user channel.
+
     useContactImportLive();
     useContactExportLive();
 
-    // Stable identity (ContactList runs an effect on it); ignores no-op updates.
+
     const handleQueryChange = useCallback((next: ContactListQuery) => {
         setListQuery((prev) =>
             prev.q === next.q && prev.sort === next.sort && prev.direction === next.direction ? prev : next,

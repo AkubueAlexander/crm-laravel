@@ -23,7 +23,7 @@ type ContactImportDialogProps = {
     onClose: () => void;
 };
 
-// Which step shows is derived from whether an import exists; the import itself is server state.
+
 export function ContactImportDialog({ importId, onStarted, onReset, onClose }: ContactImportDialogProps) {
     if (importId === null) {
         return <UploadStep onStarted={onStarted} onCancel={onClose} />;
@@ -52,7 +52,7 @@ function UploadStep({ onStarted, onCancel }: { onStarted: (importId: number) => 
             const created = await startImport.mutateAsync(file);
             onStarted(created.id);
         } catch (err) {
-            // 14.3: surface the backend's { message, errors, code } shape under the field.
+
             if (isApiError(err)) {
                 const fileErrors = err.response?.data.errors?.file;
                 setError('file', { message: fileErrors?.[0] ?? err.response?.data.message ?? 'Upload failed.' });

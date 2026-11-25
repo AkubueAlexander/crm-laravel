@@ -28,7 +28,7 @@ export const INVOICE_ACTION_LABELS: Record<InvoiceStatus, string> = {
     void: 'Void',
 };
 
-// Mirrors InvoiceResource lines (10.4b). Money and quantities are decimal strings, never floats.
+
 export const invoiceLineSchema = z.object({
     id: z.number(),
     position: z.number(),
@@ -46,7 +46,7 @@ export const invoiceLineSchema = z.object({
     tax_amount: z.string(),
 });
 
-// Mirrors InvoiceResource. lines_count is on list rows, lines on show/store responses.
+
 export const invoiceSchema = z.object({
     id: z.number(),
     invoice_seq: z.number(),
@@ -102,7 +102,7 @@ export type InvoicesSearch = {
     page?: number;
 };
 
-// Used as the route's validateSearch: never throws, drops anything malformed or empty.
+
 export function validateInvoicesSearch(search: Record<string, unknown>): InvoicesSearch {
     const out: InvoicesSearch = {};
 

@@ -9,6 +9,7 @@ import {
 import { useAccounts } from '../api/useAccounts';
 import type { Account, AccountSortColumn } from '../schemas/account';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
+import { Link } from '@tanstack/react-router';
 
 const columnHelper = createColumnHelper<Account>();
 
@@ -33,7 +34,52 @@ const columns = [
         enableSorting: false,
         cell: (info) => info.getValue() ?? '\u2014',
     }),
-    columnHelper.accessor('contacts_count', { header: 'Contacts', enableSorting: false }),
+    columnHelper.accessor('contacts_count', {
+        header: 'Contacts',
+        enableSorting: false,
+        cell: (info) => (
+            <Link
+                to="/contacts"
+                search={{ account_id: info.row.original.id }}
+                className="text-blue-600 hover:underline"
+            >
+                {info.getValue()}
+            </Link>
+        ),
+    }),
+    columnHelper.accessor('created_at', {
+        id: 'created_at',
+        header: 'Created Date',
+        enableSorting: false,
+        cell: (info) => {
+            const date = info.getValue();
+
+            return date
+                ? new Date(date).toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                })
+                : '—';
+        },
+    }),
+
+    columnHelper.accessor('updated_at', {
+        id: 'updated_at',
+        header: 'Updated Date',
+        enableSorting: false,
+        cell: (info) => {
+            const date = info.getValue();
+
+            return date
+                ? new Date(date).toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                })
+                : '—';
+        },
+    }),
 ];
 
 type AccountListProps = {
@@ -60,8 +106,8 @@ export function AccountList({ onSelectAccount }: AccountListProps) {
         data: data?.data ?? [],
         columns,
         state: { sorting },
-        onSortingChange: (updater) => {
-            setSorting((old) => (typeof updater === 'function' ? updater(old) : updater));
+        onSortingChange: (newSorting) => {
+            setSorting((previousSorting) => (typeof newSorting === 'function' ? newSorting(previousSorting) : newSorting));
             setPage(1);
         },
         manualPagination: true,

@@ -22,8 +22,7 @@ function when(value: string | null | undefined): string {
     return Number.isNaN(d.getTime()) ? value : d.toLocaleString();
 }
 
-// 10.3b: status actions for a quote. Buttons mirror the server's transition map and permissions; the server
-// re-checks everything. Only the latest version of a quote can be moved.
+
 export function QuoteWorkflowBar({ quote, formDirty }: { quote: Quote; formDirty: boolean }) {
     const canManage = usePermission('quotes.manage');
     const canApprove = usePermission('quotes.approve');
@@ -44,6 +43,7 @@ export function QuoteWorkflowBar({ quote, formDirty }: { quote: Quote; formDirty
 
     const latest = versions.data?.[0] ?? null;
     const isLatest = latest === null || latest.id === quote.id;
+    const canCreateInvoice = canInvoice && quote.status === 'accepted' && latest !== null && latest.id === quote.id;
 
     const targets = isLatest
         ? QUOTE_TRANSITIONS[quote.status].filter((to) => (QUOTE_APPROVER_TARGETS.includes(to) ? canApprove : canManage))
@@ -95,7 +95,7 @@ export function QuoteWorkflowBar({ quote, formDirty }: { quote: Quote; formDirty
     }
     if (quote.sent_at) info.push(`Sent ${when(quote.sent_at)}`);
 
-    if (targets.length === 0 && info.length === 0 && !quote.decision_note && !error && !(canInvoice && quote.status === 'accepted')) return null;
+    if (targets.length === 0 && info.length === 0 && !quote.decision_note && !error && !canCreateInvoice) return null;
 
     return (
         <div className="mb-3 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2">
@@ -132,8 +132,7 @@ export function QuoteWorkflowBar({ quote, formDirty }: { quote: Quote; formDirty
                     ))}
                 </div>
             )}
-
-            {canInvoice && quote.status === 'accepted' && (
+            {canCreateInvoice && (
                 <div className="mt-2">
                     <button
                         type="button"

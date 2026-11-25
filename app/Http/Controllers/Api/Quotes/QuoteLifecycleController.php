@@ -9,7 +9,7 @@ use App\Http\Requests\Quotes\TransitionQuoteRequest;
 use App\Http\Resources\QuoteResource;
 use Illuminate\Http\JsonResponse;
 
-// {quote} is a plain id on purpose (no route-model binding): the Action looks it up with an explicit tenant predicate.
+
 final class QuoteLifecycleController extends Controller
 {
     public function transition(TransitionQuoteRequest $request, int $quote, TransitionQuoteAction $action): JsonResponse

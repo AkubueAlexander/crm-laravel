@@ -28,16 +28,12 @@ export function isStaleQuoteError(err: unknown): boolean {
     return isApiError(err) && err.response?.status === 409;
 }
 
-// 409 = lock_version mismatch (3.0 pattern). 422 (invalid_transition, quote_empty, note_required) carries the
-// server's own sentence, which apiErrorMessage prefers.
+
 export function transitionQuoteErrorMessage(err: unknown): string {
     if (isStaleQuoteError(err)) return STALE_QUOTE_MESSAGE;
     return apiErrorMessage(err, 'Could not update the quote. Please try again.');
 }
 
-// 3.0 pattern: optimistic patch of every cached list page and the detail, roll back on any error, reconcile with
-// the server's copy (the response, or `current` on a 409), then invalidate. Submit may come back already approved
-// (auto-approval), so the response always wins over the optimistic status.
 export function useTransitionQuote() {
     const queryClient = useQueryClient();
     const { tenant } = useTenant();
@@ -48,8 +44,6 @@ export function useTransitionQuote() {
     }
 
     function applyServerCopy(server: Quote) {
-        // List rows never carry lines; keep their lines_count.
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { lines: _lines, ...rest } = server;
         queryClient.setQueriesData<QuotesPage>({ queryKey: listKey }, (old) =>
             patchRow(old, server.id, (q) => ({ ...q, ...rest, lines_count: q.lines_count })),

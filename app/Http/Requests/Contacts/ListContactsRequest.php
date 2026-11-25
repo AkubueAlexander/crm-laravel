@@ -24,6 +24,7 @@ class ListContactsRequest extends FormRequest
             'sort' => ['nullable', Rule::in(self::SORTABLE)],
             'direction' => ['nullable', Rule::in(['asc', 'desc'])],
             'q' => ['nullable', 'string', 'max:100'],
+            'account_id' => ['nullable', 'integer', 'exists:accounts,id'],
         ];
     }
 }

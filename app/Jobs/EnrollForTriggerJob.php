@@ -13,10 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Throwable;
 
-/**
- * 9.6c-1: enrolls a freshly created contact or lead into the tenant's active automations for that trigger.
- * Idempotent (see AutomationEnroller), so retries are harmless.
- */
+
 class EnrollForTriggerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable;

@@ -16,20 +16,17 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
 
-// {quote} is a plain id on purpose (no route-model binding): every lookup carries an explicit tenant predicate.
+
 final class QuoteController extends Controller
 {
     public function index(ListQuotesRequest $request): AnonymousResourceCollection
     {
         $v = $request->validated();
-        $tenantId = (int) $request->user()->tenant_id;
         $q = trim((string) ($v['q'] ?? ''));
         $direction = $v['direction'] ?? 'desc';
         $column = ListQuotesRequest::SORT_COLUMNS[$v['sort'] ?? 'quote_number'];
 
         $quotes = Quote::query()
-            ->where('tenant_id', $tenantId)
-            // 10.2: one row per quote in the list: its latest version. Older versions are reached through /versions.
             ->whereRaw('quotes.version = (select max(v.version) from quotes v where v.tenant_id = quotes.tenant_id and v.quote_seq = quotes.quote_seq)')
             ->withCount('lines')
             ->when($q !== '', function ($query) use ($q) {

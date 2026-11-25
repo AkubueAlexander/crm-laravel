@@ -7,10 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * 10.0: a catalog product. Never mass-assigned: SaveProductAction uses forceFill with validated values.
- * Soft-deleted, so reads must keep an explicit tenant predicate (the scope and soft deletes interact, 7.0).
- */
 class Product extends Model
 {
     use BelongsToTenant, SoftDeletes;

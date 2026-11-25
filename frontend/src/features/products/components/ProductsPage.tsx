@@ -23,7 +23,7 @@ const EMPTY: Product[] = [];
 
 function formatPrice(value: string): string {
     const n = Number(value);
-    return Number.isNaN(n) ? value : n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return Number.isNaN(n) ? '' : n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function capitalize(s: string): string {
@@ -38,21 +38,22 @@ export function ProductsPage() {
     const search = validateProductsSearch(raw);
 
     const page = search.page ?? 1;
-    const sort: ProductSortColumn = search.sort ?? 'name';
+    const sort = search.sort;
     const direction = search.direction ?? 'asc';
 
-    // Single place that writes filters/sort/page back to the URL; defaults and empties are dropped.
+
     function setSearch(patch: Partial<ProductsSearch>) {
-        void navigate({ to: '/products', search: validateProductsSearch({ ...search, ...patch }), replace: true });
+        void navigate({ to: '/products',
+            search: validateProductsSearch({ ...search, ...patch }), replace: true });
     }
 
-    // Search box: local state for typing, debounced into the URL (and from there into the query key).
+
     const [qInput, setQInput] = useState(search.q ?? '');
     const debouncedQ = useDebouncedValue(qInput, 300);
     useEffect(() => {
         const next = debouncedQ.trim();
         if (next !== (search.q ?? '')) setSearch({ q: next, page: undefined });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [debouncedQ]);
 
     const { data, isPending, isFetching, isError, error } = useProducts({
@@ -65,17 +66,17 @@ export function ProductsPage() {
         enabled: allowed,
     });
 
-    // After deleting the last row of the last page, step back instead of showing an empty page.
+
     useEffect(() => {
         if (data && data.data.length === 0 && page > 1) {
             setSearch({ page: Math.max(1, Math.min(page - 1, data.meta.last_page)) });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [data, page]);
 
     const del = useDeleteProduct();
     const [pendingDelete, setPendingDelete] = useState<Product | null>(null);
-    // null = closed, 'new' = create dialog, Product = edit dialog.
+
     const [formTarget, setFormTarget] = useState<Product | 'new' | null>(null);
 
     const columns = useMemo(
@@ -149,12 +150,11 @@ export function ProductsPage() {
                 enableSorting: false,
             }),
         ],
-        // del.reset is stable; the setters are state setters.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
         [canManage],
     );
 
-    const sorting: SortingState = [{ id: sort, desc: direction === 'desc' }];
+    const sorting: SortingState = sort ? [{ id: sort, desc: direction === 'desc' }] : [];
 
     const table = useReactTable({
         data: data?.data ?? EMPTY,
@@ -163,10 +163,14 @@ export function ProductsPage() {
         onSortingChange: (updater) => {
             const next = typeof updater === 'function' ? updater(sorting) : updater;
             const first = next[0];
-            if (!first) return;
+
+            if (!first) {
+                setSearch({ sort: undefined, direction: undefined, page: undefined });
+                return;
+            }
             setSearch({ sort: first.id as ProductSortColumn, direction: first.desc ? 'desc' : 'asc', page: undefined });
         },
-        enableSortingRemoval: false,
+        enableSortingRemoval: true,
         manualPagination: true,
         manualSorting: true,
         getCoreRowModel: getCoreRowModel(),

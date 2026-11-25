@@ -6,13 +6,7 @@ use App\Models\Quote;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/**
- * A quote version as the SPA sees it (10.1). Explicit whitelist: no tenant id. Money is a decimal string.
- * Lines appear only when loaded (show/store/update); the list carries lines_count instead.
- * Line "variant_id" mirrors the request payload key (stored as product_variant_id).
- *
- * @mixin Quote
- */
+
 class QuoteResource extends JsonResource
 {
     /** @return array<string, mixed> */

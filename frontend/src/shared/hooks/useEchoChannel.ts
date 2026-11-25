@@ -4,7 +4,7 @@ import { echo } from '@/shared/lib/echo';
 const channelRefCounts = new Map<string, number>();
 
 export function useEchoChannel(channel: string, event: string, onEvent: (payload: unknown) => void) {
-    // Always call the latest callback without resubscribing on every render.
+
     const handlerRef = useRef(onEvent);
     useEffect(() => {
         handlerRef.current = onEvent;

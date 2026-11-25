@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-// Mirrors ContactImportResource and ContactImportProgress (backend 8b.3). The size and
-// extension rules are UX only; StoreContactImportRequest is the real boundary (14.2).
+
 export const IMPORT_MAX_BYTES = 5 * 1024 * 1024;
 export const IMPORT_MAX_ROWS = 5000;
 

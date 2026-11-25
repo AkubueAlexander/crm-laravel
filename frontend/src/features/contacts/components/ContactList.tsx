@@ -10,6 +10,7 @@ import { useContacts } from '../api/useContacts';
 import type { Contact, ContactSortColumn } from '../schemas/contact';
 import type { ContactListQuery } from '../schemas/contactExport';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
+import { useSearch } from '@tanstack/react-router';
 
 const columnHelper = createColumnHelper<Contact>();
 
@@ -19,11 +20,45 @@ const columns = [
     columnHelper.accessor('email', { header: 'Email', cell: (info) => info.getValue() ?? '\u2014' }),
     columnHelper.accessor('phone', { header: 'Phone',enableSorting: false, cell: (info) => info.getValue() ?? '\u2014' }),
     columnHelper.accessor('job_title', { header: 'Job title',enableSorting: false, cell: (info) => info.getValue() ?? '\u2014' }),
+
+    columnHelper.accessor('created_at', {
+        id: 'created_at',
+        header: 'Created Date',
+        enableSorting: false,
+        cell: (info) => {
+            const date = info.getValue();
+
+            return date
+                ? new Date(date).toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                })
+                : '—';
+        },
+    }),
+
+    columnHelper.accessor('updated_at', {
+        id: 'updated_at',
+        header: 'Updated Date',
+        enableSorting: false,
+        cell: (info) => {
+            const date = info.getValue();
+
+            return date
+                ? new Date(date).toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                })
+                : '—';
+        },
+    }),
 ];
 
 type ContactListProps = {
     onSelectContact?: (contact: Contact) => void;
-    // Publishes the search/sort the list is actually showing, so the export can start from it (8b.4).
+
     onQueryChange?: (query: ContactListQuery) => void;
 };
 
@@ -34,6 +69,9 @@ export function ContactList({ onSelectContact, onQueryChange }: ContactListProps
     const [search, setSearch] = useState('');
     const debouncedSearch = useDebouncedValue(search, 300);
 
+
+    const { account_id } = useSearch({ from: '/authenticated/contacts' });
+
     const sort = (sorting[0]?.id ?? 'last_name') as ContactSortColumn;
     const direction = sorting[0]?.desc ? 'desc' : 'asc';
 
@@ -42,7 +80,7 @@ export function ContactList({ onSelectContact, onQueryChange }: ContactListProps
         onQueryChange?.({ q: debouncedSearch.trim(), sort, direction });
     }, [debouncedSearch, sort, direction, onQueryChange]);
 
-    const { data, isPending, isFetching, isError } = useContacts({ page, sort, direction, q: debouncedSearch });
+    const { data, isPending, isFetching, isError } = useContacts({ page, sort, direction, q: debouncedSearch, account_id });
 
     const table = useReactTable({
         data: data?.data ?? [],

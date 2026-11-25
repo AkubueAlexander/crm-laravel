@@ -16,7 +16,7 @@ export const QUOTE_STATUS_LABELS: Record<QuoteStatus, string> = {
     expired: 'Expired',
 };
 
-// Mirrors QuoteResource lines (10.1b). Money and quantities are decimal strings, never floats.
+
 export const quoteLineSchema = z.object({
     id: z.number(),
     position: z.number(),
@@ -33,8 +33,8 @@ export const quoteLineSchema = z.object({
     line_total: z.string(),
     tax_amount: z.string(),
 });
+export type QuoteLine = z.infer<typeof quoteLineSchema>;
 
-// Mirrors QuoteResource. lines_count is on list rows, lines on show/store/update responses.
 export const quoteSchema = z.object({
     id: z.number(),
     quote_seq: z.number(),
@@ -65,7 +65,7 @@ export const quoteSchema = z.object({
 
 export type Quote = z.infer<typeof quoteSchema>;
 
-// 10.3a mirror (TransitionQuoteAction::TRANSITIONS). The server is the authority; this only decides which buttons show.
+
 export const QUOTE_TRANSITIONS: Record<QuoteStatus, QuoteStatus[]> = {
     draft: ['pending_approval'],
     pending_approval: ['approved', 'rejected', 'draft'],
@@ -77,7 +77,7 @@ export const QUOTE_TRANSITIONS: Record<QuoteStatus, QuoteStatus[]> = {
     expired: [],
 };
 
-// Moving INTO these needs quotes.approve; everything else needs quotes.manage.
+
 export const QUOTE_APPROVER_TARGETS: QuoteStatus[] = ['approved', 'rejected'];
 
 export const QUOTE_ACTION_LABELS: Record<QuoteStatus, string> = {
@@ -90,7 +90,7 @@ export const QUOTE_ACTION_LABELS: Record<QuoteStatus, string> = {
     declined: 'Mark declined',
     expired: 'Mark expired',
 };
-export type QuoteLine = z.infer<typeof quoteLineSchema>;
+
 
 export const quotesPageSchema = z.object({
     data: z.array(quoteSchema),
@@ -102,7 +102,7 @@ export type QuotesPage = z.infer<typeof quotesPageSchema>;
 export const QUOTE_SORT_COLUMNS = ['quote_number', 'title', 'status', 'total', 'valid_until', 'created_at'] as const;
 export type QuoteSortColumn = (typeof QUOTE_SORT_COLUMNS)[number];
 
-// URL-persisted filter/sort/page state for /quotes (8.7). Every field optional; defaults are dropped.
+
 export type QuotesSearch = {
     q?: string;
     status?: QuoteStatus;
@@ -130,7 +130,7 @@ export function validateQuotesSearch(search: Record<string, unknown>): QuotesSea
 
 export function formatMoney(value: string | number, currency: string): string {
     const n = Number(value);
-    if (Number.isNaN(n)) return String(value);
+    if (Number.isNaN(n)) return '-';
     try {
         return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(n);
     } catch {

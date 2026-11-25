@@ -7,8 +7,7 @@ import { quotesRootKey } from './useQuotes';
 
 type SaveVars = { id: number | null; input: QuoteInput };
 
-// Not optimistic: the server computes the number and every total, so the screen shows what the API returned.
-// Tenant comes from the session, never from the body (1.3).
+
 export function useSaveQuote() {
     const queryClient = useQueryClient();
     const { tenant } = useTenant();

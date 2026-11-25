@@ -40,7 +40,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     const { data: user } = useCurrentUser();
     const { sidebarCollapsed, toggleSidebar } = useUiStore();
     const logout = useLogout();
-    // 8c.1: the tenant's accent color (validated hex) drives the shell's --color-accent.
+
     const accent = brandingAccent(tenant?.branding);
 
     return (

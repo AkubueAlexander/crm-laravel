@@ -5,10 +5,7 @@ namespace App\Domain\Leads\Exceptions;
 use App\Models\Lead;
 use RuntimeException;
 
-/**
- * Thrown by ConvertLeadAction when a lead cannot be converted. The controller
- * maps `reason` onto the { message, errors, code } error shape (14.3).
- */
+
 final class LeadNotConvertibleException extends RuntimeException
 {
     public const ALREADY_CONVERTED = 'already_converted';

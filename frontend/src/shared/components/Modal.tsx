@@ -21,11 +21,12 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
             <div
                 role="dialog"
                 aria-modal="true"
                 aria-label={title}
+                onClick={(e) => e.stopPropagation()}
                 className="max-h-[calc(100vh-2rem)] w-full max-w-lg overflow-y-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-lg"
             >
                 <div className="mb-4 flex items-center justify-between">

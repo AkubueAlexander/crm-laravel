@@ -17,7 +17,7 @@ final class ContactImportController extends Controller
     {
         $import = $action->execute($request->user(), $request->file('file'));
 
-        // 202: accepted for background processing; progress arrives over the user channel.
+
         return (new ContactImportResource($import))->response()->setStatusCode(202);
     }
 

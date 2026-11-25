@@ -34,7 +34,7 @@ export const createAccountSchema = z.object({
 
 export type CreateAccountInput = z.infer<typeof createAccountSchema>;
 
-// Mirrors UpdateAccountRequest: every field becomes `sometimes` on top of store.
+
 export const updateAccountSchema = createAccountSchema.partial();
 export type UpdateAccountInput = z.infer<typeof updateAccountSchema>;
 

@@ -38,13 +38,12 @@ final class TenantSettingsController extends Controller
 
     public function logo(Request $request): StreamedResponse
     {
-        // The tenant comes from the session, never from the request (1.3).
+
         $path = UpdateTenantBrandingAction::logoPath((int) $request->user()->tenant_id);
         $disk = Storage::disk(UpdateTenantBrandingAction::DISK);
 
         abort_unless($disk->exists($path), 404);
 
-        // The URL carries a content-hash version, so a long private cache is safe.
         return $disk->response($path, 'logo.png', [
             'Content-Type' => 'image/png',
             'Cache-Control' => 'private, max-age=86400',

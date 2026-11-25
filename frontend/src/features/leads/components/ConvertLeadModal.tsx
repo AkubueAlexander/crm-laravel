@@ -13,17 +13,17 @@ import {
 type ConvertLeadModalProps = {
     lead: Lead | null; // non-null -> the modal is open for that lead
     onClose: () => void;
-    // The lead has no last name (contacts require one): offer the edit form instead.
+
     onNeedsLastName?: (lead: Lead) => void;
 };
 
-// Mirrors ConvertLeadAction's default deal name so the placeholder is truthful.
+
 function defaultDealName(lead: Lead): string {
     const company = lead.company?.trim();
     return company ? `${company} - ${lead.name}` : lead.name;
 }
 
-// 8.1: the open/closed state lives in the parent page; this only renders it.
+
 export function ConvertLeadModal({ lead, onClose, onNeedsLastName }: ConvertLeadModalProps) {
     return (
         <Modal open={!!lead} onClose={onClose} title="Convert lead">
@@ -39,7 +39,7 @@ type ConvertLeadFormProps = {
     onNeedsLastName?: (lead: Lead) => void;
 };
 
-// 8.3: every mutating form uses RHF + Zod, no exceptions.
+
 function ConvertLeadForm({ lead, onClose, onNeedsLastName }: ConvertLeadFormProps) {
     const [failure, setFailure] = useState<ConvertFailure | null>(null);
     const [converted, setConverted] = useState<Lead | null>(null);

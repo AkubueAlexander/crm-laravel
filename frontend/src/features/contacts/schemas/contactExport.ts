@@ -1,8 +1,7 @@
 import { z } from 'zod';
 import type { ContactSortColumn } from './contact';
 
-// Mirrors ContactExportResource and ContactExportProgress (backend 8b.4). The format
-// choice is UX only; StoreContactExportRequest is the real boundary (14.2).
+
 export const exportStatusSchema = z.enum(['pending', 'processing', 'completed', 'failed']);
 export type ExportStatus = z.infer<typeof exportStatusSchema>;
 
@@ -27,7 +26,7 @@ export function isExportTerminal(status: ExportStatus): boolean {
     return status === 'completed' || status === 'failed';
 }
 
-// The list state an export starts from. ContactList publishes it; the export dialog sends it.
+// The list state an export starts from ContactList publishes it; the export dialog sends it.
 export type ContactListQuery = {
     q: string;
     sort: ContactSortColumn;

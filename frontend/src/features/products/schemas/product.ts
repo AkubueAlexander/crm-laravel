@@ -12,8 +12,7 @@ export const productVariantSchema = z.object({
     is_active: z.boolean(),
 });
 
-// Mirrors ProductResource (10.0b). Money is a decimal string ("19.90"), never a float.
-// variants_count is present on list rows, variants on show/store/update responses.
+
 export const productSchema = z.object({
     id: z.number(),
     sku: z.string(),
@@ -43,7 +42,7 @@ export type ProductSortColumn = (typeof PRODUCT_SORT_COLUMNS)[number];
 
 export type ProductStatusFilter = 'active' | 'inactive';
 
-// URL-persisted filter/sort/page state for /products (8.7). Every field optional; defaults are dropped.
+
 export type ProductsSearch = {
     q?: string;
     status?: ProductStatusFilter;
@@ -53,11 +52,10 @@ export type ProductsSearch = {
     page?: number;
 };
 
-// Used as the route's validateSearch: never throws, drops anything malformed or empty.
+
 export function validateProductsSearch(search: Record<string, unknown>): ProductsSearch {
     const out: ProductsSearch = {};
 
-    // The router JSON-parses search values, so "123" can arrive as a number.
     const rawQ = typeof search.q === 'number' ? String(search.q) : search.q;
     if (typeof rawQ === 'string' && rawQ.trim() !== '') out.q = rawQ.trim();
 

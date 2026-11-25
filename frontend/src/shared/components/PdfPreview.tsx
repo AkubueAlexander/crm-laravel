@@ -1,8 +1,6 @@
 import { useState } from 'react';
 
-// 10.5: preview / download for a server-rendered PDF. The URL is a same-origin API path, so the session cookie
-// authenticates the iframe and the download link; nothing is fetched until the user opens the preview.
-// The PDF always shows the SAVED version of the document.
+
 export function PdfPreview({ url, label = 'PDF' }: { url: string; label?: string }) {
     const [open, setOpen] = useState(false);
 

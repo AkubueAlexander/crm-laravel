@@ -1,4 +1,4 @@
-// 9.7: read-only score pill. Colour bands are display-only; the score comes from the API.
+
 export function scoreBand(score: number): { label: string; className: string } {
   if (score >= 75) return { label: 'Hot', className: 'bg-green-100 text-green-800' };
   if (score >= 50) return { label: 'Warm', className: 'bg-blue-100 text-blue-800' };

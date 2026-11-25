@@ -2,7 +2,9 @@
 
 namespace App\Domain\Quotes\Actions;
 
+use App\Domain\Quotes\QuoteRules;
 use App\Domain\Quotes\QuoteTotals;
+use App\Domain\Tenant\TenantContext;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Models\QuoteLine;
@@ -11,59 +13,97 @@ use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use Spatie\Permission\PermissionRegistrar;
 
-/**
- * 10.1: create ($quoteId null) or update a DRAFT quote with its lines, in one transaction.
- * Lines are replaced wholesale. Tenant, number, version, status and every total come from the server (1.3):
- * the request body can only say what is sold, never what it costs in total. Catalog lines take sku/name/tax
- * category from the catalog; the unit price defaults to the variant/product price but may be overridden.
- */
 final class SaveQuoteAction
 {
-    private const MAX_LINES = 100;
-
-    /**
-     * @param array{title: string, currency?: string, account_id?: int|null, contact_id?: int|null, valid_until?: string|null, notes?: string|null, terms?: string|null, lines?: list<array<string, mixed>>} $data
-     */
     public function execute(User $actor, ?int $quoteId, array $data): Quote
     {
         Gate::forUser($actor)->authorize('quotes.manage');
 
         $tenantId = (int) $actor->tenant_id;
-        app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
 
-        $lines = array_values($data['lines'] ?? []);
-        $this->assertFields($data, $lines);
+        // Ensure the authenticated user and resolved tenant context agree.
+        if (
+            $tenantId <= 0 ||
+            ! TenantContext::hasTenant() ||
+            (int) TenantContext::id() !== $tenantId
+        ) {
+            throw ValidationException::withMessages([
+                'tenant' => ['A valid tenant context is required.'],
+            ]);
+        }
 
-        $accountId = isset($data['account_id']) ? (int) $data['account_id'] : null;
-        $contactId = isset($data['contact_id']) ? (int) $data['contact_id'] : null;
-        $this->assertOwned($tenantId, $accountId, $contactId);
+        // Re-validate here: the Form Request is UX, this is the boundary (2.4).
+        $data = Validator::make($data, QuoteRules::all())->validate();
 
-        $totals = QuoteTotals::compute($this->resolveLines($tenantId, $lines));
+        $lines = array_values($data['lines']);
+
+        $accountId = isset($data['account_id'])
+            ? (int) $data['account_id']
+            : null;
+
+        $contactId = isset($data['contact_id'])
+            ? (int) $data['contact_id']
+            : null;
+
+        $this->assertOwned($accountId, $contactId, $tenantId);
+
+        $totals = QuoteTotals::compute(
+            $this->resolveLines($lines, $tenantId)
+        );
 
         try {
-            return DB::transaction(function () use ($actor, $quoteId, $tenantId, $data, $accountId, $contactId, $totals): Quote {
-                // Serialises quote-number allocation and edits per tenant.
-                DB::table('tenants')->where('id', $tenantId)->lockForUpdate()->value('id');
-
+            return DB::transaction(function () use (
+                $actor,
+                $quoteId,
+                $data,
+                $accountId,
+                $contactId,
+                $totals,
+                $tenantId
+            ): Quote {
                 if ($quoteId === null) {
-                    $seq = (int) DB::table('quotes')->where('tenant_id', $tenantId)->max('quote_seq') + 1;
+                    // Lock this tenant's row to serialize quote number allocation.
+                    $locked = DB::table('tenants')
+                        ->where('id', $tenantId)
+                        ->lockForUpdate()
+                        ->value('id');
+
+                    if ($locked === null) {
+                        throw ValidationException::withMessages([
+                            'tenant' => ['The selected tenant does not exist.'],
+                        ]);
+                    }
+
+                    // Include soft-deleted quotes so sequence numbers are never reused.
+                    $seq = (int) DB::table('quotes')
+                            ->where('tenant_id', $tenantId)
+                            ->max('quote_seq') + 1;
+
                     $quote = (new Quote())->forceFill([
-                        'tenant_id' => $tenantId,
                         'quote_seq' => $seq,
-                        'quote_number' => 'Q-'.str_pad((string) $seq, 5, '0', STR_PAD_LEFT),
+                        'quote_number' => 'Q-'.str_pad(
+                                (string) $seq,
+                                5,
+                                '0',
+                                STR_PAD_LEFT
+                            ),
                         'version' => 1,
                         'status' => Quote::STATUS_DRAFT,
                         'created_by' => $actor->id,
                     ]);
                 } else {
-                    // Explicit tenant predicate on top of the global scope: another tenant's id is a 404.
-                    $quote = Quote::query()->where('tenant_id', $tenantId)->lockForUpdate()->findOrFail($quoteId);
+                    // The Quote tenant global scope prevents cross-tenant access.
+                    $quote = Quote::query()
+                        ->lockForUpdate()
+                        ->findOrFail($quoteId);
 
                     if (! $quote->isDraft()) {
-                        throw ValidationException::withMessages(['status' => ['Only draft quotes can be edited.']]);
+                        throw ValidationException::withMessages([
+                            'status' => ['Only draft quotes can be edited.'],
+                        ]);
                     }
                 }
 
@@ -83,117 +123,84 @@ final class SaveQuoteAction
                     'total' => QuoteTotals::money($totals['total_cents']),
                 ])->save();
 
-                QuoteLine::query()->where('tenant_id', $tenantId)->where('quote_id', $quote->id)->delete();
+                // Replace existing lines within the current tenant.
+                QuoteLine::query()
+                    ->where('tenant_id', $tenantId)
+                    ->where('quote_id', $quote->id)
+                    ->delete();
 
-                foreach ($totals['lines'] as $i => $l) {
+                foreach ($totals['lines'] as $i => $line) {
                     (new QuoteLine())->forceFill([
-                        'tenant_id' => $tenantId,
                         'quote_id' => $quote->id,
                         'position' => $i,
-                        'product_id' => $l['product_id'],
-                        'product_variant_id' => $l['variant_id'],
-                        'sku' => $l['sku'],
-                        'name' => $l['name'],
-                        'description' => $l['description'],
-                        'quantity' => number_format((float) $l['quantity'], 3, '.', ''),
-                        'unit_price' => QuoteTotals::money($l['unit_cents']),
-                        'discount_percent' => number_format((float) $l['discount_percent'], 2, '.', ''),
-                        'tax_category' => $l['tax_category'],
-                        'tax_rate' => number_format($l['rate_bps'] / 10000, 4, '.', ''),
-                        'line_total' => QuoteTotals::money($l['net_cents']),
-                        'tax_amount' => QuoteTotals::money($l['tax_cents']),
+                        'product_id' => $line['product_id'],
+                        'product_variant_id' => $line['variant_id'],
+                        'sku' => $line['sku'],
+                        'name' => $line['name'],
+                        'description' => $line['description'],
+                        'quantity' => number_format(
+                            (float) $line['quantity'],
+                            3,
+                            '.',
+                            ''
+                        ),
+                        'unit_price' => QuoteTotals::money($line['unit_cents']),
+                        'discount_percent' => number_format(
+                            (float) $line['discount_percent'],
+                            2,
+                            '.',
+                            ''
+                        ),
+                        'tax_category' => $line['tax_category'],
+                        'tax_rate' => number_format(
+                            $line['rate_bps'] / 10000,
+                            4,
+                            '.',
+                            ''
+                        ),
+                        'line_total' => QuoteTotals::money($line['net_cents']),
+                        'tax_amount' => QuoteTotals::money($line['tax_cents']),
                     ])->save();
                 }
 
                 return $quote->load('lines');
             });
         } catch (UniqueConstraintViolationException) {
-            // Race guard: two creates allocated the same number. The caller can simply retry.
-            throw ValidationException::withMessages(['title' => ['Could not allocate a quote number. Please try again.']]);
+            throw ValidationException::withMessages([
+                'title' => ['Could not allocate a quote number. Please try again.'],
+            ]);
         }
     }
 
-    /** @param list<array<string, mixed>> $lines */
-    private function assertFields(array $data, array $lines): void
-    {
+    private function assertOwned(
+        ?int $accountId,
+        ?int $contactId,
+        int $tenantId
+    ): void {
         $errors = [];
 
-        $title = trim((string) ($data['title'] ?? ''));
-        if ($title === '' || mb_strlen($title) > 160) {
-            $errors['title'] = ['Title is required (max 160 characters).'];
-        }
+        $checks = [
+            'account_id' => [
+                'accounts',
+                $accountId,
+                'The selected account does not exist.',
+            ],
+            'contact_id' => [
+                'contacts',
+                $contactId,
+                'The selected contact does not exist.',
+            ],
+        ];
 
-        if (! preg_match('/^[A-Z]{3}$/', (string) ($data['currency'] ?? 'USD'))) {
-            $errors['currency'] = ['Use a 3-letter currency code, e.g. USD.'];
-        }
-
-        $validUntil = $data['valid_until'] ?? null;
-        if ($validUntil !== null && $validUntil !== '') {
-            $d = \DateTime::createFromFormat('Y-m-d', (string) $validUntil);
-            if (! $d || $d->format('Y-m-d') !== (string) $validUntil) {
-                $errors['valid_until'] = ['Use a valid date (YYYY-MM-DD).'];
-            }
-        }
-
-        if (count($lines) > self::MAX_LINES) {
-            $errors['lines'] = ['A quote can have at most '.self::MAX_LINES.' lines.'];
-        }
-
-        foreach ($lines as $i => $l) {
-            $qty = $l['quantity'] ?? null;
-            if (! is_numeric($qty) || (float) $qty <= 0 || (float) $qty > 999999.999) {
-                $errors["lines.$i.quantity"] = ['Quantity must be greater than 0.'];
-            }
-
-            $discount = $l['discount_percent'] ?? 0;
-            if ($discount === null || $discount === '') {
-                $discount = 0;
-            }
-            if (! is_numeric($discount) || (float) $discount < 0 || (float) $discount > 100) {
-                $errors["lines.$i.discount_percent"] = ['Discount must be between 0 and 100.'];
-            }
-
-            $price = $l['unit_price'] ?? null;
-            $hasPrice = $price !== null && $price !== '';
-            $isCatalog = ! empty($l['product_id']);
-
-            if ($hasPrice && (! is_numeric($price) || (float) $price < 0 || (float) $price > 9999999999.99)) {
-                $errors["lines.$i.unit_price"] = ['Enter a valid price.'];
-            }
-
-            if (! $isCatalog) {
-                if (! $hasPrice) {
-                    $errors["lines.$i.unit_price"] ??= ['Enter a price.'];
-                }
-                $name = trim((string) ($l['name'] ?? ''));
-                if ($name === '' || mb_strlen($name) > 160) {
-                    $errors["lines.$i.name"] = ['Name is required (max 160 characters).'];
-                }
-                if (! in_array($l['tax_category'] ?? null, Product::TAX_CATEGORIES, true)) {
-                    $errors["lines.$i.tax_category"] = ['Unknown tax category.'];
-                }
-            }
-
-            if (mb_strlen((string) ($l['description'] ?? '')) > 2000) {
-                $errors["lines.$i.description"] = ['Description must be 2000 characters or fewer.'];
-            }
-        }
-
-        if ($errors !== []) {
-            throw ValidationException::withMessages($errors);
-        }
-    }
-
-    private function assertOwned(int $tenantId, ?int $accountId, ?int $contactId): void
-    {
-        $errors = [];
-
-        foreach (['account_id' => ['accounts', $accountId, 'The selected account does not exist.'], 'contact_id' => ['contacts', $contactId, 'The selected contact does not exist.']] as $field => [$table, $id, $message]) {
+        foreach ($checks as $field => [$table, $id, $message]) {
             if ($id === null) {
                 continue;
             }
 
-            $query = DB::table($table)->where('tenant_id', $tenantId)->where('id', $id);
+            $query = DB::table($table)
+                ->where('tenant_id', $tenantId)
+                ->where('id', $id);
+
             if (Schema::hasColumn($table, 'deleted_at')) {
                 $query->whereNull('deleted_at');
             }
@@ -209,67 +216,123 @@ final class SaveQuoteAction
     }
 
     /**
-     * Resolves catalog references (tenant-owned, not deleted, active) and fills the line snapshot.
-     *
      * @param list<array<string, mixed>> $lines
      * @return list<array<string, mixed>>
      */
-    private function resolveLines(int $tenantId, array $lines): array
+    private function resolveLines(array $lines, int $tenantId): array
     {
-        $productIds = array_values(array_unique(array_map('intval', array_filter(array_column($lines, 'product_id')))));
-        $variantIds = array_values(array_unique(array_map('intval', array_filter(array_column($lines, 'variant_id')))));
+        $productIds = array_values(array_unique(array_map(
+            'intval',
+            array_filter(array_column($lines, 'product_id'))
+        )));
 
-        $products = $productIds === [] ? collect() : DB::table('products')
-            ->where('tenant_id', $tenantId)->whereNull('deleted_at')->whereIn('id', $productIds)->get()->keyBy('id');
-        $variants = $variantIds === [] ? collect() : DB::table('product_variants')
-            ->where('tenant_id', $tenantId)->whereIn('id', $variantIds)->get()->keyBy('id');
+        $variantIds = array_values(array_unique(array_map(
+            'intval',
+            array_filter(array_column($lines, 'variant_id'))
+        )));
+
+        // Product's Eloquent tenant scope and soft-delete handling apply here.
+        $products = $productIds === []
+            ? collect()
+            : Product::query()
+                ->whereIn('id', $productIds)
+                ->get()
+                ->keyBy('id');
+
+        // Only retrieve variants belonging to products resolved for this tenant.
+        $resolvedProductIds = $products->keys()->all();
+
+        $variants = ($variantIds === [] || $resolvedProductIds === [])
+            ? collect()
+            : DB::table('product_variants')
+                ->whereIn('id', $variantIds)
+                ->whereIn('product_id', $resolvedProductIds)
+                ->get()
+                ->keyBy('id');
 
         $errors = [];
-        $out = [];
+        $resolvedLines = [];
 
-        foreach ($lines as $i => $l) {
-            $pid = ! empty($l['product_id']) ? (int) $l['product_id'] : null;
-            $vid = ! empty($l['variant_id']) ? (int) $l['variant_id'] : null;
-            $product = $pid !== null ? $products->get($pid) : null;
-            $variant = $vid !== null ? $variants->get($vid) : null;
+        foreach ($lines as $i => $line) {
+            $productId = ! empty($line['product_id'])
+                ? (int) $line['product_id']
+                : null;
 
-            if ($pid !== null && ($product === null || ! $product->is_active)) {
-                $errors["lines.$i.product_id"] = ['This product does not exist or is inactive.'];
+            $variantId = ! empty($line['variant_id'])
+                ? (int) $line['variant_id']
+                : null;
+
+            $product = $productId !== null
+                ? $products->get($productId)
+                : null;
+
+            $variant = $variantId !== null
+                ? $variants->get($variantId)
+                : null;
+
+            if ($productId !== null && ($product === null || ! $product->is_active)) {
+                $errors["lines.$i.product_id"] = [
+                    'This product does not exist or is inactive.',
+                ];
+
                 continue;
             }
 
-            if ($vid !== null && ($pid === null || $variant === null || (int) $variant->product_id !== $pid || ! $variant->is_active)) {
-                $errors["lines.$i.variant_id"] = ['This variant does not exist or is inactive.'];
+            if (
+                $variantId !== null &&
+                (
+                    $productId === null ||
+                    $variant === null ||
+                    (int) $variant->product_id !== $productId ||
+                    ! $variant->is_active
+                )
+            ) {
+                $errors["lines.$i.variant_id"] = [
+                    'This variant does not exist or is inactive.',
+                ];
+
                 continue;
             }
 
-            $explicit = $l['unit_price'] ?? null;
-            $explicit = ($explicit === null || $explicit === '') ? null : $explicit;
+            $explicitPrice = $line['unit_price'] ?? null;
+
+            $explicitPrice = ($explicitPrice === null || $explicitPrice === '')
+                ? null
+                : $explicitPrice;
 
             if ($product !== null) {
                 $catalogPrice = $variant?->unit_price ?? $product->unit_price;
-                $price = $explicit ?? $catalogPrice;
+
+                $price = $explicitPrice ?? $catalogPrice;
                 $sku = $variant?->sku ?? $product->sku;
-                $name = $variant !== null ? $product->name.' - '.$variant->name : $product->name;
+
+                $name = $variant !== null
+                    ? $product->name.' - '.$variant->name
+                    : $product->name;
+
                 $category = $product->tax_category;
             } else {
-                $price = $explicit;
+                $price = $explicitPrice;
                 $sku = null;
-                $name = trim((string) $l['name']);
-                $category = (string) $l['tax_category'];
+                $name = trim((string) ($line['name'] ?? ''));
+                $category = (string) ($line['tax_category'] ?? '');
             }
 
-            $description = trim((string) ($l['description'] ?? ''));
+            $description = trim((string) ($line['description'] ?? ''));
 
-            $out[] = [
-                'product_id' => $pid,
-                'variant_id' => $vid,
+            $resolvedLines[] = [
+                'product_id' => $productId,
+                'variant_id' => $variantId,
                 'sku' => $sku,
                 'name' => $name,
                 'description' => $description === '' ? null : $description,
-                'quantity' => (float) $l['quantity'],
+                'quantity' => (float) $line['quantity'],
                 'unit_cents' => (int) round((float) $price * 100),
-                'discount_percent' => (float) (($l['discount_percent'] ?? '') === '' ? 0 : ($l['discount_percent'] ?? 0)),
+                'discount_percent' => (float) (
+                ($line['discount_percent'] ?? '') === ''
+                    ? 0
+                    : $line['discount_percent']
+                ),
                 'tax_category' => $category,
             ];
         }
@@ -278,6 +341,6 @@ final class SaveQuoteAction
             throw ValidationException::withMessages($errors);
         }
 
-        return $out;
+        return $resolvedLines;
     }
 }

@@ -13,7 +13,7 @@ export type QuotesListParams = {
     enabled?: boolean;
 };
 
-// Tenant-namespaced keys (1.2). The root prefix covers lists and details: mutations invalidate it as a whole.
+
 export function quotesRootKey(tenantId: unknown) {
     return ['quotes', tenantId] as const;
 }
@@ -39,7 +39,7 @@ export function useQuotes(params: QuotesListParams = {}) {
     });
 }
 
-// The list carries lines_count only; the builder needs the lines, so it loads the detail fresh.
+
 export function useQuote(quoteId: number | null) {
     const { tenant } = useTenant();
 

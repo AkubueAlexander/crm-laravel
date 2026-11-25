@@ -29,7 +29,7 @@ export function InvoicesPage() {
     const sort: InvoiceSortColumn = search.sort ?? 'invoice_number';
     const direction = search.direction ?? 'desc';
 
-    // Single place that writes filters/sort/page back to the URL; defaults and empties are dropped.
+
     function setSearch(patch: Partial<InvoicesSearch>) {
         void navigate({ to: '/invoices', search: validateInvoicesSearch({ ...search, ...patch }), replace: true });
     }
@@ -39,7 +39,6 @@ export function InvoicesPage() {
     useEffect(() => {
         const next = debouncedQ.trim();
         if (next !== (search.q ?? '')) setSearch({ q: next, page: undefined });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedQ]);
 
     const { data, isPending, isFetching, isError, error } = useInvoices({ page, sort, direction, q: search.q, status: search.status, enabled: allowed });

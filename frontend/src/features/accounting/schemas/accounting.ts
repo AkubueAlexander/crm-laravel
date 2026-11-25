@@ -32,7 +32,7 @@ export const ledgerAccountListSchema = z.union([z.array(ledgerAccountSchema), z.
 
 export const journalLineSchema = z.object({
     id: z.number().optional(),
-    account_id: z.number(),
+    ledger_account_id: z.number(),
     account_code: z.string().nullable().optional(),
     account_name: z.string().nullable().optional(),
     description: z.string().nullable().optional(),

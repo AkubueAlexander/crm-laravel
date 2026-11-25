@@ -23,12 +23,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Throwable;
 
-/**
- * 8b.3: heavy lifting stays server-side and queued (a large CSV scored inline would
- * time out an HTTP request). Runs AS the importing user: contacts.create is re-checked
- * through CreateContactAction, rows are validated with StoreContactRequest's own rules,
- * and likely duplicates (5.0) are skipped and reported rather than created.
- */
+
 class ImportContactsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable;
@@ -49,10 +44,10 @@ class ImportContactsJob implements ShouldQueue
 
     public function handle(CreateContactAction $create, DuplicateDetectionService $duplicates): void
     {
-        // System work: bypass the tenant scope explicitly; tenant context is set from the row below.
+
         $import = ContactImport::withoutTenantScope()->find($this->importId);
 
-        // Idempotent: a retry, a double dispatch or a finished import is a no-op.
+
         if ($import === null || $import->status !== ContactImport::STATUS_PENDING) {
             return;
         }
@@ -97,17 +92,16 @@ class ImportContactsJob implements ShouldQueue
         CreateContactAction $create,
         DuplicateDetectionService $duplicates,
     ): void {
-        // Fail fast if the permission was revoked while the job waited in the queue.
+
         Gate::forUser($user)->authorize('contacts.create');
 
         $import->update(['status' => ContactImport::STATUS_PROCESSING, 'started_at' => now()]);
         $this->broadcast($import);
 
-        // Same rules as the single-contact form (14.2); account_id is not importable.
+
         $rules = Arr::except((new StoreContactRequest())->rules(), ['account_id']);
 
-        // Explicit tenant predicate: queue workers are console processes, so the
-        // threshold lookup must not depend on the global scope being active.
+
         $threshold = (int) (ContactMatchSettings::query()
             ->where('tenant_id', $import->tenant_id)
             ->value('match_threshold') ?? ContactMatchSettings::DEFAULT_THRESHOLD);

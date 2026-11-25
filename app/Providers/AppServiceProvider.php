@@ -12,8 +12,6 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        Config::set('permission.teams', true);
-        Config::set('permission.column_names.team_foreign_key', 'tenant_id');
 
         Fortify::ignoreRoutes();
     }

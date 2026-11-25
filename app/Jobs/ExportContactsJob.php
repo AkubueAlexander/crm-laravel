@@ -19,12 +19,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use RuntimeException;
 use Throwable;
 
-/**
- * 8b.4: generation stays server-side and queued. Runs AS the requesting user: contacts.view
- * is re-checked here (it may have been revoked while the job waited), tenant context is set
- * from the row, and the query carries an explicit tenant predicate because the BelongsToTenant
- * global scope is skipped in queue workers.
- */
+
 class ExportContactsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable;

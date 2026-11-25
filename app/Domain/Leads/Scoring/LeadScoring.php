@@ -8,15 +8,6 @@ use App\Models\Lead;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
-/**
- * 9.7: the lead score. A transparent, rule-based 0-100 number: every point comes from a named factor that is
- * stored next to the score, so the lead detail can show WHY a lead has it. compute() is pure (no DB, no
- * framework); rescore() and friends are plain DB access with explicit tenant predicates, safe from actions,
- * commands and queue jobs alike.
- *
- * Signals: how complete the lead is, where it came from, where it is in the funnel, and (matched by email inside
- * the tenant) whether it opened, clicked or bounced on campaign emails.
- */
 final class LeadScoring
 {
     public const SOURCE_POINTS = ['referral' => 20, 'event' => 15, 'web' => 10, 'cold-outreach' => 0];

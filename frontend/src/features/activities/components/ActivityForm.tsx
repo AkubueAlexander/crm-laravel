@@ -93,7 +93,7 @@ export function ActivityForm({ target, activity, onSuccess, onCancel }: Activity
             }
             onSuccess();
         } catch (err) {
-            // 14.3: compose with the backend's { message, errors, code } shape.
+
             if (isApiError(err)) {
                 const data = err.response?.data;
                 let mapped = 0;

@@ -7,10 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * 10.1: one version of a quote. Never mass-assigned: SaveQuoteAction uses forceFill with values it computed
- * (totals, number, status). 10.3 adds the status workflow; until then everything is a draft.
- */
+
 class Quote extends Model
 {
     use BelongsToTenant;

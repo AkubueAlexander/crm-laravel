@@ -3,13 +3,11 @@ import { EXPORT_FORMAT_LABELS, EXPORT_STATUS_LABELS } from '../schemas/contactEx
 
 type ContactExportToastProps = {
     exportId: number;
-    // Tailwind bottom offset, so the toast stacks above the import toast when both are showing.
     offsetClassName?: string;
     onDismiss: () => void;
 };
 
-// Shown while the dialog is closed so a running export stays visible and, once ready, can be
-// downloaded in one click. Reads the same cached query as the dialog, so it costs no extra request.
+
 export function ContactExportToast({ exportId, offsetClassName = 'bottom-4', onDismiss }: ContactExportToastProps) {
     const { data } = useContactExport(exportId);
     const download = useDownloadContactExport();

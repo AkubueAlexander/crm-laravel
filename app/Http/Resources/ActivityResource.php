@@ -12,7 +12,7 @@ class ActivityResource extends JsonResource
     /** @return array<string, mixed> */
     public function toArray(Request $request): array
     {
-        // Explicit whitelist (7.0). tenant_id and soft-delete columns are never exposed.
+
         return [
             'id' => $this->id,
             'activityable_type' => $this->activityable_type,
@@ -23,7 +23,6 @@ class ActivityResource extends JsonResource
             'due_at' => $this->due_at?->toIso8601String(),
             'completed_at' => $this->completed_at?->toIso8601String(),
             'is_completed' => $this->completed_at !== null,
-            // Flag is written by activities:flag-overdue (8a.4); never overdue once completed.
             'overdue_at' => $this->overdue_at?->toIso8601String(),
             'is_overdue' => $this->overdue_at !== null && $this->completed_at === null,
             'owner_id' => $this->owner_id,

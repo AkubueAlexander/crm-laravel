@@ -15,7 +15,7 @@ class Contact extends Model
 {
     use BelongsToTenant, HasFactory, SoftDeletes;
 
-    // tenant_id is deliberately NOT fillable; BelongsToTenant stamps it from context (1.3).
+    // tenant_id is deliberately NOT fillable; BelongsToTenant stamps it from context
     protected $fillable = [
         'account_id',
         'first_name',
@@ -33,10 +33,7 @@ class Contact extends Model
         return ContactFactory::new();
     }
 
-    /**
-     * Shared by the contact list and the export (8b.4) so a search can never
-     * behave differently in the two places.
-     */
+
     public function scopeMatchingSearch(Builder $query, string $q): Builder
     {
         $q = trim($q);

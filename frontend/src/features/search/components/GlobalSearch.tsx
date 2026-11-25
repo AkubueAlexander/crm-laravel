@@ -7,8 +7,7 @@ import { SEARCH_MIN_LENGTH, type SearchGroupKey, type SearchItem } from '../sche
 
 const MODAL_ID = 'global-search';
 
-// Group order is display order. There are no record detail routes yet, so picking a
-// hit opens that section's list (deep links arrive with URL-persisted filters, 8.7).
+
 const SEARCH_GROUPS: ReadonlyArray<{
     key: SearchGroupKey;
     label: string;
@@ -22,7 +21,7 @@ const SEARCH_GROUPS: ReadonlyArray<{
 
 type Row = { group: (typeof SEARCH_GROUPS)[number]; item: SearchItem };
 
-// Header trigger + Ctrl/Cmd+K hotkey. Open state is UI-only, so it lives in Zustand (8.1).
+// Header trigger + Ctrl/Cmd+K hotkey. Open state is UI-only, so it lives in Zustand.
 export function GlobalSearch() {
     const open = useUiStore((s) => s.activeModal === MODAL_ID);
     const openModal = useUiStore((s) => s.openModal);
@@ -69,7 +68,7 @@ function SearchPalette() {
         inputRef.current?.focus();
     }, []);
 
-    // Derived from the query cache, never copied into state (8.1).
+
     const rows = useMemo<Row[]>(() => {
         if (term.length < SEARCH_MIN_LENGTH || !data) return [];
         return SEARCH_GROUPS.flatMap((group) =>

@@ -24,7 +24,7 @@ export function AccountsPage() {
     const canCreate = usePermission('accounts.create');
     const canUpdate = usePermission('accounts.update');
     const canDelete = usePermission('accounts.delete');
-    // Display-only (2.3): the API re-checks activities.view and accounts.view.
+
     const canViewActivities = usePermission('activities.view');
 
     const [modal, setModal] = useState<ModalState>(null);
@@ -127,6 +127,7 @@ export function AccountsPage() {
                     </div>
                 )}
             </Modal>
+
         </div>
     );
 }

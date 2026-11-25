@@ -16,7 +16,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
-// {product} is a plain id on purpose (no route-model binding): every lookup carries an explicit tenant predicate.
+
 final class ProductController extends Controller
 {
     public function index(ListProductsRequest $request): AnonymousResourceCollection
@@ -50,13 +50,12 @@ final class ProductController extends Controller
         return ProductResource::collection($products);
     }
 
-    public function show(Request $request, int $product): ProductResource
+    public function show(int $product): ProductResource
     {
         Gate::authorize('products.view');
 
         return new ProductResource(
             Product::query()
-                ->where('tenant_id', (int) $request->user()->tenant_id)
                 ->with('variants')
                 ->findOrFail($product),
         );

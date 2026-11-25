@@ -72,12 +72,6 @@ final class LeadController extends Controller
         return response()->noContent();
     }
 
-    /**
-     * 8a.2: POST /api/v1/leads/{lead}/convert - the single conversion entry point.
-     * Same error shape as the Deals transition endpoint (14.3): 409 when the lead
-     * was already converted (carries the current server-side lead), 422 when it
-     * cannot be converted yet (e.g. no last name).
-     */
     public function convert(ConvertLeadRequest $request, Lead $lead, ConvertLeadAction $action): LeadResource|JsonResponse
     {
         try {

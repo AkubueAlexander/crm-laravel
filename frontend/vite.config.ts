@@ -3,15 +3,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
 
-// 16.2: server.proxy makes the Vite dev server same-origin with the Laravel
-// API from the browser's point of view, so Sanctum's cookie-based SPA auth
-// (CSRF cookie + session cookie) works identically to production without any
-// CORS workarounds — /api and /sanctum requests are forwarded to Laravel.
-//
-// Routing (0.0): TanStack Router used in code-based mode (createRootRoute /
-// createRoute) for Phase 1's small route set — see src/router.tsx. Switch to
-// file-based routing + the @tanstack/router-plugin codegen once the route
-// count grows enough to want it; no vite plugin needed for code-based mode.
+
 function publicFormDevRewrite(): Plugin {
     // 9.8c: under npm run dev, /f/{uuid} must open the standalone form entry (form.html), not the SPA.
     return {
@@ -27,7 +19,7 @@ function publicFormDevRewrite(): Plugin {
     };
 }
 
-// 15.6: the E2E run points the proxy at its own Laravel instance (never the dev one on :8000).
+
 const apiTarget = process.env.E2E_API_TARGET ?? 'http://localhost:8000';
 
 export default defineConfig({

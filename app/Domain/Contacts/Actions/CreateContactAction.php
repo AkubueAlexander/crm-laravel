@@ -2,8 +2,10 @@
 
 namespace App\Domain\Contacts\Actions;
 
+use App\Jobs\EnrollForTriggerJob;
 use App\Models\Contact;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 final class CreateContactAction
@@ -13,12 +15,17 @@ final class CreateContactAction
     {
         Gate::forUser($actor)->authorize('contacts.create');
 
+        return DB::transaction(function () use ($data) {
+            $contact = Contact::create($data);
 
-        $contact = Contact::create($data);
+            EnrollForTriggerJob::fire(
+                (int) $contact->tenant_id,
+                'contact_created',
+                (int) $contact->id,
+                null
+            );
 
-        // 9.6c-1: let active "contact_created" automations enroll the new contact (queued after commit).
-        \App\Jobs\EnrollForTriggerJob::fire((int) $contact->tenant_id, 'contact_created', (int) $contact->id, null);
-
-        return $contact;
+            return $contact;
+        });
     }
 }

@@ -4,13 +4,13 @@ import { useCurrentUser } from '@/features/auth/api/useCurrentUser';
 
 
 export function RequireAuth({ children }: { children: ReactNode }) {
-    const { status } = useCurrentUser();
+    const { isPending, isError } = useCurrentUser();
 
-    if (status === 'pending') {
+    if (isPending) {
         return <div className="flex h-screen items-center justify-center text-sm text-neutral-500">Loading…</div>;
     }
 
-    if (status === 'error') {
+    if (isError) {
         return <Navigate to="/login" />;
     }
 

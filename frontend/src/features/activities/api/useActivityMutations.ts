@@ -8,9 +8,7 @@ import {
     type CreateActivityInput,
 } from '../schemas/activity';
 
-// Activities are not a state machine (no lock_version, no 409), so these are plain
-// invalidating mutations rather than the optimistic pattern from 3.0. Every
-// permission is re-checked server-side by the Action; the UI gating is display only.
+
 function useInvalidateActivities() {
     const queryClient = useQueryClient();
     const { tenant } = useTenant();

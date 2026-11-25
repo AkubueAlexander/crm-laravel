@@ -4,11 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-/**
- * 10.3a: quote approval workflow. tenants.quote_approval_threshold: a quote whose total is at or below it is
- * auto-approved on submit (NULL = every quote needs a human approver). The quotes columns record who submitted
- * and who decided, plus the decision note (required on rejection) and the sent timestamp.
- */
+
 return new class extends Migration
 {
     public function up(): void

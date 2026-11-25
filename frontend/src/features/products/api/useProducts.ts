@@ -22,7 +22,7 @@ export type ProductsListParams = {
     enabled?: boolean;
 };
 
-// Tenant-namespaced keys (1.2). The root prefix covers lists and details: mutations invalidate it as a whole.
+
 export function productsRootKey(tenantId: unknown) {
     return ['products', tenantId] as const;
 }
@@ -56,7 +56,7 @@ export function useProducts(params: ProductsListParams = {}) {
     });
 }
 
-// The list carries variants_count only; the edit dialog needs the variants, so it loads the detail fresh.
+
 export function useProduct(productId: number | null) {
     const { tenant } = useTenant();
 

@@ -93,7 +93,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
                     },
                 },
             );
-        }, 250);
+        }, 100);
     }
 
     async function onSubmit(values: CreateContactInput) {
@@ -117,7 +117,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
                 : await createContact.mutateAsync(payload);
             onSuccess?.(saved);
         } catch (err) {
-            // 14.3: compose with the backend's { message, errors, code } shape.
+
             if (isApiError(err) && err.response?.data.errors) {
                 for (const [field, messages] of Object.entries(err.response.data.errors)) {
                     setError(field as keyof CreateContactInput, { message: messages[0] });
@@ -197,8 +197,6 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
                 <div>
                     <label htmlFor="account_id" className="block text-sm font-medium">Account</label>
                     {accountOptions.isSuccess ? (
-                        // Mounted only after the options exist, so RHF applies the saved
-                        // account_id to a select that already has its <option>s.
                         <select
                             id="account_id"
                             {...register('account_id', { setValueAs: toAccountId })}

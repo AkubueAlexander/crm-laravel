@@ -10,12 +10,12 @@ import { TAX_CATEGORIES, type Product } from '../schemas/product';
 import { productFormSchema, toProductInput, type ProductFormValues } from '../schemas/productForm';
 
 type Props = {
-    // null = closed, 'new' = create, Product = edit (its variants are loaded fresh).
+
     target: Product | 'new' | null;
     onClose: () => void;
 };
 
-// First message per field from a 422 body shaped { message, errors: { field: [msg, ...] }, code }.
+
 function serverFieldErrors(error: unknown): Record<string, string> {
     if (!isAxiosError(error) || error.response?.status !== 422) return {};
     const errors = (error.response.data as { errors?: Record<string, unknown> } | undefined)?.errors;
@@ -70,7 +70,7 @@ function ProductForm({ product, onClose }: { product: Product | null; onClose: (
         },
     });
 
-    // 10.0c: each variant row is uncontrolled, so typing in one row does not re-render the others.
+
     const { fields, append, remove } = useFieldArray({ control, name: 'variants' });
 
     useEffect(() => {

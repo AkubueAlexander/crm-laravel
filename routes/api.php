@@ -16,7 +16,11 @@ use App\Http\Controllers\Api\Forecasting\ForecastController;
 use App\Http\Controllers\Api\Leads\LeadController;
 use App\Http\Controllers\Api\Marketing\AutomationEnrollmentController;
 use App\Http\Controllers\Api\Marketing\CampaignController;
+use App\Http\Controllers\Api\Marketing\CampaignReportController;
 use App\Http\Controllers\Api\Marketing\SegmentController;
+use App\Http\Controllers\Api\Products\ProductController;
+use App\Http\Controllers\Api\Quotes\QuoteController;
+use App\Http\Controllers\Api\Quotes\QuoteLifecycleController;
 use App\Http\Controllers\Api\Search\SearchController;
 use App\Http\Controllers\Api\Settings\TenantSettingsController;
 use App\Http\Controllers\Api\Users\PublicInvitationController;
@@ -30,7 +34,7 @@ Route::prefix('v1')->group(function () {
 
 
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])
-        ->middleware('throttle:10,1') // 14.4 login
+        ->middleware('throttle:10,1')
         ->name('login');
 
 
@@ -123,7 +127,7 @@ Route::prefix('v1')->group(function () {
 
         Route::put('settings/pipeline', [TenantSettingsController::class, 'updatePipeline']);
 
-        // 10.3c:
+
         Route::get('settings/quotes', [\App\Http\Controllers\Api\Settings\QuoteSettingsController::class, 'show']);
 
         Route::put('settings/quotes', [\App\Http\Controllers\Api\Settings\QuoteSettingsController::class, 'update'])->middleware('throttle:20,1');
@@ -177,37 +181,37 @@ Route::prefix('v1')->group(function () {
 
         require __DIR__ . '/documents.php';
 
-        Route::get('products', [\App\Http\Controllers\Api\Products\ProductController::class, 'index']);
+        Route::get('products', [ProductController::class, 'index']);
 
-        Route::post('products', [\App\Http\Controllers\Api\Products\ProductController::class, 'store']);
+        Route::post('products', [ProductController::class, 'store']);
 
-        Route::get('products/{product}', [\App\Http\Controllers\Api\Products\ProductController::class, 'show'])->whereNumber('product');
+        Route::get('products/{product}', [ProductController::class, 'show'])->whereNumber('product');
 
-        Route::put('products/{product}', [\App\Http\Controllers\Api\Products\ProductController::class, 'update'])->whereNumber('product');
+        Route::put('products/{product}', [ProductController::class, 'update'])->whereNumber('product');
 
-        Route::delete('products/{product}', [\App\Http\Controllers\Api\Products\ProductController::class, 'destroy'])->whereNumber('product');
-
-
-        Route::get('quotes', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'index']);
-
-        Route::post('quotes', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'store']);
-
-        Route::get('quotes/{quote}', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'show'])->whereNumber('quote');
-
-        Route::put('quotes/{quote}', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'update'])->whereNumber('quote');
-
-        Route::delete('quotes/{quote}', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'destroy'])->whereNumber('quote');
+        Route::delete('products/{product}', [ProductController::class, 'destroy'])->whereNumber('product');
 
 
-        Route::get('quotes/{quote}/versions', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'versions'])->whereNumber('quote');
+        Route::get('quotes', [QuoteController::class, 'index']);
 
-        Route::post('quotes/{quote}/revise', [\App\Http\Controllers\Api\Quotes\QuoteController::class, 'revise'])->whereNumber('quote')->middleware('throttle:30,1');
+        Route::post('quotes', [QuoteController::class, 'store']);
+
+        Route::get('quotes/{quote}', [QuoteController::class, 'show'])->whereNumber('quote');
+
+        Route::put('quotes/{quote}', [QuoteController::class, 'update'])->whereNumber('quote');
+
+        Route::delete('quotes/{quote}', [QuoteController::class, 'destroy'])->whereNumber('quote');
 
 
-        Route::post('quotes/{quote}/transition', [\App\Http\Controllers\Api\Quotes\QuoteLifecycleController::class, 'transition'])->whereNumber('quote')->middleware('throttle:30,1');
+        Route::get('quotes/{quote}/versions', [QuoteController::class, 'versions'])->whereNumber('quote');
+
+        Route::post('quotes/{quote}/revise', [QuoteController::class, 'revise'])->whereNumber('quote')->middleware('throttle:30,1');
 
 
-        Route::get('campaigns/{campaign}/report', [\App\Http\Controllers\Api\Marketing\CampaignReportController::class, 'show'])
+        Route::post('quotes/{quote}/transition', [QuoteLifecycleController::class, 'transition'])->whereNumber('quote')->middleware('throttle:30,1');
+
+
+        Route::get('campaigns/{campaign}/report', [CampaignReportController::class, 'show'])
             ->whereNumber('campaign')
             ->middleware('throttle:60,1');
 

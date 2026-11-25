@@ -11,14 +11,8 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 
-/**
- * 8b.4: what an exported contacts sheet contains. The query is built by queryFor() so the
- * request-time row count and the queued job always agree. Deliberately NOT ShouldQueue:
- * the job that runs it is already the queued unit.
- */
-// Extends StringValueBinder so every cell is written as text. The default binder turns
-// numeric-looking strings ("+2348012345678", "2348012345678") into numbers, which drops
-// the "+" in CSV and shows 2.35E+12 in Excel, and it would also evaluate "=..." as a formula.
+
+
 class ContactsExport extends StringValueBinder implements FromQuery, WithCustomCsvSettings, WithCustomValueBinder, WithHeadings, WithMapping
 {
     /** Mirrors the sortable columns of the contacts list (frontend CONTACT_SORTABLE_COLUMNS). */

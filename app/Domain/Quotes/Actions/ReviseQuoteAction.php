@@ -11,11 +11,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\PermissionRegistrar;
 
-/**
- * 10.2: revise a quote that left draft. The revision is a NEW ROW: same quote_seq and number, version + 1, status
- * draft, lines copied as the snapshot they were (no re-pricing: it starts from exactly what was quoted). The
- * source version is never touched, so what was sent stays reproducible. Only the latest version can be revised.
- */
+
 final class ReviseQuoteAction
 {
     public function execute(User $actor, int $quoteId): Quote
@@ -27,7 +23,7 @@ final class ReviseQuoteAction
 
         try {
             return DB::transaction(function () use ($actor, $quoteId, $tenantId): Quote {
-                // Serialises version allocation per tenant (same lock as SaveQuoteAction).
+
                 DB::table('tenants')->where('id', $tenantId)->lockForUpdate()->value('id');
 
                 // Explicit tenant predicate on top of the global scope: another tenant's id is a 404.

@@ -14,7 +14,7 @@ final class SearchController extends Controller
         $term = $request->term();
 
         return response()->json([
-            // (object) so an actor with no *.view permissions gets {} rather than [].
+
             'data' => (object) $service->search($request->user(), $term),
             'query' => $term,
         ]);

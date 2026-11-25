@@ -8,7 +8,7 @@ export type ActivityType = (typeof ACTIVITY_TYPES)[number];
 export const ACTIVITY_TARGET_TYPES = ['lead', 'contact', 'account', 'deal'] as const;
 export type ActivityTargetType = (typeof ACTIVITY_TARGET_TYPES)[number];
 
-// Mirrors ActivityResource::toArray() (app/Http/Resources/ActivityResource.php).
+
 export const activitySchema = z.object({
     id: z.number(),
     activityable_type: z.enum(ACTIVITY_TARGET_TYPES),
@@ -18,7 +18,6 @@ export const activitySchema = z.object({
     body: z.string().nullable(),
     due_at: z.string().nullable(),
     completed_at: z.string().nullable(),
-    // Set server-side by activities:flag-overdue (8a.4). Display only.
     overdue_at: z.string().nullable().optional(),
     is_overdue: z.boolean().optional(),
     is_completed: z.boolean(),
@@ -39,8 +38,7 @@ export const activitiesPageSchema = z
 
 export type ActivitiesPage = z.infer<typeof activitiesPageSchema>;
 
-// Form schema. Zod is UX only: StoreActivityRequest / UpdateActivityRequest are the
-// boundary (14.2). due_at holds a <input type="datetime-local"> value.
+
 export const activityFormSchema = z.object({
     type: z.enum(ACTIVITY_TYPES),
     subject: z.string().trim().min(1, 'Subject is required').max(255, 'Subject is too long (max 255)'),

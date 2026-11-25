@@ -9,11 +9,7 @@ use App\Models\Lead;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 
-/**
- * 8b.1 global search. Every query runs through the models, so the BelongsToTenant
- * global scope and SoftDeletes apply: results can never cross tenants. Each group is
- * gated by its own <alias>.view permission; a group the actor cannot see is omitted.
- */
+
 final class SearchService
 {
     public const PER_GROUP = 5;
@@ -77,7 +73,7 @@ final class SearchService
     /** @return list<array{id: int, label: string, sublabel: string|null}> */
     private function contacts(string $like, string $prefix): array
     {
-        // name_normalized / email_normalized are the generated, trigram-indexed columns (5.0).
+
         return Contact::query()
             ->where(fn ($w) => $w
                 ->where('name_normalized', 'like', $like)

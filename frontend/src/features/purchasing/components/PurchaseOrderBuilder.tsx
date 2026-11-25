@@ -28,7 +28,7 @@ function toFormValues(po: PurchaseOrder): PoFormValues {
     };
 }
 
-// 11.2c: purchase order builder (create, or edit a draft). useFieldArray line items; the total shown is an estimate,
+//ems; the total shown is an estimate,
 // the server computes the real one. Editing sends the lock_version (409 when someone else changed the PO).
 export function PurchaseOrderBuilder() {
     const canManage = usePermission('inventory.manage');

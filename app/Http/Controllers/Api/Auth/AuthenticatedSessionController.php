@@ -20,7 +20,7 @@ class AuthenticatedSessionController extends Controller
 
         $attempt = $credentials + ['deactivated_at' => null];
 
-        // 8c.2: a deactivated account cannot sign in, and gets the same generic failure as a bad password.
+
         if (! Auth::guard('web')->attempt($attempt, $request->boolean('remember'))) {
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),

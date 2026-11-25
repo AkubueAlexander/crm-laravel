@@ -17,15 +17,14 @@ function failureMessage(err: unknown): string {
     return isApiError(err) ? err.response?.data.message ?? 'Request failed.' : 'Something went wrong. Try again.';
 }
 
-// 8a.3: one parameterized feed, reused on Lead / Contact / Account / Deal views.
-// Parent should pass key={`${targetType}-${targetId}`} so local page state resets.
+
 export function Timeline({ targetType, targetId }: TimelineProps) {
     const [page, setPage] = useState(1);
     const [status, setStatus] = useState<StatusFilter>('');
     const [adding, setAdding] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
 
-    // Display-only (2.3): every action is re-authorized server-side.
+
     const canCreate = usePermission('activities.create');
     const canUpdate = usePermission('activities.update');
     const canComplete = usePermission('activities.complete');

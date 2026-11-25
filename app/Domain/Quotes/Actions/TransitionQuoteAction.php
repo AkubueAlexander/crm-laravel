@@ -11,14 +11,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\PermissionRegistrar;
 
-/**
- * 10.3a: the ONLY place a quote changes status (state-machine pattern 3.0). The client sends { to_status,
- * lock_version, note? }; the server decides everything else. lock_version is bumped on every transition and a
- * mismatch is a 409 carrying the current quote. Editing lines is a draft-only concern of SaveQuoteAction.
- *
- * Submit (draft -> pending_approval) auto-approves when the tenant's quote_approval_threshold covers the total;
- * the returned quote then already says "approved", so the client reconciles with the response.
- */
+
 final class TransitionQuoteAction
 {
     /** from => allowed targets. Anything not listed is terminal (accepted, declined, expired, rejected). */
