@@ -2,20 +2,24 @@
 
 namespace App\Domain\Leads\Actions;
 
+use App\Domain\Leads\LeadRules;
 use App\Models\Lead;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Validator;
 
 final class CreateLeadAction
 {
-    /** @param array<string, mixed> $data Already validated by StoreLeadRequest. */
+    /** @param array<string, mixed> $data see LeadRules::store() for the accepted shape */
     public function execute(User $actor, array $data): Lead
     {
         Gate::forUser($actor)->authorize('leads.create');
 
+        // Re-validate here: the Form Request is UX, this is the boundary (2.4). Only validated keys survive,
+        // so tenant_id, converted_* and friends can never be mass-assigned through this Action.
+        $data = Validator::make($data, LeadRules::store((int) $actor->tenant_id))->validate();
 
         $data['status'] ??= 'new';
-
 
         $lead = Lead::create($data);
 

@@ -7,7 +7,6 @@ use Illuminate\Validation\Rule;
 
 class ListContactsRequest extends FormRequest
 {
-
     public const SORTABLE = ['last_name', 'first_name', 'email', 'created_at'];
 
     public function authorize(): bool
@@ -24,7 +23,12 @@ class ListContactsRequest extends FormRequest
             'sort' => ['nullable', Rule::in(self::SORTABLE)],
             'direction' => ['nullable', Rule::in(['asc', 'desc'])],
             'q' => ['nullable', 'string', 'max:100'],
-            'account_id' => ['nullable', 'integer', 'exists:accounts,id'],
+            // Tenant-scoped: another tenant's account id must look exactly like a missing one.
+            'account_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('accounts', 'id')->where('tenant_id', $this->user()?->tenant_id),
+            ],
         ];
     }
 }

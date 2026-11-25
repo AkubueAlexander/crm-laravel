@@ -3,11 +3,13 @@
 namespace App\Domain\Settings\Actions;
 
 use App\Domain\Forecasting\PipelineProbabilities;
+use App\Domain\Settings\PipelineRules;
 use App\Domain\Settings\PipelineSettings;
 use App\Models\PipelineStageSetting;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Validator;
 
 final class UpdatePipelineSettingsAction
 {
@@ -27,6 +29,8 @@ final class UpdatePipelineSettingsAction
     {
         // 2.4: server-side re-validation, independent of the request layer.
         Gate::forUser($actor)->authorize('settings.manage');
+
+        $stages = Validator::make(['stages' => $stages], PipelineRules::all(false))->validate()['stages'] ?? [];
 
         DB::transaction(function () use ($stages): void {
             foreach (PipelineProbabilities::DEFAULTS as $slug => $default) {
